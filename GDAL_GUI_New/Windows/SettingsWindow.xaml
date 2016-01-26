@@ -1,0 +1,36 @@
+﻿<Window x:Name="settingsWindow" x:Class="GDAL_GUI_New.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GDAL_GUI_New"
+        mc:Ignorable="d"
+        Title="{DynamicResource m_Form_WindowSettings_Title}" Height="297.453" Width="340.528" MinWidth="220">
+    <Grid>
+        <GroupBox x:Name="groupBox_UtilitiesPath" Header="{DynamicResource m_GroupBox_Header_UtilitiesDirectoryPath}" VerticalAlignment="Top" Height="98">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="button_BrowseUtilitiesFolderPath" Content="{DynamicResource m_Button_Content_BrowseUtilitiesDirectoryPath}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,10,0,0" Height="20"/>
+                <TextBox x:Name="textBox_UtilitiesFolderPath" Height="23" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Margin="0,10,83,0"/>
+                <CheckBox x:Name="checkBox_UseBundledUtilities" VerticalAlignment="Top" Margin="0,39,0,0" Height="37">
+                    <CheckBox.Content>
+                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_CheckBox_Content_UseBundledUtilities}" />
+                    </CheckBox.Content>
+                </CheckBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="groupBox_Language" Header="{DynamicResource m_GroupBox_Header_LanguageSelection}" VerticalAlignment="Top" Margin="0,103,0,0" Height="125">
+            <Grid>
+                <Label x:Name="label_ContentLanguage" Content="{DynamicResource m_Label_ContentLanguage}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <ComboBox x:Name="comboBox_ContentLanguage" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label x:Name="label_ProgramLanguage" Content="{DynamicResource m_Label_ProgramLanguage}" HorizontalAlignment="Left" Margin="0,53,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="comboBox_ProgramLanguage" HorizontalAlignment="Left" Margin="10,79,0,0" VerticalAlignment="Top" Width="120"/>
+
+            </Grid>
+        </GroupBox>
+        <Button x:Name="button_SaveSettings" Content="{DynamicResource m_Button_SaveSettings}" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75"/>
+
+    </Grid>
+</Window>
