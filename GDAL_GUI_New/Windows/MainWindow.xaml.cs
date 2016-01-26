@@ -42,6 +42,12 @@ namespace GDAL_GUI_New
             Application.Current.Shutdown(0);
         }
 
+        private void Menu_Settings_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
+        }
+
         private void Menu_About_Click(object sender, RoutedEventArgs e)
         {
             About about = new About();
@@ -54,6 +60,7 @@ namespace GDAL_GUI_New
         {
             // Подписка на события
             Menu_File_Exit.Click += new RoutedEventHandler(Menu_File_Exit_Click);
+            Menu_Settings.Click += new RoutedEventHandler(Menu_Settings_Click);
             Menu_About.Click += new RoutedEventHandler(Menu_About_Click);
         }
     }

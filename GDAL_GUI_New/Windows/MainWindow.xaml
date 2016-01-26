@@ -1,19 +1,20 @@
-﻿<Window x:Class="GDAL_GUI_New.MainWindow"
+﻿<Window x:Name="mainWindow" x:Class="GDAL_GUI_New.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="715.377" HorizontalAlignment="Right">
+        Title="GDAL GUI
+        " Height="350" Width="715.377" HorizontalAlignment="Right">
     <Grid>
         <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
-            <MenuItem x:Name="Menu_File" Header="Файл">
-                <MenuItem x:Name="Menu_File_Exit" Header="Выход"/>
+            <MenuItem x:Name="Menu_File" Header="{DynamicResource m_Menu_File}">
+                <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}"/>
             </MenuItem>
-            <MenuItem x:Name="Menu_Settings" Header="Настройки">
+            <MenuItem x:Name="Menu_Settings" Header="{DynamicResource m_Menu_Settings}">
             </MenuItem>
-            <MenuItem x:Name="Menu_About" Header="О программе"/>
+            <MenuItem x:Name="Menu_About" Header="{DynamicResource m_Menu_About}"/>
         </Menu>
     </Grid>
 </Window>
