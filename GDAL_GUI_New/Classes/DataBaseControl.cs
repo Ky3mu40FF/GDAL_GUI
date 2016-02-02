@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -120,7 +121,7 @@ namespace TestForGDAL
             return utilityParameters;
         }
         */
-
+        /*
         public static List<MyDataRow> GetUtilityParameters(string utilityName)
         {
             List<MyDataRow> utilityParameters = new List<MyDataRow>();
@@ -159,3 +160,4 @@ namespace TestForGDAL
         }
     }
 }
+*/
