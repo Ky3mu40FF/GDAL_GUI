@@ -6,15 +6,46 @@
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
         Title="GDAL GUI
-        " Height="350" Width="715.377" HorizontalAlignment="Right">
+        " Height="385.1" Width="327" HorizontalAlignment="Right" MinHeight="313" MinWidth="593">
     <Grid>
-        <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="285"/>
+        </Grid.ColumnDefinitions>
+        <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" Height="18">
             <MenuItem x:Name="Menu_File" Header="{DynamicResource m_Menu_File}">
-                <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}"/>
+                <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}" />
+            </MenuItem>
+            <MenuItem x:Name="Menu_Edit" Header="{DynamicResource m_Menu_Edit}">
+                <MenuItem x:Name="Menu_Edit_AddTask" Header="{DynamicResource m_Menu_Edit_AddTask}" Icon="{DynamicResource m_Menu_Edit_AddTask_Icon}"/>
+            </MenuItem>
+            <MenuItem x:Name="Menu_Run" Header="{DynamicResource m_Menu_Run}">
+                <MenuItem x:Name="Menu_Run_RunAll" Header="{DynamicResource m_Menu_Run_RunAll}" Icon="{DynamicResource m_Menu_Run_RunAll_Icon}"/>
+                <MenuItem x:Name="Menu_Run_RunSelected" Header="{DynamicResource m_Menu_Run_RunSelected}" Icon="{DynamicResource m_Menu_Run_RunSelected_Icon}"/>
             </MenuItem>
             <MenuItem x:Name="Menu_Settings" Header="{DynamicResource m_Menu_Settings}">
             </MenuItem>
             <MenuItem x:Name="Menu_About" Header="{DynamicResource m_Menu_About}"/>
         </Menu>
+        <GroupBox x:Name="GroupBox_Output" Header="{DynamicResource m_GroupBox_Output}" Grid.Column="0" Margin="0,18,0,0">
+            <Grid>
+                <ScrollViewer>
+                    <RichTextBox x:Name="richTextBox" BorderBrush="{x:Null}">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="RichTextBox"/>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+                </ScrollViewer>
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="GroupBox_TaskList" Header="{DynamicResource m_GroupBox_TaskList}" Margin="0,18,0,0" Grid.Column="1" Width="285" >
+            <Grid>
+                <ScrollViewer/>
+            </Grid>
+        </GroupBox>
+        
+
     </Grid>
 </Window>
