@@ -7,9 +7,32 @@
     <!--Главное окно-->
     <v:String x:Key="m_Menu_File">File</v:String>
     <v:String x:Key="m_Menu_File_Exit">Exit</v:String>
+    <v:String x:Key="m_Menu_Edit">Edit</v:String>
+    <v:String x:Key="m_Menu_Edit_AddTask">Add Task</v:String>
+    <v:String x:Key="m_Menu_Run">Run</v:String>
+    <v:String x:Key="m_Menu_Run_RunAll">Run</v:String>
+    <v:String x:Key="m_Menu_Run_RunSelected">Run Selected</v:String>
     <v:String x:Key="m_Menu_Settings">Settings</v:String>
     <v:String x:Key="m_Menu_About">About</v:String>
-    
+    <v:String x:Key="m_GroupBox_Output">Output</v:String>
+    <v:String x:Key="m_GroupBox_TaskList">Task List</v:String>
+
+    <!--Окно редактирования задачи-->
+    <v:String x:Key="m_GroupBox_InputAndOutputPaths">Input and Output Pahts</v:String>
+    <v:String x:Key="m_Label_InputFile">Input File</v:String>
+    <v:String x:Key="m_Button_BrowseInputFile">Browse</v:String>
+    <v:String x:Key="m_CheckBox_PreviousOutputAsCurrentInput">Use Output File of Another Utility as Input</v:String>
+    <v:String x:Key="m_Label_OutputFile">Output File</v:String>
+    <v:String x:Key="m_Button_BrowseOutputFile">Browse</v:String>
+    <v:String x:Key="m_GroupBox_UtilitySelection">Utility Selection</v:String>
+    <v:String x:Key="m_Label_UtilityName">Utility's Name</v:String>
+    <v:String x:Key="m_Label_UtilityVersion">Utility's Version</v:String>
+    <v:String x:Key="m_GroupBox_AvailableParameters">Available Parameters</v:String>
+    <v:String x:Key="m_GroupBox_AdditionalParameters">Additional Parameters</v:String>
+    <v:String x:Key="m_Button_AddTask">Add Task</v:String>
+    <v:String x:Key="m_Button_Exit">Exit without Adding</v:String>
+    <v:String x:Key="m_Button_InputParametersManually">Input Parameters Manually</v:String>
+
     <!--Окно настроек-->
     <v:String x:Key="m_Form_WindowSettings_Title">Settings</v:String>
     <v:String x:Key="m_GroupBox_Header_UtilitiesDirectoryPath">Utilities directory path</v:String>
