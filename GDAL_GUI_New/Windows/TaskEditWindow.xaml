@@ -1,0 +1,67 @@
+﻿<Window x:Class="GDAL_GUI_New.TaskEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GDAL_GUI_New"
+        mc:Ignorable="d"
+        Title="TaskEditWindow" Height="345" Width="737">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130*"/>
+            <RowDefinition Height="27*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="62*"/>
+            <ColumnDefinition Width="55*"/>
+            <ColumnDefinition Width="61*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox x:Name="GroupBox_InputAndOutputPaths" Header="{DynamicResource m_GroupBox_InputAndOutputPaths}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="162" Width="244" Margin="4,4,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="84*"/>
+                    <RowDefinition Height="62*"/>
+                </Grid.RowDefinitions>
+                <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="59"/>
+                <TextBox x:Name="TextBox_InputFile" Grid.Row="0" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,26,0,0"/>
+                <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
+                <CheckBox x:Name="CheckBox_PreviousOutputAsCurrentInput" Grid.Row="0"  HorizontalAlignment="Left" Margin="0,49,0,0" VerticalAlignment="Top" Height="34" Width="230">
+                    <TextBlock Text="{DynamicResource m_CheckBox_PreviousOutputAsCurrentInput}" TextWrapping="Wrap" Height="34" Width="200"/>
+                </CheckBox>
+                <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Height="26" Width="69"/>
+                <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" Grid.Row="1"/>
+                <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,27,0,0" Grid.Row="1" Height="23"/>
+
+
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="GroupBox_UtilitySelection" Header="{DynamicResource m_GroupBox_UtilitySelection}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,166,0,0" Height="92" Width="242">
+            <Grid>
+                <Label x:Name="Label_UtilityName" Content="{DynamicResource m_Label_UtilityName}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="110" Margin="0,10,0,0"/>
+                <ComboBox x:Name="comboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="110,10,0,0" Height="26"/>
+                <Label x:Name="Label_UtilityVersion" Content="{DynamicResource m_Label_UtilityVersion}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,41,0,0" Width="110"/>
+                <TextBox x:Name="TextBox_UtilityVersion" IsReadOnly="True" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="110,41,0,0"/>
+
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="1">
+            <Grid>
+                <ScrollViewer >
+                    <ListBox x:Name="listBox" BorderBrush="{x:Null}"/>
+                </ScrollViewer>
+
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="GroupBox_AdditionalParameters" Header="{DynamicResource m_GroupBox_AdditionalParameters}" Grid.Column="2">
+            <Grid>
+                <ScrollViewer>
+                    <StackPanel/>
+                </ScrollViewer>
+            </Grid>
+        </GroupBox>
+        <Button x:Name="Button_AddTask" Content="{DynamicResource m_Button_AddTask}" HorizontalAlignment="Right"  Width="140"  Grid.Column="2" Height="20" Grid.Row="1" VerticalAlignment="Top" Margin="0,3,5,0"/>
+        <Button x:Name="Button_InputParametersManually" Content="{DynamicResource m_Button_InputParametersManually}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="192" Margin="4,3,0,0" Height="20" Grid.Row="1"/>
+        <Button x:Name="Button_Exit" Content="{DynamicResource m_Button_Exit}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Margin="0,28,5,0" Grid.Column="2" Height="20" Grid.Row="1"/>
+
+    </Grid>
+</Window>
