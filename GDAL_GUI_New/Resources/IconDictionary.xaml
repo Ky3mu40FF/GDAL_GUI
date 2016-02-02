@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:GDAL_GUI_New">
+    <Image x:Key="m_Menu_Edit_AddTask_Icon" Source="../Resources/Icons/AddTask.ico"/>
+    <Image x:Key="m_Menu_Run_RunAll_Icon" Source="../Resources/Icons/Run.ico"/>
+    <Image x:Key="m_Menu_Run_RunSelected_Icon" Source="../Resources/Icons/RunSelected.ico"/>
+</ResourceDictionary>
