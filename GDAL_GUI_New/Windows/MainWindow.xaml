@@ -42,7 +42,9 @@
         </GroupBox>
         <GroupBox x:Name="GroupBox_TaskList" Header="{DynamicResource m_GroupBox_TaskList}" Margin="0,18,0,0" Grid.Column="1" Width="285" >
             <Grid>
-                <ScrollViewer/>
+                <ScrollViewer x:Name="ScrollViewer_TaskElements">
+                    <StackPanel x:Name="StackPanel_TaskElements"/>
+                </ScrollViewer>
             </Grid>
         </GroupBox>
         
