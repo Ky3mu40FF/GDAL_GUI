@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,56 +17,60 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace TestForGDAL
+namespace GDAL_GUI_New
 {
-    public class MyProcess
+    public class MyTask
     {
+        // Переменные
+                #region Переменные
         private Process m_Process;
         private TaskElement m_TaskElement;
         private string m_UtilityName;
         private string m_SrcFileName;
         private string m_OutputFileName;
         private string m_ProcessArguments;
+        private int m_TaskID;
         private bool m_IsEditing;
-        private int m_ProcessID;
-
-
-        public MyProcess()
+        
+        public enum State
         {
-            //m_ProcessID = 0;
+            Default,
+            Completed,
+            Error
+        }
+        private State m_State;
+        #endregion
+
+        // Конструкторы
+                #region Конструкторы
+        public MyTask(MainWindow mainWindow)
+        {
+            m_TaskID = mainWindow.GetTasksCounter + 1;
             m_Process = new Process();
-            m_TaskElement = new TaskElement();
+            m_TaskElement = new TaskElement(mainWindow, m_TaskID);
             m_UtilityName = "";
             m_SrcFileName = "";
             m_OutputFileName = "";
             m_ProcessArguments = "";
             m_IsEditing = false;
+            m_State = State.Default;
 
-            m_Process.StartInfo.UseShellExecute = false;  //Необходимо для перенаправления входного и выходного потоков командной строки
-            m_Process.StartInfo.RedirectStandardOutput = true;    //Разрешаем перенаправить выходной поток
-            m_Process.StartInfo.RedirectStandardError = true;     //Разрешаем перенаправить поток ошибок
-            m_Process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("cp866");   //Устанавливаем кодировку выходного потока (поддержка русского языка)
-            m_Process.StartInfo.CreateNoWindow = true;    //Запуск процесса будет происходить без отрисовки окна
+            // Необходимо для перенаправления входного и выходного потоков командной строки
+            m_Process.StartInfo.UseShellExecute = false;
+            // Разрешаем перенаправить выходной поток
+            m_Process.StartInfo.RedirectStandardOutput = true;
+            // Разрешаем перенаправить поток ошибок 
+            m_Process.StartInfo.RedirectStandardError = true;
+            // Устанавливаем кодировку выходного потока (поддержка русского языка)  
+            m_Process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("cp866");
+            // Не создавать окно процесса
+            m_Process.StartInfo.CreateNoWindow = true;    
         }
+        #endregion
 
-        public MyProcess(MainWindow mainWindow)
-        {
-            m_ProcessID = mainWindow.GetProcessesCounter;
-            m_Process = new Process();
-            m_TaskElement = new TaskElement(mainWindow, m_ProcessID);
-            m_UtilityName = "";
-            m_SrcFileName = "";
-            m_OutputFileName = "";
-            m_ProcessArguments = "";
-            m_IsEditing = false;
-
-            m_Process.StartInfo.UseShellExecute = false;  //Необходимо для перенаправления входного и выходного потоков командной строки
-            m_Process.StartInfo.RedirectStandardOutput = true;    //Разрешаем перенаправить выходной поток
-            m_Process.StartInfo.RedirectStandardError = true;     //Разрешаем перенаправить поток ошибок
-            m_Process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("cp866");   //Устанавливаем кодировку выходного потока (поддержка русского языка)
-            m_Process.StartInfo.CreateNoWindow = true;    //Запуск процесса будет происходить без отрисовки окна
-        }
-
+        // Свойства
+                #region Свойства
+        // Выдаёт и задаёт имя утилиты
         public string UtilityName
         {
             get { return m_UtilityName; }
@@ -75,13 +78,13 @@ namespace TestForGDAL
             {
                 if (m_IsEditing == true)
                 {
-                    if (value != null)
+                    if (String.IsNullOrEmpty(value))
                     {
-                        m_UtilityName = value;
+                        throw new ArgumentNullException(nameof(value), "Был передан Null или пустая строка.");
                     }
                     else
                     {
-                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
+                        m_UtilityName = value;
                     }
                 }
                 else
@@ -90,6 +93,7 @@ namespace TestForGDAL
                 }
             }
         }
+        // Выдаёт и задаёт путь до входного файла
         public string SrcFileName
         {
             get { return m_SrcFileName; }
@@ -97,13 +101,13 @@ namespace TestForGDAL
             {
                 if (m_IsEditing == true)
                 {
-                    if (value != null)
+                    if (String.IsNullOrEmpty(value))
                     {
-                        m_SrcFileName = value;
+                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
                     }
                     else
                     {
-                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
+                        m_SrcFileName = value;
                     }
                 }
                 else
@@ -112,6 +116,7 @@ namespace TestForGDAL
                 }
             }
         }
+        // Выдаёт и задаёт путь до выходного файла
         public string OutputFileName
         {
             get { return m_OutputFileName; }
@@ -119,13 +124,13 @@ namespace TestForGDAL
             {
                 if (m_IsEditing == true)
                 {
-                    if (value != null)
+                    if (String.IsNullOrEmpty(value))
                     {
-                        m_OutputFileName = value;
+                        m_OutputFileName = String.Empty;
                     }
                     else
                     {
-                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
+                        m_OutputFileName = value;
                     }
                 }
                 else
@@ -134,19 +139,26 @@ namespace TestForGDAL
                 }
             }
         }
+        // Выдаёт экземпляр процесса
         public Process GetProcess
         {
             get { return m_Process; }
         }
+        // Выдаёт экземпляр графического представления задачи
         public TaskElement GetTaskElement
         {
             get { return m_TaskElement; }
         }
-        public int GetProcessID
+        // Выдаёт ID задачи
+        public int GetTaskID
         {
-            get { return m_ProcessID; }
+            get { return m_TaskID; }
         }
+        #endregion
 
+        // Методы
+                #region Методы
+        // Устанавливает флаг разрешающий редактирование
         public bool BeginEdit()
         {
             if (m_IsEditing == true)
@@ -159,7 +171,7 @@ namespace TestForGDAL
                 return true;
             }
         }
-
+        // Устанавливает флаг запрещающий редактирование
         public bool StopEdit()
         {
             if (m_IsEditing == false)
@@ -173,7 +185,7 @@ namespace TestForGDAL
                 return true;
             }
         }
-
+        // Принимает изменения, внесённые в режиме редактирования
         private void AcceptSettings()
         {
             m_Process.StartInfo.FileName = @"C:\Users\Ky3mu40FF\Documents\Utilities_bin\" + m_UtilityName;
@@ -195,7 +207,6 @@ namespace TestForGDAL
                 m_ProcessArguments = m_SrcFileName;
             }
         }
-
+        #endregion
     }
 }
-*/
