@@ -1,4 +1,4 @@
-﻿/*
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,23 +24,26 @@ namespace GDAL_GUI_New
     /// </summary>
     public partial class TaskElement : UserControl
     {
+        // Переменныые
+                #region Переменные
         private MainWindow m_MainWindow;
-        private int m_ProcessID;
+        private int m_TaskID;
         private bool m_IsCurrent;
 
         private SolidColorBrush m_NormalStateBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 230, 230));
         private SolidColorBrush m_HighlightedBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255));
-        //private SolidColorBrush m_SelectedBrush = 
-        //    new SolidColorBrush(System.Windows.Media.Color.FromRgb(183, 255, 183));
         private SolidColorBrush m_SelectedBrush =
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 255));
         private SolidColorBrush m_CompletedTaskBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0));
         private SolidColorBrush m_FailedTaskBrush =
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+        #endregion
 
+        // Конструкторы
+                #region Конструкторы
         public TaskElement()
         {
             InitializeComponent();
@@ -52,31 +55,43 @@ namespace GDAL_GUI_New
             InitializeComponent();
             EventsAndOtherSettings();
             m_MainWindow = mainWindow;
-            m_ProcessID = processId;
+            m_TaskID = processId;
             m_IsCurrent = false;
         }
+        #endregion
 
+        // Свойства
+                #region Свойства
+        public string SetImage
+        {
+            set
+            {
+                CreateThumbnail(value, (value+"thumbnail.jpg"), 128,128);
+                ImageSource imgSource = new BitmapImage(new Uri(value + "thumbnail.jpg"));
+                image_SrcImagePreview.Source = imgSource;
+                label_PictureName.Content = value.Substring(value.LastIndexOf('\\') + 1);
+                label_PictureName.ToolTip = label_PictureName.Content;
+            }
+        }
+
+        public string SetUtilityName
+        {
+            set { label_UtilityName.Content = value; }
+        }
+
+        public bool IsCurrent
+        {
+            get { return m_IsCurrent; }
+            set { m_IsCurrent = value; }
+        }
+        #endregion
+
+        // Методы
+                #region Методы
         private void CreateThumbnail(string sourceImage, string outputImage, int width, int height)
         {
             double thumbnailSize = 192;
-            /*
-            BitmapSource imageSource = BitmapFrame.Create(new Uri(sourceImage));
-            ScaleTransform st = new ScaleTransform();
-            st.ScaleX = (double)width / (double)imageSource.PixelWidth;
-            st.ScaleY = (double)height / (double)imageSource.PixelHeight;
-            TransformedBitmap tb = new TransformedBitmap(imageSource, st);
-            BitmapMetadata thumbMeta = new BitmapMetadata("jpg");
-            thumbMeta.Title = "thumbnail";
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.QualityLevel = 100;
-            encoder.Frames.Add(BitmapFrame.Create(tb, null, thumbMeta, null));
-            using (FileStream stream = new FileStream(outputImage, FileMode.Create))
-            {
-                encoder.Save(stream);
-                stream.Close();
-            }
-            */
-            /*
+            
             BitmapSource imageSource = BitmapFrame.Create(new Uri(sourceImage));
             double scaleCoefficient =
                 (double) imageSource.PixelWidth > (double) imageSource.PixelHeight
@@ -102,29 +117,18 @@ namespace GDAL_GUI_New
             }
         }
 
-        public string SetImage
+        private void EventsAndOtherSettings()
         {
-            set
-            {
-                CreateThumbnail(value, (value+"thumbnail.jpg"), 128,128);
-                ImageSource imgSource = new BitmapImage(new Uri(value + "thumbnail.jpg"));
-                image_SrcImagePreview.Source = imgSource;
-                label_PictureName.Content = value.Substring(value.LastIndexOf('\\') + 1);
-                label_PictureName.ToolTip = label_PictureName.Content;
-            }
+            this.MouseEnter += new MouseEventHandler(taskElement_MouseEnter);
+            this.MouseLeave += new MouseEventHandler(taskElement_MouseLeave);
+            this.MouseLeftButtonDown += new MouseButtonEventHandler(taskElement_MouseLeftButtonDown);
+            this.image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
+            this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
         }
+        #endregion
 
-        public string SetUtilityName
-        {
-            set { label_UtilityName.Content = value; }
-        }
-
-        public bool IsCurrent
-        {
-            get { return m_IsCurrent; }
-            set { m_IsCurrent = value; }
-        }
-
+        // Обработчики событий
+                #region Обработчики событий
         private void taskElement_MouseEnter(object sender, RoutedEventArgs e)
         {
             TaskElement taskElement = sender as TaskElement;
@@ -146,13 +150,13 @@ namespace GDAL_GUI_New
         private void taskElement_MouseLeftButtonDown(object sender, RoutedEventArgs e)
         {
             TaskElement taskElement = sender as TaskElement;
-            m_MainWindow.CurrentProcess.GetTaskElement.Background = m_NormalStateBrush;
+            m_MainWindow.CurrentTask.GetTaskElement.Background = m_NormalStateBrush;
 
-            MyProcess selectedProcess = m_MainWindow.GetProcessesList.Where(
-                x => x.GetProcessID == taskElement.m_ProcessID
+            MyTask selectedProcess = m_MainWindow.GetTasksList.Where(
+                x => x.GetTaskID == taskElement.m_TaskID
                 ).FirstOrDefault();
-            m_MainWindow.CurrentProcess.GetTaskElement.IsCurrent = false;
-            m_MainWindow.CurrentProcess = selectedProcess;
+            m_MainWindow.CurrentTask.GetTaskElement.IsCurrent = false;
+            m_MainWindow.CurrentTask = selectedProcess;
             taskElement.Background = m_SelectedBrush;
             taskElement.IsCurrent = true;
 
@@ -169,7 +173,7 @@ namespace GDAL_GUI_New
                 }
             }
             */
-       /* }
+        }
         
         private void Image_SrcImagePreview_MouseEnter(object sender, RoutedEventArgs e)
         {
@@ -218,15 +222,7 @@ namespace GDAL_GUI_New
             imageControl.BeginAnimation(System.Windows.Controls.Image.HeightProperty, animHeight);
             imageControl.BeginAnimation(System.Windows.Controls.Image.WidthProperty, animWidth);
         }
-
-        private void EventsAndOtherSettings()
-        {
-            this.MouseEnter += new MouseEventHandler(taskElement_MouseEnter);
-            this.MouseLeave += new MouseEventHandler(taskElement_MouseLeave);
-            this.MouseLeftButtonDown += new MouseButtonEventHandler(taskElement_MouseLeftButtonDown);
-            this.image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
-            this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
-        }
+        #endregion
+        
     }
 }
-*/
