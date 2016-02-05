@@ -13,13 +13,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data;
+using System.Data.Common;
+using Microsoft.Win32;
 
 namespace GDAL_GUI_New
 {
     /// <summary>
     /// Логика взаимодействия для TaskEditWindow.xaml
     /// </summary>
-    public partial class TaskEditWindow : Window
+    public partial class TaskEditWindow : Window, INotifyPropertyChanged
     {
         // Переменные
                 #region Переменные
@@ -29,7 +31,11 @@ namespace GDAL_GUI_New
         private List<MyDataRow> m_UtilityParameters;
         private DataRow m_UtilityInfo;
         // Используется при закрытии данного окна, чтобы выводить/не выводить диалог
-        private bool m_IsThisTaskAdded;    
+        private bool m_IsThisTaskAdded;
+        private string[] m_InputFiles;
+        private string m_OutputFile;
+
+        public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         // Конструкторы
@@ -51,6 +57,18 @@ namespace GDAL_GUI_New
         // Свойства
                 #region Свойства
 
+        public string OutputFilePath
+        {
+            get { return m_OutputFile; }
+            set
+            {
+                if (!String.IsNullOrEmpty(value))
+                {
+                    m_OutputFile = value;
+                    OnPropertyChanged("OutputFilePath");
+                }
+            }
+        }
         #endregion
 
         // Методы
@@ -60,6 +78,10 @@ namespace GDAL_GUI_New
             // Подписка на события
             this.Closing += 
                 new CancelEventHandler(ThisWindow_Closing);
+            Button_BrowseInputFile.Click +=
+                new RoutedEventHandler(Button_BrowseInputFile_Click);
+            Button_BrowseOutputFile.Click +=
+                new RoutedEventHandler(Button_BrowseOutputFile_Click);
             Button_AddTask.Click += 
                 new RoutedEventHandler(Button_AddTask_Click);
             Button_Exit.Click += 
@@ -72,6 +94,20 @@ namespace GDAL_GUI_New
                 new RoutedEventHandler(Expander_UtilityAndParameterDescription_Expanded);
             Expander_UtilityAndParameterDescription.Collapsed +=
                 new RoutedEventHandler(Expander_UtilityAndParameterDescription_Collapsed);
+
+            
+            Binding outputBinding = new Binding()
+            {
+                Path = new PropertyPath("OutputFilePath"),
+                Mode = BindingMode.TwoWay,
+                Source = this,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+            };
+            TextBox_OutputFile.SetBinding(TextBox.TextProperty, outputBinding);
+            //TextBox_OutputFile.DataContext = this;
+            
+            
+                //.DataBindings.Add(new Binding("Text", this, "Foo"));
         }
 
         private void ConnectToDbAndGetNecessaryData()
@@ -89,10 +125,18 @@ namespace GDAL_GUI_New
                 return;
             }
         }
+
+        //protected virtual void OnPropertyChanged(string propertyName = null)
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
         #endregion
 
         // Обработчики событий
-             #region Обработчики событий
+        #region Обработчики событий
 
         private void ThisWindow_Closing(object sender, CancelEventArgs e)
         {
@@ -111,6 +155,35 @@ namespace GDAL_GUI_New
             else
             {
                 e.Cancel = true;
+            }
+        }
+
+        private void Button_BrowseInputFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                Multiselect = true,
+                CheckFileExists = true,
+                CheckPathExists = true
+            };
+            openFileDialog.ShowDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                m_InputFiles = openFileDialog.FileNames;
+            }
+        }
+
+        private void Button_BrowseOutputFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog()
+            {
+                //CheckFileExists = true,
+                CheckPathExists = true
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                //m_OutputFile = saveFileDialog.FileName;
+                OutputFilePath = saveFileDialog.FileName;
             }
         }
 
