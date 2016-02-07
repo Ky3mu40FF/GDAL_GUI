@@ -5,77 +5,116 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="TaskEditWindow" Height="370" Width="737">
+        Title="TaskEditWindow" Height="318" Width="745" MinWidth="737" MinHeight="336">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="280"/>
-            <RowDefinition/>
+            <RowDefinition Height="351"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="62*"/>
-            <ColumnDefinition Width="55*"/>
-            <ColumnDefinition Width="61*"/>
-        </Grid.ColumnDefinitions>
-        <GroupBox x:Name="GroupBox_InputAndOutputPaths" Header="{DynamicResource m_GroupBox_InputAndOutputPaths}"  VerticalAlignment="Top" Height="166" Margin="4,0,0,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="84*"/>
-                    <RowDefinition Height="62*"/>
-                </Grid.RowDefinitions>
-                <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="59"/>
-                <TextBox x:Name="TextBox_InputFile" Grid.Row="0" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,26,0,0"/>
-                <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
-                <CheckBox x:Name="CheckBox_PreviousOutputAsCurrentInput" Grid.Row="0"  HorizontalAlignment="Left" Margin="0,49,0,0" VerticalAlignment="Top" Height="34" Width="230">
-                    <TextBlock Text="{DynamicResource m_CheckBox_PreviousOutputAsCurrentInput}" TextWrapping="Wrap" Height="34" Width="200"/>
-                </CheckBox>
-                <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Height="26" Width="69"/>
-                <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" Grid.Row="1"/>
-                <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,27,0,0" Grid.Row="1" Height="23"/>
+        <TabControl x:Name="tabControl" Height="287" VerticalAlignment="Top" Margin="0,18,0,0" >
+            <TabItem Header="Input|Output|Utility">
+                <Grid Background="WhiteSmoke">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="244"/>
+                        <ColumnDefinition Width="243"/>
+                        <ColumnDefinition Width="406"/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputAndOutputPaths}" Grid.Column="1" Margin="0,-1,0,0">
+                        <Grid>
+                            <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="59"/>
+                            <TextBox x:Name="TextBox_InputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
+                            <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
+                            <GroupBox x:Name="GroupBox_InputOptions" Header="Input Options" Margin="0,54,1,0">
+                                <Grid>
+                                    <RadioButton x:Name="RadioButton_InputMode_OneFile" Height="34" IsChecked="True" Margin="0,0,0,128" Tag="InputMode.OneFile">
+                                        <TextBlock TextWrapping="Wrap" Text="Input One File" />
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFiles" Margin="0,35,0,93">
+                                        <TextBlock TextWrapping="Wrap" Text="Input Multiple Files" />
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Margin="0,69,0,59">
+                                        <TextBlock TextWrapping="Wrap" Text="Use Output File of Another Utility as Input" />
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadioButton_InputMode_TxtList" Margin="0,103,0,25">
+                                        <TextBlock TextWrapping="Wrap" Text="Input txt File with List of Files" />
+                                    </RadioButton>
 
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </GroupBox>
 
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="GroupBox_UtilitySelection" Header="{DynamicResource m_GroupBox_UtilitySelection}" VerticalAlignment="Top" Margin="4,166,0,0" Height="92">
-            <Grid>
-                <Label x:Name="Label_UtilityName" Content="{DynamicResource m_Label_UtilityName}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="110" Margin="0,10,0,0"/>
-                <ComboBox x:Name="ComboBox_UtilitiesNames" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="110,10,0,0" Height="26"/>
-                <Label x:Name="Label_UtilityVersion" Content="{DynamicResource m_Label_UtilityVersion}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,41,0,0" Width="110"/>
-                <TextBox x:Name="TextBox_UtilityVersion" IsReadOnly="True" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="110,41,0,0"/>
+                    <GroupBox x:Name="GroupBox_OutputPaths" Header="Output Path"  Margin="0,-1,163,181" Grid.Column="2">
+                        <Grid>
+                            <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="69"/>
+                            <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" />
+                            <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,27,0,0" Height="23"/>
+                        </Grid>
+                    </GroupBox>
 
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="1">
-            <Grid>
-                <ScrollViewer >
-                    <ListBox x:Name="ListBox_AvailableParameters" BorderBrush="{x:Null}" SelectionMode="Multiple"/>
-                </ScrollViewer>
+                    <GroupBox x:Name="GroupBox_UtilitySelection" Header="{DynamicResource m_GroupBox_UtilitySelection}" VerticalAlignment="Top" Height="92">
+                        <Grid>
+                            <Label x:Name="Label_UtilityName" Content="{DynamicResource m_Label_UtilityName}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="110" Margin="0,10,0,0"/>
+                            <ComboBox x:Name="ComboBox_UtilitiesNames" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="110,10,0,0" Height="26"/>
+                            <Label x:Name="Label_UtilityVersion" Content="{DynamicResource m_Label_UtilityVersion}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,41,0,0" Width="110"/>
+                            <TextBox x:Name="TextBox_UtilityVersion" IsReadOnly="True" HorizontalAlignment="Left" Height="26" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Margin="110,41,0,0"/>
+                        </Grid>
+                    </GroupBox>
 
-            </Grid>
-        </GroupBox>
-        <GroupBox x:Name="GroupBox_AdditionalParameters" Header="{DynamicResource m_GroupBox_AdditionalParameters}" Grid.Column="2">
-            <Grid>
-                <ScrollViewer>
-                    <StackPanel x:Name="StackPanel_AdditionalParameters"/>
-                </ScrollViewer>
-            </Grid>
-        </GroupBox>
-        <Button x:Name="Button_AddTask" Content="{DynamicResource m_Button_AddTask}" HorizontalAlignment="Right"  Width="140"  Grid.Column="2" Height="20" Grid.Row="1" VerticalAlignment="Top" Margin="0,3,5,0"/>
-        <Button x:Name="Button_InputParametersManually" Content="{DynamicResource m_Button_InputParametersManually}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="192" Margin="4,258,0,0" Height="20"/>
-        <Button x:Name="Button_Exit" Content="{DynamicResource m_Button_Exit}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Margin="0,28,5,0" Grid.Column="2" Height="20" Grid.Row="1"/>
-        <Expander x:Name="Expander_UtilityAndParameterDescription" Header="{DynamicResource m_Expander_UtilityAndParameterDescription}" Margin="4,0,0,-46" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Height="100" Grid.ColumnSpan="2" Background="White">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="249*"/>
-                    <ColumnDefinition Width="224*"/>
-                </Grid.ColumnDefinitions>
-                <ScrollViewer Grid.Column="0" >
-                    <TextBlock x:Name="TextBlock_UtilityDescription" Background="White" TextWrapping="Wrap" />
-                </ScrollViewer>
-                <ScrollViewer Grid.Column="1">
-                    <TextBlock x:Name="TextBlock_ParameterDescription" Background="White" TextWrapping="Wrap" />
-                </ScrollViewer>
-            </Grid>
-        </Expander>
+                    <GroupBox Header="Utility's Description" Margin="0,92,0,0">
+                        <Grid>
+                            <ScrollViewer Margin="0,10,0,0">
+                                <TextBlock x:Name="TextBlock_UtilityDescription" Background="White" TextWrapping="Wrap" />
+                            </ScrollViewer>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Input File Preview" Grid.Column="2" Margin="0,78,163,0">
+                        <Grid>
+                            <Image/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Parameters">
+                <Grid Background="WhiteSmoke">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" MinWidth="228"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="0" Margin="0,0,0,115" >
+                        <Grid>
+                            <ScrollViewer >
+                                <ListBox x:Name="ListBox_AvailableParameters" BorderBrush="{x:Null}" SelectionMode="Multiple"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="ParameterDescription" Header="Parameter's Description" Grid.Column="0" Margin="0,144,0,0">
+                        <Grid>
+                            <ScrollViewer>
+                                <TextBlock x:Name="TextBlock_ParameterDescription" Background="White" TextWrapping="Wrap" />
+                            </ScrollViewer>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="GroupBox_AdditionalParameters" Header="{DynamicResource m_GroupBox_AdditionalParameters}" Grid.Column="1">
+                        <Grid>
+                            <ScrollViewer>
+                                <StackPanel x:Name="StackPanel_AdditionalParameters"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Menu x:Name="menu" Height="18" VerticalAlignment="Top" >
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem x:Name="TaskEdit_Menu_AddTask" Header="{DynamicResource m_TaskEdit_Menu_AddTask}"/>
+            <MenuItem x:Name="TaskEdit_Menu_ManualInput" Header="{DynamicResource m_TaskEdit_Menu_ManualInput}"/>
+            <MenuItem x:Name="TaskEdit_Menu_Exit" Header="{DynamicResource m_TaskEdit_Menu_Exit}" HorizontalAlignment="Right"/>
+        </Menu>
 
 
     </Grid>
