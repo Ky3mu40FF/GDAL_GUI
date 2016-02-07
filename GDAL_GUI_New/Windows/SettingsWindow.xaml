@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
+        xmlns:properties="clr-namespace:GDAL_GUI_New.Properties"
         Title="{DynamicResource m_Form_WindowSettings_Title}" Height="297.453" Width="340.528" MinWidth="220">
     <Grid>
         <GroupBox x:Name="groupBox_UtilitiesPath" Header="{DynamicResource m_GroupBox_Header_UtilitiesDirectoryPath}" VerticalAlignment="Top" Height="98">
@@ -12,8 +13,9 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="button_BrowseUtilitiesFolderPath" Content="{DynamicResource m_Button_Content_BrowseUtilitiesDirectoryPath}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,10,0,0" Height="20"/>
-                <TextBox x:Name="textBox_UtilitiesFolderPath" Height="23" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Margin="0,10,83,0"/>
+                <Button x:Name="button_BrowseUtilitiesFolderPath" Content="{DynamicResource m_Button_Content_BrowseUtilitiesDirectoryPath}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,10,0,0" Height="23"/>
+                <TextBox x:Name="textBox_UtilitiesFolderPath" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,10,75,0"
+                         Text="{Binding Source={x:Static properties:Settings.Default},Path=UtilitiesDirectory}"/>
                 <CheckBox x:Name="checkBox_UseBundledUtilities" VerticalAlignment="Top" Margin="0,39,0,0" Height="37">
                     <CheckBox.Content>
                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_CheckBox_Content_UseBundledUtilities}" />
