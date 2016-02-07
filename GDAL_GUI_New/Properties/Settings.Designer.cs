@@ -34,5 +34,41 @@ namespace GDAL_GUI_New.Properties {
                 this["DefaultLanguage"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Ky3mu40FF\\Desktop\\gdal\\bin\\")]
+        public string UtilitiesDirectory {
+            get {
+                return ((string)(this["UtilitiesDirectory"]));
+            }
+            set {
+                this["UtilitiesDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Eng")]
+        public string DescriptionsLanguage {
+            get {
+                return ((string)(this["DescriptionsLanguage"]));
+            }
+            set {
+                this["DescriptionsLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseTheBundledUtilities {
+            get {
+                return ((bool)(this["UseTheBundledUtilities"]));
+            }
+            set {
+                this["UseTheBundledUtilities"] = value;
+            }
+        }
     }
 }
