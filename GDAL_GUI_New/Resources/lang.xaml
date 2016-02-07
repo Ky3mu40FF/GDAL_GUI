@@ -29,9 +29,9 @@
     <v:String x:Key="m_Label_UtilityVersion">Utility's Version</v:String>
     <v:String x:Key="m_GroupBox_AvailableParameters">Available Parameters</v:String>
     <v:String x:Key="m_GroupBox_AdditionalParameters">Additional Parameters</v:String>
-    <v:String x:Key="m_Button_AddTask">Add Task</v:String>
-    <v:String x:Key="m_Button_Exit">Exit without Adding</v:String>
-    <v:String x:Key="m_Button_InputParametersManually">Input Parameters Manually</v:String>
+    <v:String x:Key="m_TaskEdit_Menu_AddTask">Add Task</v:String>
+    <v:String x:Key="m_TaskEdit_Menu_Exit">Exit without Adding</v:String>
+    <v:String x:Key="m_TaskEdit_Menu_ManualInput">Manual Editing</v:String>
     <v:String x:Key="m_Expander_UtilityAndParameterDescription">Utility's And Parameter's Description</v:String>
 
     <!--Окно настроек-->
