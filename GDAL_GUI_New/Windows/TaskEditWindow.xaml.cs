@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -36,9 +37,9 @@ namespace GDAL_GUI_New
         private bool m_IsThisTaskAdded;
         private string[] m_InputFiles;
         private string m_OutputFile;
+        private string m_FormedParametersArgument;
         private Process m_ProcessForVersion;
         private Version m_UtilityVersion;
-
         private enum InputMode
         {
             OneFile,
@@ -47,6 +48,7 @@ namespace GDAL_GUI_New
             TxtList
         };
         private InputMode m_CurrentMode;
+        private List<DataTable> m_AdditionalParametersInputs;
 
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
@@ -64,6 +66,8 @@ namespace GDAL_GUI_New
             m_UtilitiesNames = new List<string>();
             m_UtilityParameters = new List<MyDataRow>();
             m_CurrentMode = InputMode.OneFile;
+            m_FormedParametersArgument = String.Empty;
+            m_AdditionalParametersInputs = new List<DataTable>();
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -138,7 +142,7 @@ namespace GDAL_GUI_New
             RadioButton_InputMode_OneFile.Tag = InputMode.OneFile;
             RadioButton_InputMode_MultipleFiles.Tag = InputMode.MultipleFiles;
             RadioButton_InputMode_FromAnotherUtility.Tag = InputMode.FromAnotherUtility;
-            RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;
+            RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;            
         }
 
         private void ConnectToDbAndGetNecessaryData()
@@ -161,6 +165,211 @@ namespace GDAL_GUI_New
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void ParameterAdded(SelectionChangedEventArgs e)
+        {
+            // Получаем отмеченный параметр
+            MyDataRow currentParameter = e.AddedItems[0] as MyDataRow;
+            // Если для этого параметра есть дополнительные параметры, то
+            // добавим элементы ввода для этих дополнительных параметров в StackPanel
+            if ((bool)currentParameter.GetDataRow["IsThereAdditionalParameters"] == true)
+            {
+                // Создаём GroupBox, в котором будут храниться элементы ввода
+                GroupBox gB = new GroupBox()
+                {
+                    Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                    Header = currentParameter.GetDataRow["NameOfTheParameter"].ToString()
+                };
+                Grid grid = new Grid();
+                // Получаем все дополнительные параметры
+                string[] additionalParameters =
+                        currentParameter.GetDataRow["AdditionalParameters"].ToString().Split(
+                            new char[2] { ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                // Проверяем, должен ли пользователь вводить эти параметры  вручную.
+                // Если да, то создаём поля для ввода
+                if (currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "ManualInput")
+                {
+                    // Проверяем, можно ли этот параметр вызвать несколько раз
+                    if ((bool) currentParameter.GetDataRow["MultipleCalls"] == true)
+                    {
+                        // Создаём определения строк и столбцов для сетки в GroupBox
+                        RowDefinition rowDataGrid = new RowDefinition();
+                        RowDefinition rowButton = new RowDefinition();
+                        grid.RowDefinitions.Add(rowDataGrid);
+                        grid.RowDefinitions.Add(rowButton);
+                        // Создаём экземпляр DataGrid, в который будем вводить дополнительные параметры
+                        DataGrid dataGrid = new DataGrid()
+                        {
+                            Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                            VerticalAlignment = VerticalAlignment.Top,
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            GridLinesVisibility = DataGridGridLinesVisibility.All,
+                            CanUserAddRows = true
+                        };
+                        // Создаём таблицу, в которой будут храниться введённые 
+                        // значения дополнительных параметров
+                        DataTable table = new DataTable()
+                        {
+                            TableName = currentParameter.GetDataRow["NameOfTheParameter"].ToString()
+                        };
+                        // Для каждого дополнительного параметра создаём столбец в таблице
+                        foreach (string parameter in additionalParameters)
+                        {
+                            DataColumn column = new DataColumn()
+                            {
+                                Caption = parameter,
+                                ColumnName = parameter
+                            };
+                            table.Columns.Add(column);
+                        }
+                        // Добавляем созданную таблицу в список таблиц для доп. параметров
+                        // и назначаем экземпляру DataGrid в качестве источника эту таблицу
+                        // из списка
+                        m_AdditionalParametersInputs.Add(table);
+                        dataGrid.ItemsSource = m_AdditionalParametersInputs.Last<DataTable>().DefaultView;
+                        // Создаём кнопку, при нажатии на которую будет добавляться новая строка
+                        // в DataGrid
+                        // (В принципе не особо нужна, т.к. DataGrid сам добавляет строки по необходимости)
+                        Button button = new Button()
+                        {
+                            Content = "Add new row",
+                            Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            VerticalAlignment = VerticalAlignment.Bottom
+                        };
+                        // Добавляем этой кнопке обработчик события
+                        button.Click += new RoutedEventHandler(Button_AddRow_Click);
+                        // Формируем GroupBox и добавляем его в StackPanel
+                        Grid.SetRow(dataGrid, 0);
+                        Grid.SetRow(button, 1);
+                        grid.Children.Add(dataGrid);
+                        grid.Children.Add(button);
+                        gB.Content = grid;
+                        StackPanel_AdditionalParameters.Children.Add(gB);
+                    }
+                    // Если этот параметр может вызываться только единожды
+                    else
+                    {
+                        // Переменная-счётчик для строк (GridRow) в сетке (Grid)
+                        int rowCount = 0;
+                        // Для каждого дополнительного параметра добавляем две строки 
+                        // в сетке (для Label и TextBox) и сами элементы: Label и TextBox
+                        foreach (string parameter in additionalParameters)
+                        {
+                            // Добавляем две строки в сетку
+                            grid.RowDefinitions.Add(new RowDefinition());
+                            grid.RowDefinitions.Add(new RowDefinition());
+                            // Создаём экземпляр Label
+                            Label label = new Label()
+                            {
+                                Name = "Label_" + parameter,
+                                Content = parameter,
+                                VerticalAlignment = VerticalAlignment.Top,
+                                HorizontalAlignment = HorizontalAlignment.Left
+                            };
+                            // Создаём экземпляр TextBox
+                            TextBox textBox = new TextBox()
+                            {
+                                Name = "TextBox_" + parameter,
+                                Tag = parameter,
+                                VerticalAlignment = VerticalAlignment.Bottom,
+                                HorizontalAlignment = HorizontalAlignment.Stretch
+                            };
+                            // Устанавливаем для Label и TextBox индексы добавленных строк
+                            // (т.е. в каких строках в Grid элементы находятся)
+                            // (прямо при добавлении сразу инкрементируем счётчик)
+                            Grid.SetRow(label, rowCount++);
+                            Grid.SetRow(textBox, rowCount++);
+                            //rowCount++;
+                            // Добавляем созданные элементы в Grid
+                            grid.Children.Add(label);
+                            grid.Children.Add(textBox);
+                        }
+                        // Добавляем Grid в GroupBox
+                        gB.Content = grid;
+                        // Добавляем GroupBox в StackPanel
+                        StackPanel_AdditionalParameters.Children.Add(gB);
+                    }
+                }
+                // Если параметр требует от пользователя выбрать один из вариантов
+                else if (currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "Selecting")
+                {
+                    // Создаём новый ComboBox, в котором будeт храниться доступные варианты
+                    ComboBox cB = new ComboBox()
+                    {
+                        // Возможно это (тэг) не потребуется
+                        Tag = currentParameter.GetDataRow["NameOfTheParameter"]
+                    };
+                    // Добавляем источник данных для ComboBox и добавляем его 
+                    // в GroupBox и затем в StackPanel
+                    cB.ItemsSource = additionalParameters;
+                    gB.Content = cB;
+                    StackPanel_AdditionalParameters.Children.Add(gB);
+                }
+            }
+        }
+
+        private void ParameterRemoved(SelectionChangedEventArgs e)
+        {
+            // Получаем элемент, с которого сняли выделение
+            MyDataRow currentParameter = e.RemovedItems[0] as MyDataRow;
+            // В StackPanel, где хранятся элементы ввода дополнительных параметров,
+            // ищем и удаляем GroupBox, в котором хранятся доп. параметры
+            // текущего параметра
+            foreach (var child in StackPanel_AdditionalParameters.Children)
+            {
+                if (child is GroupBox)
+                {
+                    GroupBox gB = child as GroupBox;
+                    if (gB.Tag == currentParameter.GetDataRow["NameOfTheParameter"])
+                    {
+                        StackPanel_AdditionalParameters.Children.Remove(gB);
+                        return;
+                    }
+                }
+            }
+            // Если этот параметр можно вызывать несколько раз, то заодно
+            // удаляем DataTable для этого параметра из списка
+            if ((bool)currentParameter.GetDataRow["MultipleCalls"] == true)
+            {
+                m_AdditionalParametersInputs.RemoveAll(
+                    x => x.TableName == currentParameter.GetDataRow["NameOfTheParameter"].ToString());
+            }
+        }
+
+        private void ParametersArgumentForming()
+        {
+            foreach (MyDataRow parameter in ListBox_AvailableParameters.SelectedItems)
+            {
+                if ((bool) parameter.GetDataRow["IsThereAdditionalParameters"] == true)
+                {
+
+                    // Проверяем, должен ли пользователь вводить эти параметры  вручную.
+                    if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "ManualInput")
+                    {
+                        // Проверяем, можно ли этот параметр вызвать несколько раз
+                        if ((bool) parameter.GetDataRow["MultipleCalls"] == true)
+                        {
+
+                        }
+                        // Если этот параметр может вызываться только единожды
+                        else
+                        {
+
+                        }
+                    }
+                    // Если параметр требует от пользователя выбрать один из вариантов
+                    else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "Selecting")
+                    {
+
+                    }
+                }
+                else
+                {
+                    
+                }
+            }
         }
         #endregion
 
@@ -325,102 +534,29 @@ namespace GDAL_GUI_New
         {
             if (e.AddedItems != null && e.AddedItems.Count > 0)
             {
-                MyDataRow currentParameter = e.AddedItems[0] as MyDataRow;
-                if ((bool) currentParameter.GetDataRow["IsThereAdditionalParameters"] == true)
-                {
-                    GroupBox gB = new GroupBox()
-                    {
-                        Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
-                        Header = currentParameter.GetDataRow["NameOfTheParameter"].ToString()
-                    };
-                    Grid grid = new Grid();
-                    string[] additionalParameters =
-                            currentParameter.GetDataRow["AdditionalParameters"].ToString().Split(
-                                new char[2] { ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    if ((bool) currentParameter.GetDataRow["MultipleCalls"] == true)
-                    {
-                        RowDefinition rowDataGrid = new RowDefinition();
-                        RowDefinition rowButton = new RowDefinition();
-                        grid.RowDefinitions.Add(rowDataGrid);
-                        grid.RowDefinitions.Add(rowButton);
-                        DataGrid dataGrid = new DataGrid()
-                        {
-                            VerticalAlignment = VerticalAlignment.Top,
-                            HorizontalAlignment = HorizontalAlignment.Stretch,
-                            GridLinesVisibility = DataGridGridLinesVisibility.All
-                        };
-                        
-                        foreach (string parameter in additionalParameters)
-                        {
-                            DataGridTextColumn textColumn = new DataGridTextColumn();
-                            textColumn.Header = parameter;
-                            textColumn.Binding = new Binding(parameter);
-                            dataGrid.Columns.Add(textColumn);
-                        }
-
-                        Button button = new Button()
-                        {
-                            Content = "Add new row",
-                            HorizontalAlignment = HorizontalAlignment.Right,
-                            VerticalAlignment = VerticalAlignment.Bottom
-                        };
-
-                        Grid.SetRow(dataGrid, 0);
-                        Grid.SetRow(button, 1);
-                        grid.Children.Add(dataGrid);
-                        grid.Children.Add(button);
-                        gB.Content = grid;
-                        StackPanel_AdditionalParameters.Children.Add(gB);
-                    }
-                    else
-                    {
-                        int rowCount = 0;
-                        foreach (string parameter in additionalParameters)
-                        {
-                            grid.RowDefinitions.Add(new RowDefinition());
-                            grid.RowDefinitions.Add(new RowDefinition());
-                            Label label = new Label()
-                            {
-                                Name = "Label_" + parameter,
-                                Content = parameter,
-                                VerticalAlignment = VerticalAlignment.Top,
-                                HorizontalAlignment = HorizontalAlignment.Left
-                            };
-                            TextBox textBox = new TextBox()
-                            {
-                                Name = "TextBox_" + parameter,
-                                Tag = parameter,
-                                VerticalAlignment = VerticalAlignment.Bottom,
-                                HorizontalAlignment = HorizontalAlignment.Stretch
-                            };
-                            Grid.SetRow(label, rowCount++);
-                            Grid.SetRow(textBox, rowCount);
-                            rowCount++;
-                            grid.Children.Add(label);
-                            grid.Children.Add(textBox);
-                        }
-                        gB.Content = grid;
-                        StackPanel_AdditionalParameters.Children.Add(gB);
-                    }
-                }
+                ParameterAdded(e);
             }
             else if (e.RemovedItems != null && e.RemovedItems.Count > 0)
             {
-                MyDataRow currentParameter = e.RemovedItems[0] as MyDataRow;
-                foreach (var child in StackPanel_AdditionalParameters.Children)
+                ParameterRemoved(e);
+            }
+        }
+
+        private void Button_AddRow_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            DataTable table = m_AdditionalParametersInputs.Find(x => x.TableName == btn.Tag.ToString());
+            table.Rows.Add();
+            /*
+            Grid grid = btn.Parent as Grid;
+            foreach (UIElement child in grid.Children)
+            {
+                if (child.GetType() == typeof (DataGrid) && (child as DataGrid).Tag == btn.Tag)
                 {
-                    if (child is GroupBox)
-                    {
-                        GroupBox gB = child as GroupBox;
-                        if (gB.Tag == currentParameter.GetDataRow["NameOfTheParameter"])
-                        {
-                            StackPanel_AdditionalParameters.Children.Remove(gB);
-                            return;
-                        }
-                    }
+                    (child as DataGrid).Items.Add(null);
                 }
             }
+            */
         }
 
         // Обрабатывает событие Получения выходных данных от запущенного процесса.

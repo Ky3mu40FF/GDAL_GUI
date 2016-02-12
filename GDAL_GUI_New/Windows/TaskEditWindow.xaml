@@ -5,12 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="TaskEditWindow" Height="318" Width="745" MinWidth="737" MinHeight="336">
+        Title="TaskEditWindow" Height="370" Width="745" MinWidth="737" MinHeight="370">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="351"/>
+            <RowDefinition Height="17.964"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tabControl" Height="287" VerticalAlignment="Top" Margin="0,18,0,0" >
+        <Menu x:Name="menu" Grid.Row="0" >
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem x:Name="TaskEdit_Menu_AddTask" Header="{DynamicResource m_TaskEdit_Menu_AddTask}"/>
+            <MenuItem x:Name="TaskEdit_Menu_ManualInput" Header="{DynamicResource m_TaskEdit_Menu_ManualInput}"/>
+            <MenuItem x:Name="TaskEdit_Menu_Exit" Header="{DynamicResource m_TaskEdit_Menu_Exit}" HorizontalAlignment="Right"/>
+        </Menu>
+        <TabControl x:Name="tabControl" Grid.Row="1" >
             <TabItem Header="Input|Output|Utility">
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
@@ -25,16 +36,24 @@
                             <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
                             <GroupBox x:Name="GroupBox_InputOptions" Header="Input Options" Margin="0,54,1,0">
                                 <Grid>
-                                    <RadioButton x:Name="RadioButton_InputMode_OneFile" Height="34" IsChecked="True" Margin="0,0,0,128" Tag="InputMode.OneFile">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="13"/>
+                                        <RowDefinition Height="34"/>
+                                        <RowDefinition Height="34"/>
+                                        <RowDefinition Height="34"/>
+                                        <RowDefinition Height="33"/>
+                                        <RowDefinition Height="65"/>
+                                    </Grid.RowDefinitions>
+                                    <RadioButton x:Name="RadioButton_InputMode_OneFile" IsChecked="True" Tag="InputMode.OneFile" Grid.Row="1">
                                         <TextBlock TextWrapping="Wrap" Text="Input One File" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFiles" Margin="0,35,0,93">
+                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFiles" Grid.Row="2">
                                         <TextBlock TextWrapping="Wrap" Text="Input Multiple Files" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Margin="0,69,0,59">
+                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="3">
                                         <TextBlock TextWrapping="Wrap" Text="Use Output File of Another Utility as Input" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_TxtList" Margin="0,103,0,25">
+                                    <RadioButton x:Name="RadioButton_InputMode_TxtList" Grid.Row="4" Margin="0,0,0,64" Grid.RowSpan="2">
                                         <TextBlock TextWrapping="Wrap" Text="Input txt File with List of Files" />
                                     </RadioButton>
 
@@ -43,7 +62,7 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox x:Name="GroupBox_OutputPaths" Header="Output Path"  Margin="0,-1,163,181" Grid.Column="2">
+                    <GroupBox x:Name="GroupBox_OutputPaths" Header="Output Path"  Margin="0,-1,163,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
                         <Grid>
                             <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="69"/>
                             <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" />
@@ -74,13 +93,13 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Parameters">
+            <TabItem Header="Parameters" Margin="1,0,-5,-2">
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="228"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="0" Margin="0,0,0,115" >
+                    <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="0" VerticalAlignment="Top" Height="144" >
                         <Grid>
                             <ScrollViewer >
                                 <ListBox x:Name="ListBox_AvailableParameters" BorderBrush="{x:Null}" SelectionMode="Multiple"/>
@@ -104,18 +123,5 @@
                 </Grid>
             </TabItem>
         </TabControl>
-
-        <Menu x:Name="menu" Height="18" VerticalAlignment="Top" >
-            <Menu.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <DockPanel HorizontalAlignment="Stretch"/>
-                </ItemsPanelTemplate>
-            </Menu.ItemsPanel>
-            <MenuItem x:Name="TaskEdit_Menu_AddTask" Header="{DynamicResource m_TaskEdit_Menu_AddTask}"/>
-            <MenuItem x:Name="TaskEdit_Menu_ManualInput" Header="{DynamicResource m_TaskEdit_Menu_ManualInput}"/>
-            <MenuItem x:Name="TaskEdit_Menu_Exit" Header="{DynamicResource m_TaskEdit_Menu_Exit}" HorizontalAlignment="Right"/>
-        </Menu>
-
-
     </Grid>
 </Window>
