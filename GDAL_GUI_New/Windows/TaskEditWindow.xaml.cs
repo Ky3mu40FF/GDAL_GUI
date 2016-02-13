@@ -299,7 +299,8 @@ namespace GDAL_GUI_New
                     ComboBox cB = new ComboBox()
                     {
                         // Возможно это (тэг) не потребуется
-                        Tag = currentParameter.GetDataRow["NameOfTheParameter"]
+                        //Tag = currentParameter.GetDataRow["NameOfTheParameter"]
+                        Tag = "selected_value"
                     };
                     // Добавляем источник данных для ComboBox и добавляем его 
                     // в GroupBox и затем в StackPanel
@@ -340,10 +341,24 @@ namespace GDAL_GUI_New
 
         private void ParametersArgumentForming()
         {
+            string[] allParameters = new string[m_UtilityParameters.Count];
+            int positionIndex = 0;
+
             foreach (MyDataRow parameter in ListBox_AvailableParameters.SelectedItems)
             {
+                positionIndex = (int) parameter.GetDataRow["PositionIndex"];
+                allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+
                 if ((bool) parameter.GetDataRow["IsThereAdditionalParameters"] == true)
                 {
+                    GroupBox gB= null;
+                    foreach (var child in StackPanel_AdditionalParameters.Children)
+                    {
+                        if (child is GroupBox && (child as GroupBox).Tag == parameter.GetDataRow["NameOfTheParameter"])
+                        {
+                            gB = child as GroupBox;
+                        }
+                    }
 
                     // Проверяем, должен ли пользователь вводить эти параметры  вручную.
                     if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "ManualInput")
@@ -351,24 +366,46 @@ namespace GDAL_GUI_New
                         // Проверяем, можно ли этот параметр вызвать несколько раз
                         if ((bool) parameter.GetDataRow["MultipleCalls"] == true)
                         {
+                            Regex regEx = new Regex("[a-zA-z]");
+                            regEx.Match("_bn").ToString();
 
                         }
                         // Если этот параметр может вызываться только единожды
                         else
                         {
-
+                            Grid grid = gB.Content as Grid;
+                            foreach (var child in grid.Children)
+                            {
+                                if (child is TextBox)
+                                {
+                                    TextBox tB = child as TextBox;
+                                    if (!String.IsNullOrEmpty(tB.Text))
+                                    {
+                                        allParameters[positionIndex] =
+                                            allParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
+                                    }
+                                    else
+                                    {
+                                        allParameters[positionIndex] =
+                                            allParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
+                                    }
+                                }
+                            }
                         }
                     }
                     // Если параметр требует от пользователя выбрать один из вариантов
                     else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "Selecting")
                     {
-
+                        ComboBox cB = gB.Content as ComboBox;
+                        allParameters[positionIndex] =
+                            allParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
                     }
                 }
                 else
                 {
-                    
+                    allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
                 }
+
             }
         }
         #endregion
@@ -465,9 +502,11 @@ namespace GDAL_GUI_New
         {
             MessageBox.Show("Заглушка. AddTask");
 
-            m_MainWindow.AddNewTask(m_Task);
-            m_IsThisTaskAdded = true;
-            this.Close();
+            ParametersArgumentForming();
+
+            //m_MainWindow.AddNewTask(m_Task);
+            //m_IsThisTaskAdded = true;
+            //this.Close();
         }
 
         private void TaskEdit_Menu_ExitWithoutAdding_Click(object sender, RoutedEventArgs e)
