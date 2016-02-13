@@ -366,8 +366,7 @@ namespace GDAL_GUI_New
                         // Проверяем, можно ли этот параметр вызвать несколько раз
                         if ((bool) parameter.GetDataRow["MultipleCalls"] == true)
                         {
-                            Regex regEx = new Regex("[a-zA-z]");
-                            regEx.Match("_bn").ToString();
+                            
 
                         }
                         // Если этот параметр может вызываться только единожды
