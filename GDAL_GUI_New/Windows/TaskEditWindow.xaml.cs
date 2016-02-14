@@ -195,9 +195,11 @@ namespace GDAL_GUI_New
                     {
                         // Создаём определения строк и столбцов для сетки в GroupBox
                         RowDefinition rowDataGrid = new RowDefinition();
-                        RowDefinition rowButton = new RowDefinition();
+                        RowDefinition rowButtonAdd = new RowDefinition();
+                        RowDefinition rowButtonRemove = new RowDefinition();
                         grid.RowDefinitions.Add(rowDataGrid);
-                        grid.RowDefinitions.Add(rowButton);
+                        grid.RowDefinitions.Add(rowButtonAdd);
+                        grid.RowDefinitions.Add(rowButtonRemove);
                         // Создаём экземпляр DataGrid, в который будем вводить дополнительные параметры
                         DataGrid dataGrid = new DataGrid()
                         {
@@ -205,7 +207,7 @@ namespace GDAL_GUI_New
                             VerticalAlignment = VerticalAlignment.Top,
                             HorizontalAlignment = HorizontalAlignment.Stretch,
                             GridLinesVisibility = DataGridGridLinesVisibility.All,
-                            CanUserAddRows = true
+                            CanUserAddRows = false
                         };
                         // Создаём таблицу, в которой будут храниться введённые 
                         // значения дополнительных параметров
@@ -228,10 +230,10 @@ namespace GDAL_GUI_New
                         // из списка
                         m_AdditionalParametersInputs.Add(table);
                         dataGrid.ItemsSource = m_AdditionalParametersInputs.Last<DataTable>().DefaultView;
+                        
                         // Создаём кнопку, при нажатии на которую будет добавляться новая строка
                         // в DataGrid
-                        // (В принципе не особо нужна, т.к. DataGrid сам добавляет строки по необходимости)
-                        Button button = new Button()
+                        Button buttonAddRow = new Button()
                         {
                             Content = "Add new row",
                             Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
@@ -239,12 +241,25 @@ namespace GDAL_GUI_New
                             VerticalAlignment = VerticalAlignment.Bottom
                         };
                         // Добавляем этой кнопке обработчик события
-                        button.Click += new RoutedEventHandler(Button_AddRow_Click);
+                        buttonAddRow.Click += new RoutedEventHandler(Button_AddRow_Click);
+                        // Создаём кнопку, при нажатии на которую будет удаляться 
+                        // выбранная строка в DataGrid
+                        Button buttonRemoveRow = new Button()
+                        {
+                            Content = "Remove selected row",
+                            Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            VerticalAlignment = VerticalAlignment.Bottom
+                        };
+                        // Добавляем этой кнопке обработчик события
+                        buttonRemoveRow.Click += new RoutedEventHandler(Button_RemoveRow_Click);
                         // Формируем GroupBox и добавляем его в StackPanel
                         Grid.SetRow(dataGrid, 0);
-                        Grid.SetRow(button, 1);
+                        Grid.SetRow(buttonAddRow, 1);
+                        Grid.SetRow(buttonRemoveRow, 2);
                         grid.Children.Add(dataGrid);
-                        grid.Children.Add(button);
+                        grid.Children.Add(buttonAddRow);
+                        grid.Children.Add(buttonRemoveRow);
                         gB.Content = grid;
                         StackPanel_AdditionalParameters.Children.Add(gB);
                     }
@@ -341,16 +356,64 @@ namespace GDAL_GUI_New
 
         private void ParametersArgumentForming()
         {
+            // Формируем массив, в котором будут храниться добавленные
+            // параметры в том порядке, как указано в самой утилите
             string[] allParameters = new string[m_UtilityParameters.Count];
+            // Инициируем переменную, в которой будет храниться индекс 
+            // положения параметра
             int positionIndex = 0;
 
+            // Просматриваем все выделенные в списке параметры
             foreach (MyDataRow parameter in ListBox_AvailableParameters.SelectedItems)
             {
+                // Получаем индекс положения параметра
                 positionIndex = (int) parameter.GetDataRow["PositionIndex"];
-                allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
 
+                // Инициируем переменную для шаблона
+                string pattern = String.Empty;
+                // Проверяем, есть ли для данного параметра несколько шаблонов 
+                // (из разных версий утилит)
+                // Если более одного шаблона, то получаем все шаблоны, проверяем их версии,
+                // и выбираем наиболее "свежий" шаблон для данной версии утилиты
+                if (parameter.GetDataRow["Pattern"].ToString().Split(';').Length > 1)
+                {
+                    string[] differentVersionsPatterns = 
+                        parameter.GetDataRow["Pattern"].ToString().Split(
+                            new char[] {';'}, 
+                            StringSplitOptions.RemoveEmptyEntries);
+                    Version maxVersion = 
+                        Version.Parse(differentVersionsPatterns[0].Split(
+                            new char[] { '|' }, 
+                            StringSplitOptions.RemoveEmptyEntries)[0]);
+                    for (int i = 1; i < differentVersionsPatterns.Length; i++)
+                    {
+                        Version currentVer = 
+                            Version.Parse(differentVersionsPatterns[i].Split(
+                                new char[] { '|' }, 
+                                StringSplitOptions.RemoveEmptyEntries)[0]);
+                        if (currentVer <= m_UtilityVersion && currentVer > maxVersion)
+                        {
+                            maxVersion = currentVer;
+                        }
+                    }
+                    pattern = 
+                        differentVersionsPatterns.Where(x => x.Contains(maxVersion.ToString()) == true).First().Split(
+                            new Char [] {'|'}, 
+                            StringSplitOptions.RemoveEmptyEntries)[1];
+                }
+                // Если только один шаблон, то его и добавляем
+                else
+                {
+                    pattern = parameter.GetDataRow["Pattern"].ToString();
+                }
+
+                // Проверяем, есть ли у параметра дополнительные параметры
+                // Если есть, то начинаем получение введённых дополнительных параметров
                 if ((bool) parameter.GetDataRow["IsThereAdditionalParameters"] == true)
                 {
+                    // Инициируем переменную для элемента GroupBox, в котором
+                    // хранятся поля ввода дополнительных параметров, и получаем его
+                    // для соответствующего параметра
                     GroupBox gB= null;
                     foreach (var child in StackPanel_AdditionalParameters.Children)
                     {
@@ -366,13 +429,50 @@ namespace GDAL_GUI_New
                         // Проверяем, можно ли этот параметр вызвать несколько раз
                         if ((bool) parameter.GetDataRow["MultipleCalls"] == true)
                         {
-                            
+                            // Получаем таблицу, в которой хранятся введённые доп. параметры
+                            DataTable tableWithInputedParameters =
+                                m_AdditionalParametersInputs.Where(x => x.TableName == parameter.ToString()).First();
+                            // Формируем шаблон регулярных выражений, чтобы корректно 
+                            // вставлять данные 
+                            // (чтобы корректно отличать обычные параметры, вроде src_min от 
+                            // таких как _bn, где важно сохранить символ "_") 
+                            Regex regex = new Regex("([0-9a-zA-Z]+_[0-9a-zA-Z]+|[0-9a-zA-Z]+)");
 
+                            // Просматриваем все записи в таблице (введённые доп.параметры
+                            // для каждого отдельного вызова данного параметра
+                            foreach (DataRow row in tableWithInputedParameters.Rows)
+                            {
+                                //allParameters[positionIndex] += parameter.GetDataRow["Pattern"] + " ";
+                                // Каждый вызов параметры отделяем пробелом
+                                allParameters[positionIndex] += pattern + " ";
+                                // Проходим по всем столбцам (доп. параметрам)
+                                // Если что-то введено, то добавляется значение в шаблон
+                                // Если ничего не введено, то параметр удаляется из шаблона
+                                for (int i = 0; i < row.ItemArray.Length; i++)
+                                {
+                                    string columnName = tableWithInputedParameters.Columns[i].ColumnName;
+                                    if (!String.IsNullOrEmpty(row[i].ToString()))
+                                    {
+                                        String match = regex.Match(columnName).ToString();
+                                        allParameters[positionIndex] =
+                                            allParameters[positionIndex].Replace(match, row[i].ToString());
+                                    }
+                                    else
+                                    {
+                                        allParameters[positionIndex] =
+                                            allParameters[positionIndex].Replace(columnName, String.Empty);
+                                    }
+                                }
+                            }
                         }
                         // Если этот параметр может вызываться только единожды
                         else
                         {
+                            //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+                            allParameters[positionIndex] = pattern;
+                            // Получаем сетку с полями ввода
                             Grid grid = gB.Content as Grid;
+                            // Проходимся по всем полям ввода, получаем значения и добавляем в шаблон
                             foreach (var child in grid.Children)
                             {
                                 if (child is TextBox)
@@ -395,17 +495,36 @@ namespace GDAL_GUI_New
                     // Если параметр требует от пользователя выбрать один из вариантов
                     else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "Selecting")
                     {
+                        // Получаем ComboBox, в котором пользователь выбирал доп. параметр
                         ComboBox cB = gB.Content as ComboBox;
+                        //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+                        // Добавляем шаблон и добавляем в него значение
+                        allParameters[positionIndex] = pattern;
                         allParameters[positionIndex] =
                             allParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
                     }
                 }
+                // Если нет дополнительных параметров, то в массив выбранных параметров
+                // добавляем шаблон
                 else
                 {
-                    allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+                    //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+                    allParameters[positionIndex] = pattern;
                 }
-
             }
+
+            // Формируем единую строку параметров
+            foreach (string filledParameter in allParameters)
+            {
+                m_FormedParametersArgument += filledParameter + " ";
+            }
+
+            //MessageBox.Show(m_FormedParametersArgument);
+        }
+
+        private void InputAndOutputToParametersArgumentString()
+        {
+            
         }
         #endregion
 
@@ -434,6 +553,8 @@ namespace GDAL_GUI_New
 
         private void Button_BrowseInputFile_Click(object sender, RoutedEventArgs e)
         {
+            
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             switch (m_CurrentMode)
             {
@@ -550,6 +671,11 @@ namespace GDAL_GUI_New
             m_UtilityInfo = DataBaseControl.GetUtilityInfo(e.AddedItems[0].ToString());
             TextBlock_UtilityDescription.Text = 
                 m_UtilityInfo["Description"+Properties.Settings.Default.DescriptionsLanguage].ToString();
+
+            // Если утилита не поддерживает вход/выход, то отключаем соответствующие
+            // GroupBox, в которых выбираются входные/выходные данные
+            GroupBox_InputPaths.IsEnabled = (bool) m_UtilityInfo["IsThereInput"];
+            GroupBox_OutputPaths.IsEnabled = (bool)m_UtilityInfo["IsThereOutput"];
         }
 
         // Меняет режим выбора входного файла при выборе одного из RadioButton
@@ -585,16 +711,21 @@ namespace GDAL_GUI_New
             Button btn = sender as Button;
             DataTable table = m_AdditionalParametersInputs.Find(x => x.TableName == btn.Tag.ToString());
             table.Rows.Add();
-            /*
+        }
+
+        private void Button_RemoveRow_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            DataTable table = m_AdditionalParametersInputs.Find(x => x.TableName == btn.Tag.ToString());
+
             Grid grid = btn.Parent as Grid;
             foreach (UIElement child in grid.Children)
             {
-                if (child.GetType() == typeof (DataGrid) && (child as DataGrid).Tag == btn.Tag)
+                if (child.GetType() == typeof(DataGrid) && (child as DataGrid).Tag == btn.Tag)
                 {
-                    (child as DataGrid).Items.Add(null);
+                    table.Rows[(child as DataGrid).SelectedIndex].Delete();
                 }
             }
-            */
         }
 
         // Обрабатывает событие Получения выходных данных от запущенного процесса.
