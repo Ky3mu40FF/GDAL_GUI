@@ -26,12 +26,12 @@ namespace GDAL_GUI_New.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("en-US")]
-        public global::System.Globalization.CultureInfo DefaultLanguage {
+        public global::System.Globalization.CultureInfo ProgramLanguage {
             get {
-                return ((global::System.Globalization.CultureInfo)(this["DefaultLanguage"]));
+                return ((global::System.Globalization.CultureInfo)(this["ProgramLanguage"]));
             }
             set {
-                this["DefaultLanguage"] = value;
+                this["ProgramLanguage"] = value;
             }
         }
         
@@ -61,7 +61,7 @@ namespace GDAL_GUI_New.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool UseTheBundledUtilities {
             get {
                 return ((bool)(this["UseTheBundledUtilities"]));
