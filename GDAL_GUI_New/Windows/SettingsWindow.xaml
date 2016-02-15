@@ -14,7 +14,7 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Button x:Name="button_BrowseUtilitiesFolderPath" Content="{DynamicResource m_Button_Content_BrowseUtilitiesDirectoryPath}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="0,10,0,0" Height="23"/>
-                <TextBox x:Name="textBox_UtilitiesFolderPath" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,10,75,0"
+                <TextBox x:Name="textBox_UtilitiesFolderPath" Height="23" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,10,75,0"
                          Text="{Binding Source={x:Static properties:Settings.Default},Path=UtilitiesDirectory}"/>
                 <CheckBox x:Name="checkBox_UseBundledUtilities" VerticalAlignment="Top" Margin="0,39,0,0" Height="37">
                     <CheckBox.Content>
