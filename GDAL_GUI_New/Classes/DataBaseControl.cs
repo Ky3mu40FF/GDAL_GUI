@@ -21,11 +21,19 @@ namespace GDAL_GUI_New
         {
             try
             {
-                m_Connection.Open();
-                //MessageBox.Show("Соединение выполнено успешно." + Environment.NewLine +
-                //    m_Connection.State);
-                Console.WriteLine("Соединение выполнено успешно.");
-                return true;
+                if (m_Connection.State != ConnectionState.Open)
+                {
+                    m_Connection.Open();
+                    //MessageBox.Show("Соединение выполнено успешно." + Environment.NewLine +
+                    //    m_Connection.State);
+                    Console.WriteLine("Соединение выполнено успешно.");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
             }
             catch (Exception e)
             {
@@ -39,7 +47,10 @@ namespace GDAL_GUI_New
         {
             try
             {
-                m_Connection.Close();
+                if (m_Connection.State != ConnectionState.Closed)
+                {
+                    m_Connection.Close();
+                }
             }
             catch (Exception e)
             {
