@@ -83,12 +83,12 @@ namespace GDAL_GUI_New
         }
         private void Application_LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-            Language = GDAL_GUI_New.Properties.Settings.Default.DefaultLanguage;
+            Language = GDAL_GUI_New.Properties.Settings.Default.ProgramLanguage;
         }
 
         private void App_LanguageChanged(Object sender, EventArgs e)
         {
-            GDAL_GUI_New.Properties.Settings.Default.DefaultLanguage = Language;
+            GDAL_GUI_New.Properties.Settings.Default.ProgramLanguage = Language;
             GDAL_GUI_New.Properties.Settings.Default.Save();
         }
 
