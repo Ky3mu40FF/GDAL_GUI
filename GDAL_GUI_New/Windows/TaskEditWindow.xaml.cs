@@ -466,7 +466,7 @@ namespace GDAL_GUI_New
                             }
                         }
                         // Если этот параметр может вызываться только единожды
-                        else
+                        else if((bool)parameter.GetDataRow["MultipleCalls"] == false) 
                         {
                             //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
                             allParameters[positionIndex] = pattern;
@@ -664,7 +664,11 @@ namespace GDAL_GUI_New
             // выводим список в ListBox
             m_UtilityParameters = DataBaseControl.GetUtilityParameters(name);
             m_UtilityParameters.RemoveAll(x => new Version(x.GetDataRow["Version"].ToString()) >= m_UtilityVersion);
-            ListBox_AvailableParameters.ItemsSource = m_UtilityParameters;
+            //ListBox_AvailableParameters.ItemsSource = m_UtilityParameters;
+            // Добавляем только те параметры, которые должны выводиться 
+            // в списке доступных параметров (отсекает src_dataset и dst_dataset)
+            ListBox_AvailableParameters.ItemsSource =
+                m_UtilityParameters.Where(x => (bool)x.GetDataRow["MustBeInAvailableParametersList"] == true);
 
             // Выводим описание выбранной утилиты в соответствии с 
             // выбранным в настройках языком
@@ -691,9 +695,6 @@ namespace GDAL_GUI_New
         // При выборе параметра из ListBox проверяется наличие у него дополнительных параметров.
         // Эти параметры либо добавляются в StackPanel, либо убираются оттуда, если с параметра
         // сняли выделение
-        // ДОДЕЛАТЬ: Если тип дополнительного параметра - Selecting
-        // ДОДЕЛАТЬ: Добавлять для кнопок обработчик события нажатия, при котором
-        // будет добавляться новая строкав DataGrid
         private void ListBox_AvailableParameters_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems != null && e.AddedItems.Count > 0)
@@ -704,6 +705,19 @@ namespace GDAL_GUI_New
             {
                 ParameterRemoved(e);
             }
+        }
+
+        // Этот обработчик добавляется к событию элементов в списке (как только мышь попадёт на элемент списка)
+        // Выводится описание параметра, на которого наведён курсор
+        // Сами события добавляются к элементам в xaml коде через:
+        // ItemContainerStyle - Style - EventSetter
+        private void ListBox_AvailableParameters_Item_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ListBoxItem lBI = sender as ListBoxItem;
+            int index = ListBox_AvailableParameters.Items.IndexOf(lBI.Content);
+            TextBlock_ParameterDescription.Text = 
+                m_UtilityParameters[index].GetDataRow[
+                    "ParameterDescription" + Properties.Settings.Default.DescriptionsLanguage].ToString();
         }
 
         private void Button_AddRow_Click(object sender, RoutedEventArgs e)
