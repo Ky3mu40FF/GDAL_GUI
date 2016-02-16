@@ -49,6 +49,7 @@ namespace GDAL_GUI_New
         };
         private InputMode m_CurrentMode;
         private List<DataTable> m_AdditionalParametersInputs;
+        string[] m_AllParameters;
 
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
@@ -358,7 +359,8 @@ namespace GDAL_GUI_New
         {
             // Формируем массив, в котором будут храниться добавленные
             // параметры в том порядке, как указано в самой утилите
-            string[] allParameters = new string[m_UtilityParameters.Count];
+            m_AllParameters = new string[(int)m_UtilityParameters.Max(x => x.GetDataRow["PositionIndex"]) + 1]; 
+
             // Инициируем переменную, в которой будет храниться индекс 
             // положения параметра
             int positionIndex = 0;
@@ -444,7 +446,7 @@ namespace GDAL_GUI_New
                             {
                                 //allParameters[positionIndex] += parameter.GetDataRow["Pattern"] + " ";
                                 // Каждый вызов параметры отделяем пробелом
-                                allParameters[positionIndex] += pattern + " ";
+                                m_AllParameters[positionIndex] += pattern + " ";
                                 // Проходим по всем столбцам (доп. параметрам)
                                 // Если что-то введено, то добавляется значение в шаблон
                                 // Если ничего не введено, то параметр удаляется из шаблона
@@ -454,13 +456,13 @@ namespace GDAL_GUI_New
                                     if (!String.IsNullOrEmpty(row[i].ToString()))
                                     {
                                         String match = regex.Match(columnName).ToString();
-                                        allParameters[positionIndex] =
-                                            allParameters[positionIndex].Replace(match, row[i].ToString());
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(match, row[i].ToString());
                                     }
                                     else
                                     {
-                                        allParameters[positionIndex] =
-                                            allParameters[positionIndex].Replace(columnName, String.Empty);
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(columnName, String.Empty);
                                     }
                                 }
                             }
@@ -469,7 +471,7 @@ namespace GDAL_GUI_New
                         else if((bool)parameter.GetDataRow["MultipleCalls"] == false) 
                         {
                             //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
-                            allParameters[positionIndex] = pattern;
+                            m_AllParameters[positionIndex] = pattern;
                             // Получаем сетку с полями ввода
                             Grid grid = gB.Content as Grid;
                             // Проходимся по всем полям ввода, получаем значения и добавляем в шаблон
@@ -480,13 +482,13 @@ namespace GDAL_GUI_New
                                     TextBox tB = child as TextBox;
                                     if (!String.IsNullOrEmpty(tB.Text))
                                     {
-                                        allParameters[positionIndex] =
-                                            allParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
                                     }
                                     else
                                     {
-                                        allParameters[positionIndex] =
-                                            allParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
                                     }
                                 }
                             }
@@ -499,9 +501,9 @@ namespace GDAL_GUI_New
                         ComboBox cB = gB.Content as ComboBox;
                         //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
                         // Добавляем шаблон и добавляем в него значение
-                        allParameters[positionIndex] = pattern;
-                        allParameters[positionIndex] =
-                            allParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
+                        m_AllParameters[positionIndex] = pattern;
+                        m_AllParameters[positionIndex] =
+                            m_AllParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
                     }
                 }
                 // Если нет дополнительных параметров, то в массив выбранных параметров
@@ -509,22 +511,63 @@ namespace GDAL_GUI_New
                 else
                 {
                     //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
-                    allParameters[positionIndex] = pattern;
+                    m_AllParameters[positionIndex] = pattern;
                 }
             }
-
-            // Формируем единую строку параметров
-            foreach (string filledParameter in allParameters)
-            {
-                m_FormedParametersArgument += filledParameter + " ";
-            }
-
-            //MessageBox.Show(m_FormedParametersArgument);
         }
 
         private void InputAndOutputToParametersArgumentString()
         {
-            
+            // Если утилита поддерживает входные данные 
+            if ((bool) m_UtilityInfo["IsThereInput"] == true && !String.IsNullOrEmpty( m_InputFiles[0]))
+            {
+                // Получаем индекс параметра входных данных
+                int src_Position =
+                (int)m_UtilityParameters.Where(
+                    x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
+                // Добавляем путь
+                m_AllParameters[src_Position] = m_InputFiles[0];
+                /*
+                allParameters[src_Position] =
+                    m_UtilityParameters.Where(
+                        x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset"
+                        ).First().GetDataRow["Pattern"].ToString().Replace("src_dataset", m_InputFiles[0]);
+                */
+            }
+            // Если утилита поддерживает выходные данные 
+            if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputFile))
+            {
+                // Получаем индекс параметра выходных данных
+                int dst_Position =
+                (int)m_UtilityParameters.Where(
+                    x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset").First().GetDataRow["PositionIndex"];
+                // Добавляем путь
+                m_AllParameters[dst_Position] = m_OutputFile;
+                /*
+                allParameters[dst_Position] =
+                    m_UtilityParameters.Where(
+                        x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset"
+                        ).First().GetDataRow["Pattern"].ToString().Replace("dst_dataset", m_OutputFile);
+                */
+            }
+        }
+
+        private void CompleteParametersArgumentString()
+        {
+            m_FormedParametersArgument = String.Empty;
+            // Формируем единую строку параметров
+            foreach (string filledParameter in m_AllParameters)
+            {
+                m_FormedParametersArgument += filledParameter + " ";
+            }
+        }
+
+        private void MakeTask()
+        {
+            m_Task.BeginEdit();
+            m_Task.ParametersString = m_FormedParametersArgument;
+            m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
+            m_Task.StopEdit();
         }
         #endregion
 
@@ -623,10 +666,14 @@ namespace GDAL_GUI_New
             MessageBox.Show("Заглушка. AddTask");
 
             ParametersArgumentForming();
+            InputAndOutputToParametersArgumentString();
+            CompleteParametersArgumentString();
+            MessageBox.Show(m_FormedParametersArgument);
+            MakeTask();
 
-            //m_MainWindow.AddNewTask(m_Task);
-            //m_IsThisTaskAdded = true;
-            //this.Close();
+            m_MainWindow.AddNewTask(m_Task);
+            m_IsThisTaskAdded = true;
+            this.Close();
         }
 
         private void TaskEdit_Menu_ExitWithoutAdding_Click(object sender, RoutedEventArgs e)
