@@ -154,6 +154,12 @@ namespace GDAL_GUI_New
         {
             get { return m_TaskID; }
         }
+
+        public string ParametersString
+        {
+            get { return m_ProcessArguments; }
+            set { m_ProcessArguments = value; }
+        }
         #endregion
 
         // Методы
@@ -188,11 +194,12 @@ namespace GDAL_GUI_New
         // Принимает изменения, внесённые в режиме редактирования
         private void AcceptSettings()
         {
-            m_Process.StartInfo.FileName = @"C:\Users\Ky3mu40FF\Documents\Utilities_bin\" + m_UtilityName;
-            FormArguments();
+            //m_Process.StartInfo.FileName = @"C:\Users\Ky3mu40FF\Documents\Utilities_bin\" + m_UtilityName;
+            m_Process.StartInfo.FileName = Properties.Settings.Default.UtilitiesDirectory + m_UtilityName;
+            //FormArguments();
             m_Process.StartInfo.Arguments = m_ProcessArguments;
             //m_Process.StartInfo.Arguments = "-of jpeg -outsize 200% 200% " + m_ProcessArguments;
-            m_TaskElement.SetImage = m_SrcFileName;
+            //m_TaskElement.SetImage = m_SrcFileName;
             m_TaskElement.SetUtilityName = m_UtilityName;
         }
 
