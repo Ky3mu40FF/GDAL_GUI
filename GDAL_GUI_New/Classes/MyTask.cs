@@ -27,7 +27,8 @@ namespace GDAL_GUI_New
         private TaskElement m_TaskElement;
         private string m_UtilityName;
         private string m_SrcFileName;
-        private string m_OutputFileName;
+        private string m_ThumbnailFile;
+        //private string m_OutputFileName;
         private string m_ProcessArguments;
         private int m_TaskID;
         private bool m_IsEditing;
@@ -47,11 +48,12 @@ namespace GDAL_GUI_New
         {
             m_TaskID = mainWindow.GetTasksCounter + 1;
             m_Process = new Process();
-            m_TaskElement = new TaskElement(mainWindow, m_TaskID);
-            m_UtilityName = "";
-            m_SrcFileName = "";
-            m_OutputFileName = "";
-            m_ProcessArguments = "";
+            m_TaskElement = new TaskElement(mainWindow, this, m_TaskID);
+            m_UtilityName = String.Empty;
+            m_SrcFileName = String.Empty;
+            m_ThumbnailFile = String.Empty;
+            //m_OutputFileName = "";
+            m_ProcessArguments = String.Empty;
             m_IsEditing = false;
             m_State = State.Default;
 
@@ -116,21 +118,21 @@ namespace GDAL_GUI_New
                 }
             }
         }
-        // Выдаёт и задаёт путь до выходного файла
-        public string OutputFileName
+
+        public string ThumbnailPath
         {
-            get { return m_OutputFileName; }
+            get { return m_ThumbnailFile; }
             set
             {
                 if (m_IsEditing == true)
                 {
                     if (String.IsNullOrEmpty(value))
                     {
-                        m_OutputFileName = String.Empty;
+                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
                     }
                     else
                     {
-                        m_OutputFileName = value;
+                        m_ThumbnailFile = value;
                     }
                 }
                 else
@@ -178,7 +180,7 @@ namespace GDAL_GUI_New
             }
         }
         // Устанавливает флаг запрещающий редактирование
-        public bool StopEdit()
+        public bool EndEdit()
         {
             if (m_IsEditing == false)
             {
@@ -194,25 +196,12 @@ namespace GDAL_GUI_New
         // Принимает изменения, внесённые в режиме редактирования
         private void AcceptSettings()
         {
-            //m_Process.StartInfo.FileName = @"C:\Users\Ky3mu40FF\Documents\Utilities_bin\" + m_UtilityName;
             m_Process.StartInfo.FileName = Properties.Settings.Default.UtilitiesDirectory + m_UtilityName;
-            //FormArguments();
             m_Process.StartInfo.Arguments = m_ProcessArguments;
-            //m_Process.StartInfo.Arguments = "-of jpeg -outsize 200% 200% " + m_ProcessArguments;
-            //m_TaskElement.SetImage = m_SrcFileName;
             m_TaskElement.SetUtilityName = m_UtilityName;
-        }
-
-        private void FormArguments()
-        {
-            if (m_UtilityName != "gdalinfo")
-            {
-                m_ProcessArguments = m_SrcFileName + " " + m_OutputFileName;
-            }
-            else
-            {
-                m_ProcessArguments = m_SrcFileName;
-            }
+            m_TaskElement.SetFileName = m_SrcFileName;
+            m_TaskElement.SetImage = m_ThumbnailFile;
+            //m_TaskElement.SetImage = m_SrcFileName;
         }
         #endregion
     }
