@@ -9,15 +9,28 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using System.Text.RegularExpressions;
-using Microsoft.Win32;
+using System.Windows.Forms;
+using Binding = System.Windows.Data.Binding;
+using Button = System.Windows.Controls.Button;
+using ComboBox = System.Windows.Controls.ComboBox;
+using DataGrid = System.Windows.Controls.DataGrid;
+using GroupBox = System.Windows.Controls.GroupBox;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Label = System.Windows.Controls.Label;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using RadioButton = System.Windows.Controls.RadioButton;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace GDAL_GUI_New
 {
@@ -36,6 +49,7 @@ namespace GDAL_GUI_New
         // Этот флаг используется при закрытии данного окна, чтобы выводить/не выводить диалог
         private bool m_IsThisTaskAdded;
         private string[] m_InputFiles;
+        private string[] m_ThumbnailsNames;
         private string m_OutputFile;
         private string m_FormedParametersArgument;
         private Process m_ProcessForVersion;
@@ -516,23 +530,17 @@ namespace GDAL_GUI_New
             }
         }
 
-        private void InputAndOutputToParametersArgumentString()
+        private void InputAndOutputToParametersArgumentString(int index)
         {
             // Если утилита поддерживает входные данные 
-            if ((bool) m_UtilityInfo["IsThereInput"] == true && !String.IsNullOrEmpty( m_InputFiles[0]))
+            if ((bool) m_UtilityInfo["IsThereInput"] == true && !String.IsNullOrEmpty( m_InputFiles[index]))
             {
                 // Получаем индекс параметра входных данных
                 int src_Position =
                 (int)m_UtilityParameters.Where(
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
-                m_AllParameters[src_Position] = m_InputFiles[0];
-                /*
-                allParameters[src_Position] =
-                    m_UtilityParameters.Where(
-                        x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset"
-                        ).First().GetDataRow["Pattern"].ToString().Replace("src_dataset", m_InputFiles[0]);
-                */
+                m_AllParameters[src_Position] = m_InputFiles[index];
             }
             // Если утилита поддерживает выходные данные 
             if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputFile))
@@ -562,12 +570,41 @@ namespace GDAL_GUI_New
             }
         }
 
-        private void MakeTask()
+        private void MakeTask(int index)
         {
+            m_Task = new MyTask(m_MainWindow);
             m_Task.BeginEdit();
             m_Task.ParametersString = m_FormedParametersArgument;
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
-            m_Task.StopEdit();
+            m_Task.SrcFileName = m_InputFiles[index];
+            m_Task.ThumbnailPath = m_ThumbnailsNames[index];
+            //m_Task.GetTaskElement.SetImage = m_ThumbnailsNames[0];
+            m_Task.EndEdit();
+        }
+
+        private void MakeThumbnails()
+        {
+            m_ThumbnailsNames = new string[m_InputFiles.Length];
+            for (int i = 0; i < m_InputFiles.Length; i++)
+            {
+                m_ThumbnailsNames[i] = System.IO.Path.GetDirectoryName(m_InputFiles[i]) + "\\" +
+                                        System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[i]) +
+                                        "_thumbnail.tif";
+                GdalFunctions.MakeThumbnail(m_InputFiles[i], m_ThumbnailsNames[i]);
+            }
+            Image_Preview.BeginInit();
+            if (System.IO.File.Exists(m_ThumbnailsNames[0]))
+            {
+                Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsNames[0]));
+            }
+            else
+            {
+                MessageBox.Show(
+                    "Не удалось отобразить миниатуюру.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //Image_Preview.Source = 
+                //    new BitmapImage(new Uri("C:\\Users\\Ky3mu40FF\\Desktop\\Image_Not_Available.jpg"));
+            }
+            Image_Preview.EndInit();
         }
         #endregion
 
@@ -596,8 +633,6 @@ namespace GDAL_GUI_New
 
         private void Button_BrowseInputFile_Click(object sender, RoutedEventArgs e)
         {
-            
-
             OpenFileDialog openFileDialog = new OpenFileDialog();
             switch (m_CurrentMode)
             {
@@ -607,6 +642,7 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
+                        MakeThumbnails();
                     }
                     break;
                 case InputMode.MultipleFiles:
@@ -615,6 +651,7 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
+                        MakeThumbnails();
                     }
                     break;
                 case InputMode.FromAnotherUtility:
@@ -663,15 +700,16 @@ namespace GDAL_GUI_New
 
         private void TaskEdit_Menu_AddTask_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заглушка. AddTask");
-
-            ParametersArgumentForming();
-            InputAndOutputToParametersArgumentString();
-            CompleteParametersArgumentString();
-            MessageBox.Show(m_FormedParametersArgument);
-            MakeTask();
-
-            m_MainWindow.AddNewTask(m_Task);
+            //MessageBox.Show("Заглушка. AddTask");
+            for (int i = 0; i < m_InputFiles.Length; i++)
+            {
+                ParametersArgumentForming();
+                InputAndOutputToParametersArgumentString(i);
+                CompleteParametersArgumentString();
+                //MessageBox.Show(m_FormedParametersArgument);
+                MakeTask(i);
+                m_MainWindow.AddNewTask(m_Task);
+            }
             m_IsThisTaskAdded = true;
             this.Close();
         }
