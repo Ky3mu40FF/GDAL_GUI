@@ -27,6 +27,7 @@ namespace GDAL_GUI_New
         // Переменныые
                 #region Переменные
         private MainWindow m_MainWindow;
+        private MyTask m_ParentTask;
         private int m_TaskID;
         private bool m_IsCurrent;
 
@@ -50,11 +51,12 @@ namespace GDAL_GUI_New
             EventsAndOtherSettings();
         }
 
-        public TaskElement(MainWindow mainWindow, int processId)
+        public TaskElement(MainWindow mainWindow, MyTask task, int processId)
         {
             InitializeComponent();
             EventsAndOtherSettings();
             m_MainWindow = mainWindow;
+            m_ParentTask = task;
             m_TaskID = processId;
             m_IsCurrent = false;
         }
@@ -66,17 +68,29 @@ namespace GDAL_GUI_New
         {
             set
             {
+                /*
                 CreateThumbnail(value, (value+"thumbnail.jpg"), 128,128);
                 ImageSource imgSource = new BitmapImage(new Uri(value + "thumbnail.jpg"));
                 image_SrcImagePreview.Source = imgSource;
                 label_PictureName.Content = value.Substring(value.LastIndexOf('\\') + 1);
                 label_PictureName.ToolTip = label_PictureName.Content;
+                */
+                image_SrcImagePreview.Source = new BitmapImage(new Uri(value));
             }
         }
 
         public string SetUtilityName
         {
             set { label_UtilityName.Content = value; }
+        }
+
+        public string SetFileName
+        {
+            set
+            {
+                label_PictureName.Content = System.IO.Path.GetFileName(value);
+                label_PictureName.ToolTip = value;
+            }
         }
 
         public bool IsCurrent
