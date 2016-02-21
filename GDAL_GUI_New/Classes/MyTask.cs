@@ -33,13 +33,13 @@ namespace GDAL_GUI_New
         private int m_TaskID;
         private bool m_IsEditing;
         
-        public enum State
+        public enum TaskState
         {
             Default,
             Completed,
             Error
         }
-        private State m_State;
+        private TaskState m_State;
         #endregion
 
         // Конструкторы
@@ -55,7 +55,7 @@ namespace GDAL_GUI_New
             //m_OutputFileName = "";
             m_ProcessArguments = String.Empty;
             m_IsEditing = false;
-            m_State = State.Default;
+            m_State = TaskState.Default;
 
             // Необходимо для перенаправления входного и выходного потоков командной строки
             m_Process.StartInfo.UseShellExecute = false;
@@ -66,7 +66,11 @@ namespace GDAL_GUI_New
             // Устанавливаем кодировку выходного потока (поддержка русского языка)  
             m_Process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("cp866");
             // Не создавать окно процесса
-            m_Process.StartInfo.CreateNoWindow = true;    
+            m_Process.StartInfo.CreateNoWindow = true;
+            // Нужно, чтобы вызывалось событие Exited
+            m_Process.EnableRaisingEvents = true;
+            // Добавляем обработчик события Exited
+            m_Process.Exited += new EventHandler(Process_Exited);
         }
         #endregion
 
@@ -118,7 +122,7 @@ namespace GDAL_GUI_New
                 }
             }
         }
-
+        // Выдаёт и задаёт путь до обзорного изображения (Thumbnail)
         public string ThumbnailPath
         {
             get { return m_ThumbnailFile; }
@@ -198,10 +202,63 @@ namespace GDAL_GUI_New
         {
             m_Process.StartInfo.FileName = Properties.Settings.Default.UtilitiesDirectory + m_UtilityName;
             m_Process.StartInfo.Arguments = m_ProcessArguments;
+            m_TaskElement.SetTaskID = m_TaskID;
             m_TaskElement.SetUtilityName = m_UtilityName;
             m_TaskElement.SetFileName = m_SrcFileName;
             m_TaskElement.SetImage = m_ThumbnailFile;
             //m_TaskElement.SetImage = m_SrcFileName;
+        }
+
+        public void SubscribeOutputDataReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
+        {
+            m_Process.OutputDataReceived += outputDataReceivedHandler;
+        }
+
+        public void UnubscribeOutputDataReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
+        {
+            m_Process.OutputDataReceived -= outputDataReceivedHandler;
+        }
+
+        public void StartProcess()
+        {
+            m_Process.Start();
+            m_Process.BeginOutputReadLine();
+        }
+
+        public void SetStateOfTask(TaskState taskState)
+        {
+            m_State = taskState;
+            switch (m_State)
+            {
+                case TaskState.Default:
+                    m_TaskElement.SetTaskElementState(TaskElement.TaskElementState.Normal);
+                    break;
+                case TaskState.Completed:
+                    m_TaskElement.SetTaskElementState(TaskElement.TaskElementState.Completed);
+                    break;
+                case TaskState.Error:
+                    m_TaskElement.SetTaskElementState(TaskElement.TaskElementState.Failed);
+                    break;
+                default:
+                    m_TaskElement.SetTaskElementState(TaskElement.TaskElementState.Normal);
+                    break;
+            }
+        }
+
+        #endregion
+
+        // Обработчики событий
+        #region Обработчики событий
+
+        private void Process_Exited(object sender, EventArgs e)
+        {
+            Process process = sender as Process;
+            process.CancelOutputRead();
+            int exitCode = process.ExitCode;
+            process.Close();
+            //process.OutputDataReceived -= new DataReceivedEventHandler(OutputDataReceivedHandler);
+            //process.Exited -= new EventHandler(ProcessExited);
+            TaskManager.GetExitedTask(this, exitCode);
         }
         #endregion
     }
