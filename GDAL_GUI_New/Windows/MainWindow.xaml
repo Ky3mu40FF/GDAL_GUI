@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="GDAL GUI
-        " Height="385.1" Width="327" HorizontalAlignment="Right" MinHeight="313" MinWidth="593">
+        Title="{DynamicResource m_MainWindow_Title}" Height="385.1" Width="327" HorizontalAlignment="Right" MinHeight="313" MinWidth="593">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -14,14 +13,22 @@
         </Grid.ColumnDefinitions>
         <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" Height="18">
             <MenuItem x:Name="Menu_File" Header="{DynamicResource m_Menu_File}">
-                <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}" />
+                <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}" Icon="{DynamicResource m_Menu_File_Exit_Icon}"/>
             </MenuItem>
             <MenuItem x:Name="Menu_Edit" Header="{DynamicResource m_Menu_Edit}">
                 <MenuItem x:Name="Menu_Edit_AddTask" Header="{DynamicResource m_Menu_Edit_AddTask}" Icon="{DynamicResource m_Menu_Edit_AddTask_Icon}"/>
+                <Separator/>
+                <MenuItem x:Name="Menu_Edit_RemoveSelectedTask" Header="{DynamicResource m_Menu_Edit_RemoveSelectedTask}" Icon="{DynamicResource m_Menu_Edit_RemoveSelectedTask_Icon}"/>
+                <MenuItem x:Name="Menu_Edit_RemoveAllTasks" Header="{DynamicResource m_Menu_Edit_RemoveAllTasks}" Icon="{DynamicResource m_Menu_Edit_RemoveAllTasks_Icon}"/>
             </MenuItem>
             <MenuItem x:Name="Menu_Run" Header="{DynamicResource m_Menu_Run}">
                 <MenuItem x:Name="Menu_Run_RunAll" Header="{DynamicResource m_Menu_Run_RunAll}" Icon="{DynamicResource m_Menu_Run_RunAll_Icon}"/>
                 <MenuItem x:Name="Menu_Run_RunSelected" Header="{DynamicResource m_Menu_Run_RunSelected}" Icon="{DynamicResource m_Menu_Run_RunSelected_Icon}"/>
+            </MenuItem>
+            <MenuItem x:Name="Menu_Output" Header="{DynamicResource m_Menu_Output}">
+                <MenuItem x:Name="Menu_Output_SaveToFile" Header="{DynamicResource m_Menu_Output_SaveToFile}" Icon="{DynamicResource m_Menu_Output_SaveToFile_Icon}"/>
+                <Separator/>
+                <MenuItem x:Name="Menu_Output_Clear" Header="{DynamicResource m_Menu_Output_Clear}" Icon="{DynamicResource m_Menu_Output_Clear_Icon}"/>
             </MenuItem>
             <MenuItem x:Name="Menu_Settings" Header="{DynamicResource m_Menu_Settings}">
             </MenuItem>
@@ -30,13 +37,11 @@
         <GroupBox x:Name="GroupBox_Output" Header="{DynamicResource m_GroupBox_Output}" Grid.Column="0" Margin="0,18,0,0">
             <Grid>
                 <ScrollViewer>
-                    <RichTextBox x:Name="richTextBox" BorderBrush="{x:Null}">
-                        <FlowDocument>
-                            <Paragraph>
-                                <Run Text="RichTextBox"/>
-                            </Paragraph>
-                        </FlowDocument>
-                    </RichTextBox>
+                    <TextBox x:Name="TextBox_OutputData" 
+                             IsReadOnly="True" 
+                             BorderThickness="0" 
+                             Background="Transparent" 
+                             TextWrapping="Wrap"  />
                 </ScrollViewer>
             </Grid>
         </GroupBox>
