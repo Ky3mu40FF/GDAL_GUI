@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Gat.Controls;
 
 namespace GDAL_GUI_New
@@ -46,7 +47,19 @@ namespace GDAL_GUI_New
             m_Tasks = new ObservableCollection<MyTask>();
             m_TasksCounter = 0;
             m_CurrentTask = null;
-            m_OutputStringBuilder = null;
+            m_OutputStringBuilder = new MyStringBuilder();
+
+            TaskManager.InitializeProcessManager(this);
+            TaskManager.SetDataReceivedHandler = OutputDataRecieved;
+
+            // Привязка StringBuilder к TextBlock
+            Binding myBinding = new Binding();
+            myBinding.Path = new PropertyPath("Text");
+            myBinding.Mode = BindingMode.OneWay;
+            myBinding.Source = m_OutputStringBuilder;
+            myBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            TextBox_OutputData.SetBinding(TextBox.TextProperty, myBinding);
+
             EventAndPropertiesInitialization();
         }
         #endregion
@@ -72,10 +85,7 @@ namespace GDAL_GUI_New
             }
             set
             {
-                if (value != null)
-                {
                     m_CurrentTask = value;
-                }
             }
         }
         
@@ -89,13 +99,25 @@ namespace GDAL_GUI_New
             // Подписка на события
             Menu_File_Exit.Click += new RoutedEventHandler(Menu_File_Exit_Click);
             Menu_Edit_AddTask.Click += new RoutedEventHandler(Menu_Edit_AddTask_Click);
+            Menu_Edit_RemoveSelectedTask.Click += 
+                new RoutedEventHandler(Menu_Edit_RemoveSelectedTask_Click);
+            Menu_Edit_RemoveAllTasks.Click += 
+                new RoutedEventHandler(Menu_Edit_RemoveAllTasks_Click);
             Menu_Run_RunAll.Click += new RoutedEventHandler(Menu_Run_RunAll_Click);
             Menu_Run_RunSelected.Click += new RoutedEventHandler(Menu_Run_RunSelected_Click);
+            Menu_Output_Clear.Click += new RoutedEventHandler(Menu_Output_Clear_Click);
+            Menu_Output_SaveToFile.Click += new RoutedEventHandler(Menu_Output_SaveToFile_Click);
             Menu_Settings.Click += new RoutedEventHandler(Menu_Settings_Click);
             Menu_About.Click += new RoutedEventHandler(Menu_About_Click);
 
             m_Tasks.CollectionChanged +=
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
+        }
+
+        public void SendMessageToTextBox(string message)
+        {
+            m_OutputStringBuilder.Text =
+                Environment.NewLine + message;
         }
 
         // Добавляет переданную задачу и инкремирует счётчик
@@ -111,7 +133,7 @@ namespace GDAL_GUI_New
         #endregion
 
         // Обработчики событий
-                #region Обработчики событий
+        #region Обработчики событий
         // Выход из приложения по нажатию на кнопку Выход в меню
         private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
         {
@@ -123,15 +145,67 @@ namespace GDAL_GUI_New
             TaskEditWindow taskEditWindow = new TaskEditWindow(this);
             taskEditWindow.ShowDialog();
         }
+        // Удаление выбранной задачи
+        private void Menu_Edit_RemoveSelectedTask_Click(object sender, RoutedEventArgs e)
+        {
+            //MessageBox.Show("Заглушка. Menu_Edit_RemoveSelectedTask_Click");
+            if (m_Tasks != null && m_Tasks.Count > 0 && m_CurrentTask != null)
+            {
+                m_Tasks.Remove(m_CurrentTask);
+                m_CurrentTask = null;
+                MessageBox.Show("Выбранная задача удалена.", "Успех!", 
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Нечего удалять.");
+            }
+        }
+        // Удаление всех задач
+        private void Menu_Edit_RemoveAllTasks_Click(object sender, RoutedEventArgs e)
+        {
+            //MessageBox.Show("Заглушка. Menu_Edit_RemoveAllTasks_Click");
+            if (m_Tasks != null && m_Tasks.Count > 0 )
+            {
+                m_Tasks.Clear();
+                m_CurrentTask = null;
+                StackPanel_TaskElements.Children.Clear();
+                MessageBox.Show("Все задачи удалены.", "Успех!",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Нечего удалять.");
+            }
+        }
         // Запуск всех добавленных заданий по порядку
         private void Menu_Run_RunAll_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заглушка. Run All");
+            //MessageBox.Show("Заглушка. Run All");
+            TaskManager.TasksCollection = m_Tasks;
+            TaskManager.RunAll();
         }
         // Запуск одного выбранного задания
         private void Menu_Run_RunSelected_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заглушка. Run Selected");
+            //MessageBox.Show("Заглушка. Run Selected");
+            if (m_CurrentTask == null)
+            {
+                MessageBox.Show("Не выбрана задача!", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            TaskManager.TasksCollection = m_Tasks;
+            TaskManager.RunSelected(m_CurrentTask);
+        }
+
+        private void Menu_Output_SaveToFile_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Заглушка. Menu_Output_SaveToFile_Click");
+        }
+
+        private void Menu_Output_Clear_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Заглушка. Menu_Output_Clear_Click");
         }
         // Открытие окна настроек
         private void Menu_Settings_Click(object sender, RoutedEventArgs e)
@@ -150,10 +224,23 @@ namespace GDAL_GUI_New
         private void Tasks_CollectionChanged(object sender,
             System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems[0] != null)
+            if (e.NewItems != null && e.NewItems[0] != null)
             {
                 MyTask task = e.NewItems[0] as MyTask;
                 StackPanel_TaskElements.Children.Add(task.GetTaskElement);
+            }
+            else if (e.OldItems != null && e.OldItems[0] != null)
+            {
+                MyTask task = e.OldItems[0] as MyTask;
+                StackPanel_TaskElements.Children.Remove(task.GetTaskElement);
+            }
+        }
+
+        private void OutputDataRecieved(object sender, DataReceivedEventArgs e)
+        {
+            if (!String.IsNullOrEmpty(e.Data))
+            {
+                m_OutputStringBuilder.Text = Environment.NewLine + e.Data;
             }
         }
 
