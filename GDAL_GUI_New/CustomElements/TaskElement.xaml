@@ -19,10 +19,18 @@
         </Border>-->
         <!--<Image x:Name="image_SrcImagePreview" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Height="64"  Width="64" Margin="0"/>-->
         <Image x:Name="image_SrcImagePreview" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Height="64"  Width="64" Margin="0"/>
-        <Label x:Name="label_Picture" Content="Снимок:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Width="56"/>
-        <Label x:Name="label_Utility" Content="Утилита:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,38,0,0" Grid.Column="1"/>
-        <Label x:Name="label_PictureName" Content="" ToolTip = ""  HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="56,0,0,0"/>
-        <Label x:Name="label_UtilityName" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="56,38,0,0"/>
+        <Label x:Name="label_TaskIDLabel" Content="{DynamicResource m_TaskElement_Label_TaskIDLabel}" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Padding="5,0,0,0" Margin="0,3,0,0" Width="56"/>
+        <Label x:Name="label_TaskID" Content="" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Padding="5,0,0,0" Margin="56,3,-26,0"/>
+        <Label x:Name="label_ImageLabel" Content="{DynamicResource m_TaskElement_Label_ImageLabel}" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Padding="5,0,0,0" Margin="0,24,0,0" Grid.Column="1" Width="56"/>
+        <Label x:Name="label_ImageName" Content="" ToolTip = ""  
+               HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="56,24,0,0" Padding="5,0,0,0"/>
+        <Label x:Name="label_UtilityLabel" Content="{DynamicResource m_TaskElement_Label_UtilityLabel}" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,45,0,0" Grid.Column="1" Padding="5,0,0,0" Width="56"/>
+        <Label x:Name="label_UtilityName" Content="" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Margin="56,45,0,0" Padding="5,0,0,0"/>
 
     </Grid>
 </UserControl>

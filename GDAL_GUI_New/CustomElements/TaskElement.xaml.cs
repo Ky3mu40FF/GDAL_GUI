@@ -41,6 +41,17 @@ namespace GDAL_GUI_New
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0));
         private SolidColorBrush m_FailedTaskBrush =
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+
+        public enum TaskElementState
+        {
+            Normal,
+            Highlighted,
+            Selected,
+            Completed,
+            Failed
+        }
+        private TaskElementState m_TaskElementState;
+
         #endregion
 
         // Конструкторы
@@ -59,6 +70,7 @@ namespace GDAL_GUI_New
             m_ParentTask = task;
             m_TaskID = processId;
             m_IsCurrent = false;
+            m_TaskElementState = TaskElementState.Normal;
         }
         #endregion
 
@@ -79,6 +91,11 @@ namespace GDAL_GUI_New
             }
         }
 
+        public int SetTaskID
+        {
+            set { label_TaskID.Content = value.ToString(); }
+        }
+
         public string SetUtilityName
         {
             set { label_UtilityName.Content = value; }
@@ -88,8 +105,8 @@ namespace GDAL_GUI_New
         {
             set
             {
-                label_PictureName.Content = System.IO.Path.GetFileName(value);
-                label_PictureName.ToolTip = value;
+                label_ImageName.Content = System.IO.Path.GetFileName(value);
+                label_ImageName.ToolTip = value;
             }
         }
 
@@ -101,33 +118,36 @@ namespace GDAL_GUI_New
         #endregion
 
         // Методы
-                #region Методы
-        private void CreateThumbnail(string sourceImage, string outputImage, int width, int height)
+        #region Методы
+
+        public void SetTaskElementState(TaskElementState taskElementState)
         {
-            double thumbnailSize = 192;
-            
-            BitmapSource imageSource = BitmapFrame.Create(new Uri(sourceImage));
-            double scaleCoefficient =
-                (double) imageSource.PixelWidth > (double) imageSource.PixelHeight
-                    ? 
-                    (double)thumbnailSize/imageSource.PixelWidth
-                    : 
-                    (double)thumbnailSize/imageSource.PixelHeight;
-            ScaleTransform st = new ScaleTransform();
-            //st.ScaleX = (double)width / (double)imageSource.PixelWidth;
-            //st.ScaleY = (double)height / (double)imageSource.PixelHeight;
-            st.ScaleX = scaleCoefficient;
-            st.ScaleY = scaleCoefficient;
-            TransformedBitmap tb = new TransformedBitmap(imageSource, st);
-            BitmapMetadata thumbMeta = new BitmapMetadata("jpg");
-            thumbMeta.Title = "thumbnail";
-            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
-            encoder.QualityLevel = 100;
-            encoder.Frames.Add(BitmapFrame.Create(tb, null, thumbMeta, null));
-            using (FileStream stream = new FileStream(outputImage, FileMode.Create))
+            m_TaskElementState = taskElementState;
+            ChangeBackground();
+        }
+
+        private void ChangeBackground()
+        {
+            switch (m_TaskElementState)
             {
-                encoder.Save(stream);
-                stream.Close();
+                case TaskElementState.Normal:
+                    this.Background = m_NormalStateBrush;
+                    break;
+                case TaskElementState.Highlighted:
+                    this.Background = m_HighlightedBrush;
+                    break;
+                case TaskElementState.Selected:
+                    this.Background = m_SelectedBrush;
+                    break;
+                case TaskElementState.Completed:
+                    //this.Background = m_CompletedTaskBrush;
+                    break;
+                case TaskElementState.Failed:
+                    this.Background = m_FailedTaskBrush;
+                    break;
+                default:
+                    this.Background = m_NormalStateBrush;
+                    break;
             }
         }
 
@@ -164,13 +184,22 @@ namespace GDAL_GUI_New
         private void taskElement_MouseLeftButtonDown(object sender, RoutedEventArgs e)
         {
             TaskElement taskElement = sender as TaskElement;
-            m_MainWindow.CurrentTask.GetTaskElement.Background = m_NormalStateBrush;
 
-            MyTask selectedProcess = m_MainWindow.GetTasksList.Where(
+            if (m_MainWindow.CurrentTask != null)
+            {
+                m_MainWindow.CurrentTask.GetTaskElement.Background = m_NormalStateBrush;
+                m_MainWindow.CurrentTask.GetTaskElement.IsCurrent = false;
+                if (taskElement == m_MainWindow.CurrentTask.GetTaskElement)
+                {
+                    m_MainWindow.CurrentTask = null;
+                    return;
+                }
+            }
+
+            MyTask selectedTask = m_MainWindow.GetTasksList.Where(
                 x => x.GetTaskID == taskElement.m_TaskID
                 ).FirstOrDefault();
-            m_MainWindow.CurrentTask.GetTaskElement.IsCurrent = false;
-            m_MainWindow.CurrentTask = selectedProcess;
+            m_MainWindow.CurrentTask = selectedTask;
             taskElement.Background = m_SelectedBrush;
             taskElement.IsCurrent = true;
 
