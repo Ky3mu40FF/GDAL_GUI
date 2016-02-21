@@ -160,13 +160,47 @@ namespace GDAL_GUI_New
             RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;            
         }
 
+        // Подключение к базе данных и получение доступных утилит 
+        // (проверяются утилиты в базе данных и в указанной папке)
         private void ConnectToDbAndGetNecessaryData()
         {
             if (DataBaseControl.ConnectToDB() == true)
             {
-                m_UtilitiesNames = DataBaseControl.GetUtilitiesNames();
-                ComboBox_UtilitiesNames.ItemsSource = m_UtilitiesNames;
-                ComboBox_UtilitiesNames.SelectedIndex = 0;
+                try
+                {
+                    // Инициализируем переменную с количеством доступных утилит
+                    int numOfAvailableUtilities = 0;
+                    numOfAvailableUtilities = CheckAvailableUtilities.GetNumOfAvailableUtilities(
+                        Properties.Settings.Default.UtilitiesDirectory,
+                        DataBaseControl.GetUtilitiesNames());
+                    // Если есть доступные утилиты, то получаем список доступных утилит
+                    if (numOfAvailableUtilities > 0)
+                    {
+                        m_UtilitiesNames = CheckAvailableUtilities.GetListOfAvailableUtilities(
+                                                Properties.Settings.Default.UtilitiesDirectory,
+                                                DataBaseControl.GetUtilitiesNames());
+                        ComboBox_UtilitiesNames.ItemsSource = m_UtilitiesNames;
+                        ComboBox_UtilitiesNames.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        MessageBox.Show("В указанной папке не найдены поддерживаемые утилиты.\n" +
+                                        "Пожалуйста, выберите корректную папку с утилитами в настройках.",
+                            "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        this.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "Произошла ошибка. Не удалось получить список доступных утилит." +
+                        Environment.NewLine + ex.Data,
+                        "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                //m_UtilitiesNames = DataBaseControl.GetUtilitiesNames();
+                //ComboBox_UtilitiesNames.ItemsSource = m_UtilitiesNames;
+                //ComboBox_UtilitiesNames.SelectedIndex = 0;
             }
             else
             {
@@ -578,7 +612,6 @@ namespace GDAL_GUI_New
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
             m_Task.SrcFileName = m_InputFiles[index];
             m_Task.ThumbnailPath = m_ThumbnailsNames[index];
-            //m_Task.GetTaskElement.SetImage = m_ThumbnailsNames[0];
             m_Task.EndEdit();
         }
 
