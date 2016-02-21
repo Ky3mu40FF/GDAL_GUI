@@ -34,5 +34,10 @@ namespace GDAL_GUI_New
                 OnPropertyChanged("Text");
             }
         }
+
+        public void Clear()
+        {
+            m_StringBuilder.Clear();
+        }
     }
 }
