@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="TaskEditWindow" Height="370" Width="745" MinWidth="737" MinHeight="370">
+        Title="{DynamicResource m_TaskEditWindow_Title}" Height="370" Width="745" MinWidth="745" MinHeight="370">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="17.964"/>
@@ -22,39 +22,39 @@
             <MenuItem x:Name="TaskEdit_Menu_Exit" Header="{DynamicResource m_TaskEdit_Menu_Exit}" HorizontalAlignment="Right"/>
         </Menu>
         <TabControl x:Name="tabControl" Grid.Row="1" >
-            <TabItem Header="Input|Output|Utility">
+            <TabItem Header="{DynamicResource m_TabItem_Input_Output_Utility}">
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="244"/>
                         <ColumnDefinition Width="243"/>
                         <ColumnDefinition Width="406"/>
                     </Grid.ColumnDefinitions>
-                    <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputAndOutputPaths}" Grid.Column="1" Margin="0,-1,0,0">
+                    <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputPaths}" Grid.Column="1" Margin="0,-1,0,0">
                         <Grid>
-                            <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="59"/>
+                            <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" VerticalAlignment="Top" Height="26" />
                             <TextBox x:Name="TextBox_InputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
                             <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
-                            <GroupBox x:Name="GroupBox_InputOptions" Header="Input Options" Margin="0,54,1,0">
+                            <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="13"/>
                                         <RowDefinition Height="34"/>
                                         <RowDefinition Height="34"/>
-                                        <RowDefinition Height="34"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="33"/>
                                         <RowDefinition Height="65"/>
                                     </Grid.RowDefinitions>
                                     <RadioButton x:Name="RadioButton_InputMode_OneFile" IsChecked="True" Tag="InputMode.OneFile" Grid.Row="1">
-                                        <TextBlock TextWrapping="Wrap" Text="Input One File" />
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_OneFile}" />
                                     </RadioButton>
                                     <RadioButton x:Name="RadioButton_InputMode_MultipleFiles" Grid.Row="2">
-                                        <TextBlock TextWrapping="Wrap" Text="Input Multiple Files" />
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFiles}" />
                                     </RadioButton>
                                     <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="3">
-                                        <TextBlock TextWrapping="Wrap" Text="Use Output File of Another Utility as Input" />
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherUtility}" />
                                     </RadioButton>
                                     <RadioButton x:Name="RadioButton_InputMode_TxtList" Grid.Row="4" Margin="0,0,0,64" Grid.RowSpan="2">
-                                        <TextBlock TextWrapping="Wrap" Text="Input txt File with List of Files" />
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_TxtList}" />
                                     </RadioButton>
 
                                 </Grid>
@@ -62,9 +62,9 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox x:Name="GroupBox_OutputPaths" Header="Output Path"  Margin="0,-1,163,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
+                    <GroupBox x:Name="GroupBox_OutputPaths" Header="{DynamicResource m_GroupBox_OutputPaths}"  Margin="0,-1,163,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
                         <Grid>
-                            <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="26" Width="69"/>
+                            <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" VerticalAlignment="Top" Height="26" />
                             <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" />
                             <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,27,0,0" Height="23"/>
                         </Grid>
@@ -79,21 +79,21 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox Header="Utility's Description" Margin="0,92,0,0">
+                    <GroupBox x:Name="GroupBox_UtilityDescription" Header="{DynamicResource m_GroupBox_UtilityDescription}" Margin="0,92,0,0">
                         <Grid>
                             <ScrollViewer Margin="0,10,0,0">
                                 <TextBlock x:Name="TextBlock_UtilityDescription" Background="White" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="Input File Preview" Grid.Column="2" Margin="0,78,163,0">
+                    <GroupBox Header="{DynamicResource m_GroupBox_InputFilePreview}" Grid.Column="2" Margin="0,78,163,0">
                         <Grid>
                             <Image x:Name="Image_Preview"/>
                         </Grid>
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Parameters" Margin="1,0,-5,-2">
+            <TabItem Header="{DynamicResource m_TabItem_Parameters}" Margin="1,0,-5,-2">
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="228"/>
@@ -112,7 +112,7 @@
                             </ScrollViewer>
                         </Grid>
                     </GroupBox>
-                    <GroupBox x:Name="ParameterDescription" Header="Parameter's Description" Grid.Column="0" Margin="0,144,0,0" HorizontalAlignment="Left" Width="228">
+                    <GroupBox x:Name="GroupBox_ParameterDescription" Header="{DynamicResource m_GroupBox_ParameterDescription}" Grid.Column="0" Margin="0,144,0,0" HorizontalAlignment="Left" Width="228">
                         <Grid>
                             <ScrollViewer>
                                 <TextBlock x:Name="TextBlock_ParameterDescription" Background="White" TextWrapping="Wrap" />
