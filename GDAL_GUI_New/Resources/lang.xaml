@@ -5,37 +5,53 @@
                     <!-- xmlns:local="clr-namespace:GDAL_GUI_New.Resources" -->
     
     <!--Главное окно-->
+    <v:String x:Key="m_MainWindow_Title">GDAL GUI</v:String>
     <v:String x:Key="m_Menu_File">File</v:String>
     <v:String x:Key="m_Menu_File_Exit">Exit</v:String>
     <v:String x:Key="m_Menu_Edit">Edit</v:String>
     <v:String x:Key="m_Menu_Edit_AddTask">Add Task</v:String>
+    <v:String x:Key="m_Menu_Edit_RemoveSelectedTask">Remove Selected Task</v:String>
+    <v:String x:Key="m_Menu_Edit_RemoveAllTasks">Remove All Tasks</v:String>
     <v:String x:Key="m_Menu_Run">Run</v:String>
     <v:String x:Key="m_Menu_Run_RunAll">Run</v:String>
     <v:String x:Key="m_Menu_Run_RunSelected">Run Selected</v:String>
+    <v:String x:Key="m_Menu_Output">Output</v:String>
+    <v:String x:Key="m_Menu_Output_SaveToFile">Save To File</v:String>
+    <v:String x:Key="m_Menu_Output_Clear">Clear</v:String>
     <v:String x:Key="m_Menu_Settings">Settings</v:String>
     <v:String x:Key="m_Menu_About">About</v:String>
     <v:String x:Key="m_GroupBox_Output">Output</v:String>
     <v:String x:Key="m_GroupBox_TaskList">Task List</v:String>
 
     <!--Окно редактирования задачи-->
-    <v:String x:Key="m_GroupBox_InputAndOutputPaths">Input and Output Pahts</v:String>
-    <v:String x:Key="m_Label_InputFile">Input File</v:String>
-    <v:String x:Key="m_Button_BrowseInputFile">Browse</v:String>
-    <v:String x:Key="m_CheckBox_PreviousOutputAsCurrentInput">Use Output File of Another Utility as Input</v:String>
-    <v:String x:Key="m_Label_OutputFile">Output File</v:String>
-    <v:String x:Key="m_Button_BrowseOutputFile">Browse</v:String>
-    <v:String x:Key="m_GroupBox_UtilitySelection">Utility Selection</v:String>
-    <v:String x:Key="m_Label_UtilityName">Utility's Name</v:String>
-    <v:String x:Key="m_Label_UtilityVersion">Utility's Version</v:String>
-    <v:String x:Key="m_GroupBox_AvailableParameters">Available Parameters</v:String>
-    <v:String x:Key="m_GroupBox_AdditionalParameters">Additional Parameters</v:String>
+    <v:String x:Key="m_TaskEditWindow_Title">Task Edit</v:String>
     <v:String x:Key="m_TaskEdit_Menu_AddTask">Add Task</v:String>
     <v:String x:Key="m_TaskEdit_Menu_Exit">Exit without Adding</v:String>
     <v:String x:Key="m_TaskEdit_Menu_ManualInput">Manual Editing</v:String>
-    <v:String x:Key="m_Expander_UtilityAndParameterDescription">Utility's And Parameter's Description</v:String>
+    <v:String x:Key="m_TabItem_Input_Output_Utility">Inputs, Outputs and Utility Selection</v:String>
+    <v:String x:Key="m_TabItem_Parameters">Parameters</v:String>
+    <v:String x:Key="m_GroupBox_UtilitySelection">Utility Selection</v:String>
+        <v:String x:Key="m_Label_UtilityName">Utility's Name</v:String>
+        <v:String x:Key="m_Label_UtilityVersion">Utility's Version</v:String>
+    <v:String x:Key="m_GroupBox_UtilityDescription">Utility's Description</v:String>
+    <v:String x:Key="m_GroupBox_InputPaths">Input Paths</v:String>
+        <v:String x:Key="m_Label_InputFile">Input File</v:String>
+        <v:String x:Key="m_Button_BrowseInputFile">Browse</v:String>
+    <v:String x:Key="m_GroupBox_InputOptions">Input Options</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_OneFile">Input One File</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFiles">Input Multiple Files</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherUtility">Use Output File of Another Utility as Input</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_TxtList">Input txt File with List of Files</v:String>
+    <v:String x:Key="m_GroupBox_OutputPaths">Output Paths</v:String>
+        <v:String x:Key="m_Label_OutputFile">Output File</v:String>
+        <v:String x:Key="m_Button_BrowseOutputFile">Browse</v:String>
+    <v:String x:Key="m_GroupBox_InputFilePreview">Input File Preview</v:String>
+    <v:String x:Key="m_GroupBox_AvailableParameters">Available Parameters</v:String>
+    <v:String x:Key="m_GroupBox_ParameterDescription">Parameter's Description</v:String>
+    <v:String x:Key="m_GroupBox_AdditionalParameters">Additional Parameters</v:String>
 
     <!--Окно настроек-->
-    <v:String x:Key="m_Form_WindowSettings_Title">Settings</v:String>
+    <v:String x:Key="m_SettingsWindow_Title">Settings</v:String>
     <v:String x:Key="m_GroupBox_Header_UtilitiesDirectoryPath">Utilities directory path</v:String>
     <v:String x:Key="m_Button_Content_BrowseUtilitiesDirectoryPath">Browse</v:String>
     <v:String x:Key="m_CheckBox_Content_UseBundledUtilities">Use the bundled utilities</v:String>
@@ -43,6 +59,11 @@
     <v:String x:Key="m_Label_ContentLanguage">Utilities and Params Info:</v:String>
     <v:String x:Key="m_Label_ProgramLanguage">Program:</v:String>
     <v:String x:Key="m_Button_SaveSettings">Save</v:String>
-
+    
+    <!--Графический элемент отображения задачи-->
+    <v:String x:Key="m_TaskElement_Label_TaskIDLabel">ID:</v:String>
+    <v:String x:Key="m_TaskElement_Label_ImageLabel">Image:</v:String>
+    <v:String x:Key="m_TaskElement_Label_UtilityLabel">Utility:</v:String>
+    
         <!--<v:String x:Key=""></v:String>-->
 </ResourceDictionary>
