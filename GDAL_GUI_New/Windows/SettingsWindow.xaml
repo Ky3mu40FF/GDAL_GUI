@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
         xmlns:properties="clr-namespace:GDAL_GUI_New.Properties"
-        Title="{DynamicResource m_Form_WindowSettings_Title}" Height="297.453" Width="340.528" MinWidth="220">
+        Title="{DynamicResource m_SettingsWindow_Title}" Height="297.453" Width="340.528" MinWidth="220">
     <Grid>
         <GroupBox x:Name="groupBox_UtilitiesPath" Header="{DynamicResource m_GroupBox_Header_UtilitiesDirectoryPath}" VerticalAlignment="Top" Height="98">
             <Grid>
