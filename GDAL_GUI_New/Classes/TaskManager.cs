@@ -74,7 +74,7 @@ namespace GDAL_GUI_New
 
         public static void RunAll()
         {
-            if (m_Tasks == null)
+            if (m_Tasks == null || m_Tasks.Count == 0)
             {
                 System.Windows.MessageBox.Show("Отсутствуют задачи!", "Ошибка!",
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
@@ -90,7 +90,7 @@ namespace GDAL_GUI_New
 
         public static void RunSelected(MyTask selectedTask)
         {
-            if (m_Tasks == null)
+            if (m_Tasks == null || m_Tasks.Count == 0)
             {
                 System.Windows.MessageBox.Show("Отсутствуют задачи!", "Ошибка!",
                     System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
