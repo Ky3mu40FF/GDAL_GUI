@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Data;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using Gat.Controls;
 
 namespace GDAL_GUI_New
@@ -197,15 +198,38 @@ namespace GDAL_GUI_New
             TaskManager.TasksCollection = m_Tasks;
             TaskManager.RunSelected(m_CurrentTask);
         }
-
+        // Сохранение данных из окна вывода (сохранение логов) в файл
         private void Menu_Output_SaveToFile_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заглушка. Menu_Output_SaveToFile_Click");
+            //MessageBox.Show("Заглушка. Menu_Output_SaveToFile_Click");
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog()
+            {
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+                FilterIndex = 0,
+                FileName = String.Format("GDAL_GUI_{0}_{1}_{2}_-_{3}_{4}_{5}_Output_Log", 
+                    DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year, 
+                    DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second)
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    StreamWriter streamWriter = new StreamWriter(saveFileDialog.FileName);
+                    streamWriter.Write(m_OutputStringBuilder.Text);
+                    streamWriter.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Не удалось сохранить данные из окна вывода.", "Ошибка!",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
-
+        // Очистка окна вывода
         private void Menu_Output_Clear_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Заглушка. Menu_Output_Clear_Click");
+            m_OutputStringBuilder.Clear();
+            TextBox_OutputData.Clear();
         }
         // Открытие окна настроек
         private void Menu_Settings_Click(object sender, RoutedEventArgs e)
@@ -213,14 +237,13 @@ namespace GDAL_GUI_New
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.ShowDialog();
         }
-
         // Открытие окна "О программе"
         private void Menu_About_Click(object sender, RoutedEventArgs e)
         {
             About about = new About();
             about.Show();
         }
-
+        // Обработчик события Изменения коллекции задач (для ObservableCollection<MyTask> m_Tasks)
         private void Tasks_CollectionChanged(object sender,
             System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -235,7 +258,7 @@ namespace GDAL_GUI_New
                 StackPanel_TaskElements.Children.Remove(task.GetTaskElement);
             }
         }
-
+        // Обработчик события Получения новых данных вывода запущенного процесса
         private void OutputDataRecieved(object sender, DataReceivedEventArgs e)
         {
             if (!String.IsNullOrEmpty(e.Data))
