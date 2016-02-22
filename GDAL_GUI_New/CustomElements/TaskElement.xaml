@@ -6,6 +6,11 @@
              xmlns:local="clr-namespace:GDAL_GUI_New"
              mc:Ignorable="d" 
              d:DesignHeight="66" d:DesignWidth="256" BorderThickness="1" Background="#FFE6E6E6" BorderBrush="Black">
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_EditTask" Header="Редактировать задачу"/>
+        </ContextMenu>
+    </UserControl.ContextMenu>
     <Grid x:Name="Grid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>

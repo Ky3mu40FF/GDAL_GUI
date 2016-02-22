@@ -158,6 +158,10 @@ namespace GDAL_GUI_New
             this.MouseLeftButtonDown += new MouseButtonEventHandler(taskElement_MouseLeftButtonDown);
             this.image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
             this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
+            this.MouseRightButtonDown += new MouseButtonEventHandler(taskElement_MouseRightButtonDown);
+            this.MouseRightButtonUp += new MouseButtonEventHandler(taskElement_MouseRightButtonUp);
+            (this.ContextMenu.Items.GetItemAt(0) as MenuItem).Click += 
+                new RoutedEventHandler(taskElement_ContextMenu_EditTask_Click);
         }
         #endregion
 
@@ -265,7 +269,24 @@ namespace GDAL_GUI_New
             imageControl.BeginAnimation(System.Windows.Controls.Image.HeightProperty, animHeight);
             imageControl.BeginAnimation(System.Windows.Controls.Image.WidthProperty, animWidth);
         }
+
+        private void taskElement_MouseRightButtonDown(object sender, RoutedEventArgs e)
+        {
+            this.ContextMenu.IsOpen = true;
+        }
+
+        private void taskElement_MouseRightButtonUp(object sender, RoutedEventArgs e)
+        {
+            //this.ContextMenu.IsOpen = true;
+            e.Handled = true;
+        }
+
+        private void taskElement_ContextMenu_EditTask_Click(object sender, RoutedEventArgs e)
+        {
+            TaskEditWindow taskEditWindow = new TaskEditWindow(m_MainWindow, m_ParentTask);
+            taskEditWindow.ShowDialog();
+        }
+
         #endregion
-        
     }
 }
