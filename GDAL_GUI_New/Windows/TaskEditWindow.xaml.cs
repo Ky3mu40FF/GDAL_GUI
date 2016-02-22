@@ -46,11 +46,12 @@ namespace GDAL_GUI_New
         private List<string> m_UtilitiesNames;
         private List<MyDataRow> m_UtilityParameters;
         private DataRow m_UtilityInfo;
-        // Этот флаг используется при закрытии данного окна, чтобы выводить/не выводить диалог
+        // Этот флаг используется при закрытии данного окна, чтобы выводить/не выводить 
+        // диалог-предупреждение, что изменения не будут сохранены
         private bool m_IsThisTaskAdded;
         private string[] m_InputFiles;
-        private string[] m_ThumbnailsNames;
-        private string m_OutputFile;
+        private string[] m_ThumbnailsPaths;
+        private string m_OutputPath;
         private string m_FormedParametersArgument;
         private Process m_ProcessForVersion;
         private Version m_UtilityVersion;
@@ -66,15 +67,23 @@ namespace GDAL_GUI_New
         string[] m_AllParameters;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public enum TaskEditWindowMode
+        {
+            NewTask,
+            EditingExistingTask
+        }
+
+        private TaskEditWindowMode m_TaskEditWindowMode;
         #endregion
 
         // Конструкторы
-                #region Конструкторы
+        #region Конструкторы
         public TaskEditWindow(MainWindow mainWindow)
         {
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
+            
             m_MainWindow = mainWindow;
             m_Task = new MyTask(m_MainWindow);
             m_IsThisTaskAdded = false;
@@ -83,6 +92,7 @@ namespace GDAL_GUI_New
             m_CurrentMode = InputMode.OneFile;
             m_FormedParametersArgument = String.Empty;
             m_AdditionalParametersInputs = new List<DataTable>();
+            m_TaskEditWindowMode = TaskEditWindowMode.NewTask;
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -95,19 +105,72 @@ namespace GDAL_GUI_New
             EventAndPropertiesInitialization();
             ConnectToDbAndGetNecessaryData();
         }
+
+        public TaskEditWindow(MainWindow mainWindow, MyTask task)
+        {
+            InitializeComponent();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            m_MainWindow = mainWindow;
+            m_Task = task;
+            m_IsThisTaskAdded = false;
+            m_UtilitiesNames = new List<string>();
+            m_UtilityParameters = new List<MyDataRow>();
+            m_CurrentMode = InputMode.OneFile;
+            m_FormedParametersArgument = String.Empty;
+            m_AdditionalParametersInputs = new List<DataTable>();
+            m_TaskEditWindowMode = TaskEditWindowMode.EditingExistingTask;
+            
+
+            // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
+            m_ProcessForVersion = new Process();
+            m_ProcessForVersion.StartInfo.UseShellExecute = false;
+            m_ProcessForVersion.StartInfo.CreateNoWindow = true;
+            m_ProcessForVersion.StartInfo.RedirectStandardOutput = true;
+            m_ProcessForVersion.StartInfo.Arguments = "--version";
+            m_ProcessForVersion.OutputDataReceived += new DataReceivedEventHandler(ProcessForVerion_DataReceived);
+
+            EventAndPropertiesInitialization();
+            ConnectToDbAndGetNecessaryData();
+
+            // Восстановление предыдущего состояния окна
+            m_InputFiles = new string[1];
+            m_ThumbnailsPaths = new string[1];
+            ComboBox_UtilitiesNames.SelectedItem = m_Task.UtilityName;
+            m_UtilityParameters = m_Task.ParametersList;
+            ListBox_AvailableParameters.ItemsSource =
+                m_UtilityParameters.Where(x => (bool)x.GetDataRow["MustBeInAvailableParametersList"] == true);
+            foreach (MyDataRow selectedParam in m_Task.SelectedParametersList)
+            {
+                if (m_UtilityParameters.Contains(selectedParam))
+                {
+                    ListBox_AvailableParameters.SelectedItems.Add(selectedParam);
+                }
+            }
+            StackPanel_AdditionalParameters.Children.Clear();
+            foreach (GroupBox gB in m_Task.AdditionalParameters)
+            {
+                StackPanel_AdditionalParameters.Children.Add(gB);
+            }
+            m_InputFiles[0] = m_Task.SrcFileName;
+            m_OutputPath = m_Task.OutputPath;
+            m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
+
+        }
+
         #endregion
 
         // Свойства
-                #region Свойства
+        #region Свойства
 
         public string OutputFilePath
         {
-            get { return m_OutputFile; }
+            get { return m_OutputPath; }
             set
             {
                 if (!String.IsNullOrEmpty(value))
                 {
-                    m_OutputFile = value;
+                    m_OutputPath = value;
                     OnPropertyChanged("OutputFilePath");
                 }
             }
@@ -384,7 +447,7 @@ namespace GDAL_GUI_New
             // текущего параметра
             foreach (var child in StackPanel_AdditionalParameters.Children)
             {
-                if (child is GroupBox)
+                if (child != null && child is GroupBox)
                 {
                     GroupBox gB = child as GroupBox;
                     if (gB.Tag == currentParameter.GetDataRow["NameOfTheParameter"])
@@ -427,33 +490,56 @@ namespace GDAL_GUI_New
                 // и выбираем наиболее "свежий" шаблон для данной версии утилиты
                 if (parameter.GetDataRow["Pattern"].ToString().Split(';').Length > 1)
                 {
-                    string[] differentVersionsPatterns = 
-                        parameter.GetDataRow["Pattern"].ToString().Split(
-                            new char[] {';'}, 
-                            StringSplitOptions.RemoveEmptyEntries);
-                    Version maxVersion = 
-                        Version.Parse(differentVersionsPatterns[0].Split(
-                            new char[] { '|' }, 
-                            StringSplitOptions.RemoveEmptyEntries)[0]);
-                    for (int i = 1; i < differentVersionsPatterns.Length; i++)
+                    try
                     {
-                        Version currentVer = 
-                            Version.Parse(differentVersionsPatterns[i].Split(
-                                new char[] { '|' }, 
+                        string[] differentVersionsPatterns =
+                            parameter.GetDataRow["Pattern"].ToString().Split(
+                                new char[] {';'},
+                                StringSplitOptions.RemoveEmptyEntries);
+                        Version maxVersion =
+                            Version.Parse(differentVersionsPatterns[0].Split(
+                                new char[] {'|'},
                                 StringSplitOptions.RemoveEmptyEntries)[0]);
-                        if (currentVer <= m_UtilityVersion && currentVer > maxVersion)
+                        for (int i = 1; i < differentVersionsPatterns.Length; i++)
                         {
-                            maxVersion = currentVer;
+                            Version currentVer =
+                                Version.Parse(differentVersionsPatterns[i].Split(
+                                    new char[] {'|'},
+                                    StringSplitOptions.RemoveEmptyEntries)[0]);
+                            if (currentVer <= m_UtilityVersion && currentVer > maxVersion)
+                            {
+                                maxVersion = currentVer;
+                            }
                         }
+                        pattern =
+                            differentVersionsPatterns.Where(x => x.Contains(maxVersion.ToString()) == true)
+                                .First()
+                                .Split(
+                                    new Char[] {'|'},
+                                    StringSplitOptions.RemoveEmptyEntries)[1];
                     }
-                    pattern = 
-                        differentVersionsPatterns.Where(x => x.Contains(maxVersion.ToString()) == true).First().Split(
-                            new Char [] {'|'}, 
-                            StringSplitOptions.RemoveEmptyEntries)[1];
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Не удалось получить шаблон параметра. Вероятно проблема в базе данных. " +
+                                        Environment.NewLine + 
+                                        "Параметр " + parameter.ToString() + " будет пропущен."
+                            + Environment.NewLine + ex.Data.ToString());
+                        m_AllParameters[positionIndex] = String.Empty;
+                        continue;
+                    }
                 }
                 // Если только один шаблон, то его и добавляем
                 else
                 {
+                    if (String.IsNullOrEmpty(parameter.GetDataRow["Pattern"].ToString()))
+                    {
+                        MessageBox.Show("В базе данных отсутствует шаблон." + Environment.NewLine +
+                                        "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                        m_AllParameters[positionIndex] = String.Empty;
+                        continue;
+                    }
                     pattern = parameter.GetDataRow["Pattern"].ToString();
                 }
 
@@ -473,6 +559,25 @@ namespace GDAL_GUI_New
                         }
                     }
 
+                    if (gB == null)
+                    {
+                        MessageBox.Show("Не удалось получить дополнительные параметры." + Environment.NewLine +
+                                        "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                        m_AllParameters[positionIndex] = String.Empty;
+                        continue;
+                    }
+
+                    if (String.IsNullOrEmpty(parameter.GetDataRow["AdditionalParametersType"].ToString()))
+                    {
+                        MessageBox.Show("В базе отсутствует тип дополнительных параметров (AdditionalParametersType)." 
+                                        + Environment.NewLine + "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                        m_AllParameters[positionIndex] = String.Empty;
+                        continue;
+                    }
                     // Проверяем, должен ли пользователь вводить эти параметры  вручную.
                     if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "ManualInput")
                     {
@@ -492,7 +597,6 @@ namespace GDAL_GUI_New
                             // для каждого отдельного вызова данного параметра
                             foreach (DataRow row in tableWithInputedParameters.Rows)
                             {
-                                //allParameters[positionIndex] += parameter.GetDataRow["Pattern"] + " ";
                                 // Каждый вызов параметры отделяем пробелом
                                 m_AllParameters[positionIndex] += pattern + " ";
                                 // Проходим по всем столбцам (доп. параметрам)
@@ -518,40 +622,63 @@ namespace GDAL_GUI_New
                         // Если этот параметр может вызываться только единожды
                         else if((bool)parameter.GetDataRow["MultipleCalls"] == false) 
                         {
-                            //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
-                            m_AllParameters[positionIndex] = pattern;
-                            // Получаем сетку с полями ввода
-                            Grid grid = gB.Content as Grid;
-                            // Проходимся по всем полям ввода, получаем значения и добавляем в шаблон
-                            foreach (var child in grid.Children)
+                            try
                             {
-                                if (child is TextBox)
+                                m_AllParameters[positionIndex] = pattern;
+                                // Получаем сетку с полями ввода
+                                Grid grid = gB.Content as Grid;
+                                // Проходимся по всем полям ввода, получаем значения и добавляем в шаблон
+                                foreach (var child in grid.Children)
                                 {
-                                    TextBox tB = child as TextBox;
-                                    if (!String.IsNullOrEmpty(tB.Text))
+                                    if (child is TextBox)
                                     {
-                                        m_AllParameters[positionIndex] =
-                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
-                                    }
-                                    else
-                                    {
-                                        m_AllParameters[positionIndex] =
-                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
+                                        TextBox tB = child as TextBox;
+                                        if (!String.IsNullOrEmpty(tB.Text))
+                                        {
+                                            m_AllParameters[positionIndex] =
+                                                m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
+                                        }
+                                        else
+                                        {
+                                            m_AllParameters[positionIndex] =
+                                                m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
+                                        }
                                     }
                                 }
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Не удалось добавить введённые значения в шаблон." 
+                                        + Environment.NewLine + "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                                m_AllParameters[positionIndex] = String.Empty;
+                                continue;
                             }
                         }
                     }
                     // Если параметр требует от пользователя выбрать один из вариантов
                     else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "Selecting")
                     {
-                        // Получаем ComboBox, в котором пользователь выбирал доп. параметр
-                        ComboBox cB = gB.Content as ComboBox;
-                        //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
-                        // Добавляем шаблон и добавляем в него значение
-                        m_AllParameters[positionIndex] = pattern;
-                        m_AllParameters[positionIndex] =
-                            m_AllParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
+                        try
+                        {
+                            // Получаем ComboBox, в котором пользователь выбирал доп. параметр
+                            ComboBox cB = gB.Content as ComboBox;
+                            //allParameters[positionIndex] = parameter.GetDataRow["Pattern"].ToString();
+                            // Добавляем шаблон и добавляем в него значение
+                            m_AllParameters[positionIndex] = pattern;
+                            m_AllParameters[positionIndex] =
+                                m_AllParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Не удалось добавить выбранное значение в шаблон."
+                                        + Environment.NewLine + "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                            m_AllParameters[positionIndex] = String.Empty;
+                            continue;
+                        }
                     }
                 }
                 // Если нет дополнительных параметров, то в массив выбранных параметров
@@ -577,20 +704,30 @@ namespace GDAL_GUI_New
                 m_AllParameters[src_Position] = m_InputFiles[index];
             }
             // Если утилита поддерживает выходные данные 
-            if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputFile))
+            if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
             {
+                if (String.IsNullOrEmpty(m_OutputPath))
+                {
+                    MessageBox.Show("Не указан путь сохранения результата!", "Ошибка!",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    throw new Exception("");
+                }
                 // Получаем индекс параметра выходных данных
                 int dst_Position =
                 (int)m_UtilityParameters.Where(
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
-                m_AllParameters[dst_Position] = m_OutputFile;
-                /*
-                allParameters[dst_Position] =
-                    m_UtilityParameters.Where(
-                        x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset"
-                        ).First().GetDataRow["Pattern"].ToString().Replace("dst_dataset", m_OutputFile);
-                */
+                if (m_CurrentMode == InputMode.OneFile || m_CurrentMode == InputMode.FromAnotherUtility)
+                {
+                    m_AllParameters[dst_Position] = m_OutputPath;
+                }
+                else if (m_CurrentMode == InputMode.MultipleFiles)
+                {
+                    m_AllParameters[dst_Position] =
+                        m_OutputPath + System.IO.Path.GetDirectoryName(m_InputFiles[index]) +
+                        System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[index]) +
+                        "_Edited" + System.IO.Path.GetExtension(m_InputFiles[index]);
+                }
             }
         }
 
@@ -611,24 +748,24 @@ namespace GDAL_GUI_New
             m_Task.ParametersString = m_FormedParametersArgument;
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
             m_Task.SrcFileName = m_InputFiles[index];
-            m_Task.ThumbnailPath = m_ThumbnailsNames[index];
+            m_Task.ThumbnailPath = m_ThumbnailsPaths[index];
             m_Task.EndEdit();
         }
 
         private void MakeThumbnails()
         {
-            m_ThumbnailsNames = new string[m_InputFiles.Length];
+            m_ThumbnailsPaths = new string[m_InputFiles.Length];
             for (int i = 0; i < m_InputFiles.Length; i++)
             {
-                m_ThumbnailsNames[i] = System.IO.Path.GetDirectoryName(m_InputFiles[i]) + "\\" +
+                m_ThumbnailsPaths[i] = System.IO.Path.GetDirectoryName(m_InputFiles[i]) + "\\" +
                                         System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[i]) +
                                         "_thumbnail.tif";
-                GdalFunctions.MakeThumbnail(m_InputFiles[i], m_ThumbnailsNames[i]);
+                GdalFunctions.MakeThumbnail(m_InputFiles[i], m_ThumbnailsPaths[i]);
             }
             Image_Preview.BeginInit();
-            if (System.IO.File.Exists(m_ThumbnailsNames[0]))
+            if (System.IO.File.Exists(m_ThumbnailsPaths[0]))
             {
-                Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsNames[0]));
+                Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0]));
             }
             else
             {
@@ -719,29 +856,72 @@ namespace GDAL_GUI_New
 
         private void Button_BrowseOutputFile_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog()
+            switch (m_CurrentMode)
             {
-                //CheckFileExists = true,
-                CheckPathExists = true
-            };
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                //m_OutputFile = saveFileDialog.FileName;
-                OutputFilePath = saveFileDialog.FileName;
+                case InputMode.OneFile:
+                    SaveFileDialog saveFileDialog_OneInput = new SaveFileDialog();
+                    if (saveFileDialog_OneInput.ShowDialog() == true)
+                    {
+                        OutputFilePath = saveFileDialog_OneInput.FileName;
+                    }
+                    break;
+                case InputMode.MultipleFiles:
+                    System.Windows.Forms.FolderBrowserDialog folderBrowserDialog =
+                        new System.Windows.Forms.FolderBrowserDialog();
+                    if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        OutputFilePath = folderBrowserDialog.SelectedPath;
+                    }
+                    break;
+                case InputMode.FromAnotherUtility:
+                    SaveFileDialog saveFileDialog_FromAnotherUtility = new SaveFileDialog();
+                    if (saveFileDialog_FromAnotherUtility.ShowDialog() == true)
+                    {
+                        OutputFilePath = saveFileDialog_FromAnotherUtility.FileName;
+                    }
+                    break;
             }
+
+            
         }
 
         private void TaskEdit_Menu_AddTask_Click(object sender, RoutedEventArgs e)
         {
-            //MessageBox.Show("Заглушка. AddTask");
-            for (int i = 0; i < m_InputFiles.Length; i++)
+            try
             {
-                ParametersArgumentForming();
-                InputAndOutputToParametersArgumentString(i);
-                CompleteParametersArgumentString();
-                //MessageBox.Show(m_FormedParametersArgument);
-                MakeTask(i);
-                m_MainWindow.AddNewTask(m_Task);
+                for (int i = 0; i < m_InputFiles.Length; i++)
+                {
+                    ParametersArgumentForming();
+                    InputAndOutputToParametersArgumentString(i);
+                    CompleteParametersArgumentString();
+                    //MessageBox.Show(m_FormedParametersArgument);
+                    MakeTask(i);
+
+                    // Процесс сохранения всех выбранных параметров и т.п. на случай,
+                    // если пользователь захочет отредактировать задачу
+                    m_Task.ParametersList = m_UtilityParameters;
+                    m_Task.SelectedParametersList = new MyDataRow[ListBox_AvailableParameters.SelectedItems.Count];
+                    ListBox_AvailableParameters.SelectedItems.CopyTo(m_Task.SelectedParametersList, 0);
+                    m_Task.AdditionalParameters = new GroupBox[StackPanel_AdditionalParameters.Children.Count];
+                    StackPanel_AdditionalParameters.Children.CopyTo(m_Task.AdditionalParameters, 0);
+                    StackPanel_AdditionalParameters.Children.Clear();
+                    m_Task.OutputPath = m_OutputPath;
+
+                    if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
+                    {
+                        m_MainWindow.AddNewTask(m_Task);
+                    }
+                    else if (m_TaskEditWindowMode == TaskEditWindowMode.EditingExistingTask)
+                    {
+                        MessageBox.Show("Типа отредактировано");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не удалось завершить процесс добавления задачи." + 
+                    Environment.NewLine + ex.Message);
+                return;
             }
             m_IsThisTaskAdded = true;
             this.Close();
