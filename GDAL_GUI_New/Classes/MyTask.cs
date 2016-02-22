@@ -40,10 +40,56 @@ namespace GDAL_GUI_New
             Error
         }
         private TaskState m_State;
+
+
+        // Переменные, хранящие данные для восстановления состояния окна
+        // при выборе редактирования задачи (т.е. чтобы все выбранные параметры и т.д.)
+        // были на месте
+        // И их свойства
+        private string m_OutputPath;
+        // Список нужен, чтобы при добавлении выделений в ListBox
+        // сравнение происходило корректно (если сравнивать со списком,
+        // заново загруженным из базы, то, даже несмотря на то, что они одинаковые,
+        // сравнение объектов давало в результате ложь)
+        private List<MyDataRow> m_ParametersList;   
+        private MyDataRow[] m_SelectedParametersList;
+        private GroupBox[] m_AdditionalParameters;
+
+        public string OutputPath
+        {
+            get { return m_OutputPath; }
+            set
+            {
+                if (value != null)
+                {
+                    m_OutputPath = value;
+                }
+                else
+                {
+                    m_OutputPath = String.Empty;
+                }
+            }
+        }
+        public List<MyDataRow> ParametersList
+        {
+            get { return m_ParametersList; }
+            set { m_ParametersList = value; }
+        }
+        public MyDataRow[] SelectedParametersList
+        {
+            get { return m_SelectedParametersList; }
+            set { m_SelectedParametersList = value; }
+        }
+        public GroupBox[] AdditionalParameters
+        {
+            get { return m_AdditionalParameters; }
+            set { m_AdditionalParameters = value; }
+        }
+
         #endregion
 
         // Конструкторы
-                #region Конструкторы
+        #region Конструкторы
         public MyTask(MainWindow mainWindow)
         {
             m_TaskID = mainWindow.GetTasksCounter + 1;
