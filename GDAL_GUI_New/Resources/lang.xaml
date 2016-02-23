@@ -10,6 +10,7 @@
     <v:String x:Key="m_Menu_File_Exit">Exit</v:String>
     <v:String x:Key="m_Menu_Edit">Edit</v:String>
     <v:String x:Key="m_Menu_Edit_AddTask">Add Task</v:String>
+    <v:String x:Key="m_Menu_Edit_EditSelectedTask">Edit Selected Task</v:String>
     <v:String x:Key="m_Menu_Edit_RemoveSelectedTask">Remove Selected Task</v:String>
     <v:String x:Key="m_Menu_Edit_RemoveAllTasks">Remove All Tasks</v:String>
     <v:String x:Key="m_Menu_Run">Run</v:String>
@@ -64,6 +65,9 @@
     <v:String x:Key="m_TaskElement_Label_TaskIDLabel">ID:</v:String>
     <v:String x:Key="m_TaskElement_Label_ImageLabel">Image:</v:String>
     <v:String x:Key="m_TaskElement_Label_UtilityLabel">Utility:</v:String>
-    
+    <v:String x:Key="m_TaskElement_ContextMenu_RunTask">Run Task</v:String>
+    <v:String x:Key="m_TaskElement_ContextMenu_EditTask">Edit Task</v:String>
+    <v:String x:Key="m_TaskElement_ContextMenu_RemoveTask">Remove Task</v:String>
+
         <!--<v:String x:Key=""></v:String>-->
 </ResourceDictionary>
