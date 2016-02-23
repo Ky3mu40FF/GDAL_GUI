@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace GDAL_GUI_New
     /// <summary>
     /// Логика взаимодействия для TaskElement.xaml
     /// </summary>
-    public partial class TaskElement : UserControl
+    public partial class TaskElement : UserControl, INotifyPropertyChanged
     {
         // Переменныые
                 #region Переменные
@@ -30,17 +31,18 @@ namespace GDAL_GUI_New
         private MyTask m_ParentTask;
         private int m_TaskID;
         private bool m_IsCurrent;
+        private System.Windows.Media.SolidColorBrush m_BackgroundBrush;
 
-        private SolidColorBrush m_NormalStateBrush = 
+        public static SolidColorBrush m_NormalStateBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 230, 230));
-        private SolidColorBrush m_HighlightedBrush = 
+        public static SolidColorBrush m_HighlightedBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255));
-        private SolidColorBrush m_SelectedBrush =
-            new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 255));
-        private SolidColorBrush m_CompletedTaskBrush = 
-            new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 0));
-        private SolidColorBrush m_FailedTaskBrush =
-            new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+        public static SolidColorBrush m_SelectedBrush =
+            new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 180, 180));
+        public static SolidColorBrush m_CompletedTaskBrush = 
+            new SolidColorBrush(System.Windows.Media.Color.FromRgb(25, 200, 25));
+        public static SolidColorBrush m_FailedTaskBrush =
+            new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 50, 50));
 
         public enum TaskElementState
         {
@@ -51,11 +53,21 @@ namespace GDAL_GUI_New
             Failed
         }
         private TaskElementState m_TaskElementState;
+        private TaskElementState m_PreviousTaskElementState;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        //private void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName = null)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         #endregion
 
         // Конструкторы
-                #region Конструкторы
+        #region Конструкторы
         public TaskElement()
         {
             InitializeComponent();
@@ -65,17 +77,19 @@ namespace GDAL_GUI_New
         public TaskElement(MainWindow mainWindow, MyTask task, int processId)
         {
             InitializeComponent();
-            EventsAndOtherSettings();
             m_MainWindow = mainWindow;
             m_ParentTask = task;
             m_TaskID = processId;
             m_IsCurrent = false;
             m_TaskElementState = TaskElementState.Normal;
+            m_PreviousTaskElementState = m_TaskElementState;
+            SetBackgroundBrush = TaskElement.m_NormalStateBrush;
+            EventsAndOtherSettings();
         }
         #endregion
 
         // Свойства
-                #region Свойства
+        #region Свойства
         public string SetImage
         {
             set
@@ -115,6 +129,24 @@ namespace GDAL_GUI_New
             get { return m_IsCurrent; }
             set { m_IsCurrent = value; }
         }
+
+        public System.Windows.Media.SolidColorBrush SetBackgroundBrush
+        {
+            get { return m_BackgroundBrush; }
+            set
+            {
+                if (value != null)
+                {
+                    m_BackgroundBrush = value;
+                    OnPropertyChanged("SetBackgroundBrush");
+                }
+                else
+                {
+                    m_BackgroundBrush = m_NormalStateBrush;
+                    OnPropertyChanged("SetBackgroundBrush");
+                }
+            }
+        }
         #endregion
 
         // Методы
@@ -122,7 +154,22 @@ namespace GDAL_GUI_New
 
         public void SetTaskElementState(TaskElementState taskElementState)
         {
+            if (m_TaskElementState != TaskElementState.Highlighted)
+            {
+                m_PreviousTaskElementState = m_TaskElementState;
+            }
             m_TaskElementState = taskElementState;
+            ChangeBackground();
+        }
+
+        public void SetPreviousState()
+        {
+            m_PreviousTaskElementState = m_TaskElementState;
+        }
+
+        public void ReturnToPreviousElementState()
+        {
+            m_TaskElementState = m_PreviousTaskElementState;
             ChangeBackground();
         }
 
@@ -131,25 +178,28 @@ namespace GDAL_GUI_New
             switch (m_TaskElementState)
             {
                 case TaskElementState.Normal:
-                    this.Background = m_NormalStateBrush;
+                    this.Background = TaskElement.m_NormalStateBrush;
                     break;
                 case TaskElementState.Highlighted:
-                    this.Background = m_HighlightedBrush;
+                    this.Background = TaskElement.m_HighlightedBrush;
                     break;
                 case TaskElementState.Selected:
-                    this.Background = m_SelectedBrush;
+                    this.Background = TaskElement.m_SelectedBrush;
                     break;
                 case TaskElementState.Completed:
                     //this.Background = m_CompletedTaskBrush;
+                    SetBackgroundBrush = TaskElement.m_CompletedTaskBrush;
                     break;
                 case TaskElementState.Failed:
-                    this.Background = m_FailedTaskBrush;
+                    //this.Background = m_FailedTaskBrush;
+                    SetBackgroundBrush = TaskElement.m_FailedTaskBrush;
                     break;
                 default:
-                    this.Background = m_NormalStateBrush;
+                    this.Background = TaskElement.m_NormalStateBrush;
                     break;
             }
         }
+
 
         private void EventsAndOtherSettings()
         {
@@ -160,8 +210,19 @@ namespace GDAL_GUI_New
             this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
             this.MouseRightButtonDown += new MouseButtonEventHandler(taskElement_MouseRightButtonDown);
             this.MouseRightButtonUp += new MouseButtonEventHandler(taskElement_MouseRightButtonUp);
-            (this.ContextMenu.Items.GetItemAt(0) as MenuItem).Click += 
+            (this.ContextMenu.Items.GetItemAt(0) as MenuItem).Click +=
+                new RoutedEventHandler(taskElement_ContextMenu_RunTask_Click);
+            (this.ContextMenu.Items.GetItemAt(2) as MenuItem).Click += 
                 new RoutedEventHandler(taskElement_ContextMenu_EditTask_Click);
+            (this.ContextMenu.Items.GetItemAt(4) as MenuItem).Click +=
+                new RoutedEventHandler(taskElement_ContextMenu_RemoveTask_Click);
+            Binding myBinding = new Binding();
+            myBinding.Path = new PropertyPath("SetBackgroundBrush");
+            myBinding.Mode = BindingMode.TwoWay;
+            //myBinding.Source = m_BackgroundBrush;
+            myBinding.Source = this;
+            myBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            this.SetBinding(UserControl.BackgroundProperty, myBinding);
         }
         #endregion
 
@@ -172,7 +233,10 @@ namespace GDAL_GUI_New
             TaskElement taskElement = sender as TaskElement;
             if (taskElement.IsCurrent != true)
             {
-                taskElement.Background = m_HighlightedBrush;
+                //taskElement.Background = m_HighlightedBrush;
+                m_PreviousTaskElementState = m_TaskElementState;
+                //m_MainWindow.CurrentTask.GetTaskElement.SetTaskElementState(TaskElementState.Highlighted);
+                taskElement.SetTaskElementState(TaskElementState.Highlighted);
             }
         }
 
@@ -181,7 +245,12 @@ namespace GDAL_GUI_New
             TaskElement taskElement = sender as TaskElement;
             if (taskElement.IsCurrent != true)
             {
-                taskElement.Background = m_NormalStateBrush;
+                //taskElement.Background = m_NormalStateBrush;
+                /*
+                m_MainWindow.CurrentTask.GetTaskElement.SetTaskElementState(TaskElementState.Normal);
+                m_TaskElementState = m_PreviousTaskElementState;
+                */
+                taskElement.ReturnToPreviousElementState();
             }
         }
 
@@ -191,7 +260,9 @@ namespace GDAL_GUI_New
 
             if (m_MainWindow.CurrentTask != null)
             {
-                m_MainWindow.CurrentTask.GetTaskElement.Background = m_NormalStateBrush;
+                //m_MainWindow.CurrentTask.GetTaskElement.Background = m_NormalStateBrush;
+                //m_MainWindow.CurrentTask.GetTaskElement.SetTaskElementState(TaskElementState.Highlighted);
+                m_MainWindow.CurrentTask.GetTaskElement.ReturnToPreviousElementState();
                 m_MainWindow.CurrentTask.GetTaskElement.IsCurrent = false;
                 if (taskElement == m_MainWindow.CurrentTask.GetTaskElement)
                 {
@@ -203,25 +274,15 @@ namespace GDAL_GUI_New
             MyTask selectedTask = m_MainWindow.GetTasksList.Where(
                 x => x.GetTaskID == taskElement.m_TaskID
                 ).FirstOrDefault();
-            m_MainWindow.CurrentTask = selectedTask;
-            taskElement.Background = m_SelectedBrush;
+            //taskElement.Background = m_SelectedBrush;
+            //m_MainWindow.CurrentTask.GetTaskElement.SetTaskElementState(TaskElementState.Selected);
+            //taskElement.SetPreviousState();
+            taskElement.SetTaskElementState(TaskElementState.Selected);
             taskElement.IsCurrent = true;
+            m_MainWindow.CurrentTask = selectedTask;
 
-            /*
-            foreach (MyProcess process in m_MainWindow.GetProcessesList)
-            {
-                if(process.GetProcessID == taskElement.m_ProcessID)
-                {
-                    m_MainWindow.CurrentProcess.GetTaskElement.IsCurrent = false;
-                    m_MainWindow.CurrentProcess = process;
-                    taskElement.Background = m_SelectedBrush;
-                    taskElement.IsCurrent = true;
-                    return;
-                }
-            }
-            */
         }
-        
+
         private void Image_SrcImagePreview_MouseEnter(object sender, RoutedEventArgs e)
         {
             System.Windows.Controls.Image imageControl = sender as System.Windows.Controls.Image;
@@ -281,10 +342,19 @@ namespace GDAL_GUI_New
             e.Handled = true;
         }
 
+        private void taskElement_ContextMenu_RunTask_Click(object sender, RoutedEventArgs e)
+        {
+            m_MainWindow.RunSelectedTask(m_ParentTask);
+        }
+
         private void taskElement_ContextMenu_EditTask_Click(object sender, RoutedEventArgs e)
         {
-            TaskEditWindow taskEditWindow = new TaskEditWindow(m_MainWindow, m_ParentTask);
-            taskEditWindow.ShowDialog();
+            m_MainWindow.EditSelectedTask(m_ParentTask);
+        }
+
+        private void taskElement_ContextMenu_RemoveTask_Click(object sender, RoutedEventArgs e)
+        {
+            m_MainWindow.RemoveTask(m_ParentTask);
         }
 
         #endregion
