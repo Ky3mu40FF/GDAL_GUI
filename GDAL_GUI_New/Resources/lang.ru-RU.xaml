@@ -10,6 +10,7 @@
     <v:String x:Key="m_Menu_File_Exit">Выход</v:String>
     <v:String x:Key="m_Menu_Edit">Редактирование</v:String>
     <v:String x:Key="m_Menu_Edit_AddTask">Добавить задачу</v:String>
+    <v:String x:Key="m_Menu_Edit_EditSelectedTask">Редактировать выбранную задачу</v:String>
     <v:String x:Key="m_Menu_Edit_RemoveSelectedTask">Убрать выбранную задачу</v:String>
     <v:String x:Key="m_Menu_Edit_RemoveAllTasks">Убрать все задачи</v:String>
     <v:String x:Key="m_Menu_Run">Запуск</v:String>
@@ -68,6 +69,9 @@
     <v:String x:Key="m_TaskElement_Label_TaskIDLabel">ID:</v:String>
     <v:String x:Key="m_TaskElement_Label_ImageLabel">Снимок:</v:String>
     <v:String x:Key="m_TaskElement_Label_UtilityLabel">Утилита:</v:String>
-
+    <v:String x:Key="m_TaskElement_ContextMenu_RunTask">Запустить задачу</v:String>
+    <v:String x:Key="m_TaskElement_ContextMenu_EditTask">Редактировать задачу</v:String>
+    <v:String x:Key="m_TaskElement_ContextMenu_RemoveTask">Убрать задачу</v:String>
+    
     <!--<v:String x:Key=""></v:String>-->
 </ResourceDictionary>
