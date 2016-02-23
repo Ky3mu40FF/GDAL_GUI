@@ -83,7 +83,7 @@ namespace GDAL_GUI_New
             //m_Tasks[0].StartProcess();
             m_RunMode = RunMode.All;
             m_CurrentTask = m_Tasks[0];
-            m_CurrentTask.SubscribeOutputDataReceivedHandler(m_DataReceivedHandler);
+            m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
             m_TaskCounter++;
             Execution(m_CurrentTask);
         }
@@ -99,7 +99,7 @@ namespace GDAL_GUI_New
             //m_Tasks[0].StartProcess();
             m_RunMode = RunMode.Selected;
             m_CurrentTask = selectedTask;
-            m_CurrentTask.SubscribeOutputDataReceivedHandler(m_DataReceivedHandler);
+            m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
             Execution(m_CurrentTask);
         }
 
@@ -110,7 +110,7 @@ namespace GDAL_GUI_New
                 return;
             }
             m_MainWindow.SendMessageToTextBox(Environment.NewLine + 
-                "Запуск процесса № " + task.GetTaskID.ToString() + 
+                "Запуск задачи № " + task.GetTaskID.ToString() + 
                 Environment.NewLine + "Время запуска: " + DateTime.Now.ToString());
             task.StartProcess();
         }
@@ -121,12 +121,16 @@ namespace GDAL_GUI_New
             if (exitCode == 0)
             {
                 m_CurrentTask.SetStateOfTask(MyTask.TaskState.Completed);
-                m_CurrentTask.UnubscribeOutputDataReceivedHandler(m_DataReceivedHandler);
+                m_CurrentTask.UnubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
+                m_MainWindow.SendMessageToTextBox("Задача № " + task.GetTaskID.ToString() +
+                    " выполнена!");
             }
             else
             {
                 m_CurrentTask.SetStateOfTask(MyTask.TaskState.Error);
-                m_CurrentTask.UnubscribeOutputDataReceivedHandler(m_DataReceivedHandler);
+                m_CurrentTask.UnubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
+                m_MainWindow.SendMessageToTextBox("Задача № " + task.GetTaskID.ToString() +
+                    " завершилась с ошибкой!");
             }
 
             if (m_RunMode == RunMode.All)
@@ -134,7 +138,7 @@ namespace GDAL_GUI_New
                 if (m_TaskCounter < m_Tasks.Count)
                 {
                     m_CurrentTask = m_Tasks[m_Tasks.IndexOf(m_CurrentTask) + 1];
-                    m_CurrentTask.SubscribeOutputDataReceivedHandler(m_DataReceivedHandler);
+                    m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
                     m_TaskCounter++;
                     Execution(m_CurrentTask);
                 }
