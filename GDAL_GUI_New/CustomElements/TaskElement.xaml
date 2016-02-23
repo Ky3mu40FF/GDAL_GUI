@@ -8,7 +8,11 @@
              d:DesignHeight="66" d:DesignWidth="256" BorderThickness="1" Background="#FFE6E6E6" BorderBrush="Black">
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem x:Name="m_TaskElement_ContextMenu_EditTask" Header="Редактировать задачу"/>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_RunTask" Header="{DynamicResource m_TaskElement_ContextMenu_RunTask}"/>
+            <Separator/>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_EditTask" Header="{DynamicResource m_TaskElement_ContextMenu_EditTask}"/>
+            <Separator/>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_RemoveTask" Header="{DynamicResource m_TaskElement_ContextMenu_RemoveTask}" />
         </ContextMenu>
     </UserControl.ContextMenu>
     <Grid x:Name="Grid">
