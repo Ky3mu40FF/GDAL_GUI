@@ -704,14 +704,17 @@ namespace GDAL_GUI_New
                 m_AllParameters[src_Position] = m_InputFiles[index];
             }
             // Если утилита поддерживает выходные данные 
-            if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
+            //if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
+            if ((bool)m_UtilityInfo["IsThereOutput"] == true)
             {
+                /*
                 if (String.IsNullOrEmpty(m_OutputPath))
                 {
                     MessageBox.Show("Не указан путь сохранения результата!", "Ошибка!",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     throw new Exception("");
                 }
+                */
                 // Получаем индекс параметра выходных данных
                 int dst_Position =
                 (int)m_UtilityParameters.Where(
@@ -724,7 +727,7 @@ namespace GDAL_GUI_New
                 else if (m_CurrentMode == InputMode.MultipleFiles)
                 {
                     m_AllParameters[dst_Position] =
-                        m_OutputPath + System.IO.Path.GetDirectoryName(m_InputFiles[index]) +
+                        m_OutputPath + "\\" +
                         System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[index]) +
                         "_Edited" + System.IO.Path.GetExtension(m_InputFiles[index]);
                 }
@@ -743,7 +746,10 @@ namespace GDAL_GUI_New
 
         private void MakeTask(int index)
         {
-            m_Task = new MyTask(m_MainWindow);
+            if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
+            {
+                m_Task = new MyTask(m_MainWindow);
+            }
             m_Task.BeginEdit();
             m_Task.ParametersString = m_FormedParametersArgument;
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
@@ -889,9 +895,23 @@ namespace GDAL_GUI_New
         {
             try
             {
+                if ((bool)m_UtilityInfo["IsThereInput"] == true & 
+                    (m_InputFiles == null || String.IsNullOrEmpty(m_InputFiles[0])) )
+                {
+                    MessageBox.Show("Не указан путь до входных данных!", "Ошибка!",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    throw new Exception("");
+                }
+                if ((bool)m_UtilityInfo["IsThereOutput"] == true & String.IsNullOrEmpty(m_OutputPath))
+                {
+                    MessageBox.Show("Не указан путь сохранения результата!", "Ошибка!",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    throw new Exception("");
+                }
+
+                ParametersArgumentForming();
                 for (int i = 0; i < m_InputFiles.Length; i++)
                 {
-                    ParametersArgumentForming();
                     InputAndOutputToParametersArgumentString(i);
                     CompleteParametersArgumentString();
                     //MessageBox.Show(m_FormedParametersArgument);
@@ -904,7 +924,7 @@ namespace GDAL_GUI_New
                     ListBox_AvailableParameters.SelectedItems.CopyTo(m_Task.SelectedParametersList, 0);
                     m_Task.AdditionalParameters = new GroupBox[StackPanel_AdditionalParameters.Children.Count];
                     StackPanel_AdditionalParameters.Children.CopyTo(m_Task.AdditionalParameters, 0);
-                    StackPanel_AdditionalParameters.Children.Clear();
+                    //StackPanel_AdditionalParameters.Children.Clear();
                     m_Task.OutputPath = m_OutputPath;
 
                     if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
@@ -913,22 +933,32 @@ namespace GDAL_GUI_New
                     }
                     else if (m_TaskEditWindowMode == TaskEditWindowMode.EditingExistingTask)
                     {
-                        MessageBox.Show("Типа отредактировано");
+                        //MessageBox.Show("Типа отредактировано");
+                        m_MainWindow.ReplaceEditedTask(m_Task);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Не удалось завершить процесс добавления задачи." + 
-                    Environment.NewLine + ex.Message);
+                MessageBox.Show("Не удалось завершить процесс добавления задачи." +
+                                Environment.NewLine + ex.Message);
                 return;
             }
-            m_IsThisTaskAdded = true;
-            this.Close();
+            //finally
+            //{
+                StackPanel_AdditionalParameters.Children.Clear();
+                m_IsThisTaskAdded = true;
+                this.Close();
+            //}
         }
 
         private void TaskEdit_Menu_ExitWithoutAdding_Click(object sender, RoutedEventArgs e)
         {
+            if (m_TaskEditWindowMode == TaskEditWindowMode.EditingExistingTask)
+            {
+                //ListBox_AvailableParameters.Items.Clear();
+                StackPanel_AdditionalParameters.Children.Clear();
+            }
             this.Close();
         }
 
@@ -1035,7 +1065,15 @@ namespace GDAL_GUI_New
             {
                 if (child.GetType() == typeof(DataGrid) && (child as DataGrid).Tag == btn.Tag)
                 {
-                    table.Rows[(child as DataGrid).SelectedIndex].Delete();
+                    if ((child as DataGrid).SelectedIndex != -1)
+                    {
+                        table.Rows[(child as DataGrid).SelectedIndex].Delete();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Не выбрана строка, которую необходимо удалить!",
+                            "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
