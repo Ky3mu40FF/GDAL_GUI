@@ -98,18 +98,28 @@ namespace GDAL_GUI_New
         private void EventAndPropertiesInitialization()
         {
             // Подписка на события
-            Menu_File_Exit.Click += new RoutedEventHandler(Menu_File_Exit_Click);
-            Menu_Edit_AddTask.Click += new RoutedEventHandler(Menu_Edit_AddTask_Click);
+            Menu_File_Exit.Click += 
+                new RoutedEventHandler(Menu_File_Exit_Click);
+            Menu_Edit_AddTask.Click += 
+                new RoutedEventHandler(Menu_Edit_AddTask_Click);
+            Menu_Edit_EditSelectedTask.Click += 
+                new RoutedEventHandler(Menu_Edit_EditSelectedTask_Click);
             Menu_Edit_RemoveSelectedTask.Click += 
                 new RoutedEventHandler(Menu_Edit_RemoveSelectedTask_Click);
             Menu_Edit_RemoveAllTasks.Click += 
                 new RoutedEventHandler(Menu_Edit_RemoveAllTasks_Click);
-            Menu_Run_RunAll.Click += new RoutedEventHandler(Menu_Run_RunAll_Click);
-            Menu_Run_RunSelected.Click += new RoutedEventHandler(Menu_Run_RunSelected_Click);
-            Menu_Output_Clear.Click += new RoutedEventHandler(Menu_Output_Clear_Click);
-            Menu_Output_SaveToFile.Click += new RoutedEventHandler(Menu_Output_SaveToFile_Click);
-            Menu_Settings.Click += new RoutedEventHandler(Menu_Settings_Click);
-            Menu_About.Click += new RoutedEventHandler(Menu_About_Click);
+            Menu_Run_RunAll.Click += 
+                new RoutedEventHandler(Menu_Run_RunAll_Click);
+            Menu_Run_RunSelected.Click += 
+                new RoutedEventHandler(Menu_Run_RunSelected_Click);
+            Menu_Output_Clear.Click += 
+                new RoutedEventHandler(Menu_Output_Clear_Click);
+            Menu_Output_SaveToFile.Click += 
+                new RoutedEventHandler(Menu_Output_SaveToFile_Click);
+            Menu_Settings.Click += 
+                new RoutedEventHandler(Menu_Settings_Click);
+            Menu_About.Click += 
+                new RoutedEventHandler(Menu_About_Click);
 
             m_Tasks.CollectionChanged +=
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
@@ -131,6 +141,70 @@ namespace GDAL_GUI_New
             m_Tasks.Add(task);
             m_TasksCounter++;
         }
+
+        public void EditSelectedTask(MyTask task)
+        {
+            if (m_Tasks != null && m_Tasks.Count > 0 && task != null)
+            {
+                TaskEditWindow taskEditWindow = new TaskEditWindow(this, task);
+                taskEditWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Нечего редактировать.");
+            }
+        }
+
+        public void ReplaceEditedTask(MyTask task)
+        {
+            if (task == null)
+            {
+                return;
+            }
+            int index = m_Tasks.IndexOf(m_Tasks.FirstOrDefault(x => x.GetTaskID == task.GetTaskID));
+            task.GetTaskElement.SetTaskElementState(TaskElement.TaskElementState.Normal);
+            //m_Tasks.Insert(index, task);
+            //m_Tasks.Remove(m_Tasks.Where(x => x.GetTaskID == task.GetTaskID).First());
+            //m_Tasks.Add(task);
+
+            m_Tasks.RemoveAt(index);
+            m_Tasks.Insert(index, task);
+        }
+
+        public void RemoveTask(MyTask task)
+        {
+            if (m_Tasks != null && m_Tasks.Count > 0 && task != null)
+            {
+                if (m_CurrentTask == task)
+                {
+                    m_Tasks.Remove(m_CurrentTask);
+                    m_CurrentTask = null;
+                    MessageBox.Show("Выбранная задача удалена.", "Успех!",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    m_Tasks.Remove(task);
+                    MessageBox.Show("Задача удалена.", "Успех!",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Нечего удалять.");
+            }
+        }
+
+        public void RunSelectedTask(MyTask task)
+        {
+            if (task == null)
+            {
+                MessageBox.Show("Не выбрана задача!", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            TaskManager.TasksCollection = m_Tasks;
+            TaskManager.RunSelected(task);
+        }
         #endregion
 
         // Обработчики событий
@@ -146,9 +220,27 @@ namespace GDAL_GUI_New
             TaskEditWindow taskEditWindow = new TaskEditWindow(this);
             taskEditWindow.ShowDialog();
         }
+        // Редактирование выбранной задачи
+        private void Menu_Edit_EditSelectedTask_Click(object sender, RoutedEventArgs e)
+        {
+            EditSelectedTask(m_CurrentTask);
+            /*
+            if (m_Tasks != null && m_Tasks.Count > 0 && m_CurrentTask != null)
+            {
+                TaskEditWindow taskEditWindow = new TaskEditWindow(this, m_CurrentTask);
+                taskEditWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Нечего редактировать.");
+            }
+            */
+        }
         // Удаление выбранной задачи
         private void Menu_Edit_RemoveSelectedTask_Click(object sender, RoutedEventArgs e)
         {
+            RemoveTask(m_CurrentTask);
+            /*
             //MessageBox.Show("Заглушка. Menu_Edit_RemoveSelectedTask_Click");
             if (m_Tasks != null && m_Tasks.Count > 0 && m_CurrentTask != null)
             {
@@ -161,6 +253,7 @@ namespace GDAL_GUI_New
             {
                 MessageBox.Show("Нечего удалять.");
             }
+            */
         }
         // Удаление всех задач
         private void Menu_Edit_RemoveAllTasks_Click(object sender, RoutedEventArgs e)
@@ -183,13 +276,22 @@ namespace GDAL_GUI_New
         private void Menu_Run_RunAll_Click(object sender, RoutedEventArgs e)
         {
             //MessageBox.Show("Заглушка. Run All");
+            if (m_Tasks != null)
+            {
+                foreach (MyTask task in m_Tasks)
+                {
+                    task.GetTaskElement.SetTaskElementState(TaskElement.TaskElementState.Normal);
+                }
+            }
             TaskManager.TasksCollection = m_Tasks;
             TaskManager.RunAll();
         }
         // Запуск одного выбранного задания
         private void Menu_Run_RunSelected_Click(object sender, RoutedEventArgs e)
         {
-            //MessageBox.Show("Заглушка. Run Selected");
+            RunSelectedTask(m_CurrentTask);
+            m_CurrentTask = null;
+            /*
             if (m_CurrentTask == null)
             {
                 MessageBox.Show("Не выбрана задача!", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -197,6 +299,7 @@ namespace GDAL_GUI_New
             }
             TaskManager.TasksCollection = m_Tasks;
             TaskManager.RunSelected(m_CurrentTask);
+            */
         }
         // Сохранение данных из окна вывода (сохранение логов) в файл
         private void Menu_Output_SaveToFile_Click(object sender, RoutedEventArgs e)
@@ -250,7 +353,8 @@ namespace GDAL_GUI_New
             if (e.NewItems != null && e.NewItems[0] != null)
             {
                 MyTask task = e.NewItems[0] as MyTask;
-                StackPanel_TaskElements.Children.Add(task.GetTaskElement);
+                //StackPanel_TaskElements.Children.Add(task.GetTaskElement);
+                StackPanel_TaskElements.Children.Insert(e.NewStartingIndex, task.GetTaskElement);
             }
             else if (e.OldItems != null && e.OldItems[0] != null)
             {
