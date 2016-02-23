@@ -111,6 +111,7 @@ namespace GDAL_GUI_New
             m_Process.StartInfo.RedirectStandardError = true;
             // Устанавливаем кодировку выходного потока (поддержка русского языка)  
             m_Process.StartInfo.StandardOutputEncoding = Encoding.GetEncoding("cp866");
+            m_Process.StartInfo.StandardErrorEncoding = Encoding.GetEncoding("cp866");
             // Не создавать окно процесса
             m_Process.StartInfo.CreateNoWindow = true;
             // Нужно, чтобы вызывалось событие Exited
@@ -255,20 +256,23 @@ namespace GDAL_GUI_New
             //m_TaskElement.SetImage = m_SrcFileName;
         }
 
-        public void SubscribeOutputDataReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
+        public void SubscribeOutputDataAndErrorReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
         {
             m_Process.OutputDataReceived += outputDataReceivedHandler;
+            m_Process.ErrorDataReceived += outputDataReceivedHandler;
         }
 
-        public void UnubscribeOutputDataReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
+        public void UnubscribeOutputDataAndErrorReceivedHandler(DataReceivedEventHandler outputDataReceivedHandler)
         {
             m_Process.OutputDataReceived -= outputDataReceivedHandler;
+            m_Process.ErrorDataReceived -= outputDataReceivedHandler;
         }
 
         public void StartProcess()
         {
             m_Process.Start();
             m_Process.BeginOutputReadLine();
+            m_Process.BeginErrorReadLine();
         }
 
         public void SetStateOfTask(TaskState taskState)
@@ -300,6 +304,7 @@ namespace GDAL_GUI_New
         {
             Process process = sender as Process;
             process.CancelOutputRead();
+            process.CancelErrorRead();
             int exitCode = process.ExitCode;
             process.Close();
             //process.OutputDataReceived -= new DataReceivedEventHandler(OutputDataReceivedHandler);
