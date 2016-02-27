@@ -110,8 +110,11 @@ namespace GDAL_GUI_New
                 return;
             }
             m_MainWindow.SendMessageToTextBox(Environment.NewLine + 
-                "Запуск задачи № " + task.GetTaskID.ToString() + 
-                Environment.NewLine + "Время запуска: " + DateTime.Now.ToString());
+                "\t\tЗапуск задачи № " + task.GetTaskID.ToString() + 
+                Environment.NewLine + "\tВремя запуска: " + DateTime.Now.ToString() +
+                Environment.NewLine + "\tСформированная строка с аргументами:" + Environment.NewLine + 
+                m_CurrentTask.ParametersString + Environment.NewLine +
+                "\tВывод утилиты:");
             task.StartProcess();
         }
 
