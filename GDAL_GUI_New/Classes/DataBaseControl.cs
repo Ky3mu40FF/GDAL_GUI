@@ -50,6 +50,7 @@ namespace GDAL_GUI_New
                 if (m_Connection.State != ConnectionState.Closed)
                 {
                     m_Connection.Close();
+                    Console.WriteLine("Соединение было успешно закрыто.");
                 }
             }
             catch (Exception e)
