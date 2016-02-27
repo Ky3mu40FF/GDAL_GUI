@@ -8,11 +8,11 @@
              d:DesignHeight="66" d:DesignWidth="256" BorderThickness="1" Background="#FFE6E6E6" BorderBrush="Black">
     <UserControl.ContextMenu>
         <ContextMenu>
-            <MenuItem x:Name="m_TaskElement_ContextMenu_RunTask" Header="{DynamicResource m_TaskElement_ContextMenu_RunTask}"/>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_RunTask" Header="{DynamicResource m_TaskElement_ContextMenu_RunTask}" Icon="{DynamicResource m_TaskElement_ContextMenu_RunTask_Icon}"/>
             <Separator/>
-            <MenuItem x:Name="m_TaskElement_ContextMenu_EditTask" Header="{DynamicResource m_TaskElement_ContextMenu_EditTask}"/>
+            <MenuItem x:Name="m_TaskElement_ContextMenu_EditTask" Header="{DynamicResource m_TaskElement_ContextMenu_EditTask}" Icon="{DynamicResource m_TaskElement_ContextMenu_EditTask_Icon}"/>
             <Separator/>
-            <MenuItem x:Name="m_TaskElement_ContextMenu_RemoveTask" Header="{DynamicResource m_TaskElement_ContextMenu_RemoveTask}" />
+            <MenuItem x:Name="m_TaskElement_ContextMenu_RemoveTask" Header="{DynamicResource m_TaskElement_ContextMenu_RemoveTask}" Icon="{DynamicResource m_TaskElement_ContextMenu_RemoveTask_Icon}"/>
         </ContextMenu>
     </UserControl.ContextMenu>
     <Grid x:Name="Grid">
@@ -27,7 +27,7 @@
             <Image x:Name="image_SrcImagePreview" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Height="64"  Width="64" Margin="0"/>
         </Border>-->
         <!--<Image x:Name="image_SrcImagePreview" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" Height="64"  Width="64" Margin="0"/>-->
-        <Image x:Name="image_SrcImagePreview" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Height="64"  Width="64" Margin="0"/>
+        <Image x:Name="image_SrcImagePreview" Height="64"  Width="64" Grid.Column="0"/>
         <Label x:Name="label_TaskIDLabel" Content="{DynamicResource m_TaskElement_Label_TaskIDLabel}" 
                HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="1" Padding="5,0,0,0" Margin="0,3,0,0" Width="56"/>
         <Label x:Name="label_TaskID" Content="" 
