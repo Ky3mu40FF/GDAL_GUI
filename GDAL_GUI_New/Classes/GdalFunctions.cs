@@ -692,10 +692,12 @@ namespace GDAL_GUI_New
             bitmap.Save(filename);
         }
 
-        public static void MakeThumbnail(string path, string outputPath)
+        public static void MakeThumbnail(string path, ref string outputPath)
         {
             if (!File.Exists(Properties.Settings.Default.UtilitiesDirectory + "gdal_translate.exe"))
             {
+                MessageBox.Show("В папке с утилитами отсутствует утилита gdal_translate.", "Ошибка!",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             try
@@ -750,19 +752,11 @@ namespace GDAL_GUI_New
                 int newHeight = (int)((float)height * scaleCoeff);
 
                 UseGdalTranslate(path, outputPath, newWidth, newHeight);
-                /*
-                //string[] saveOptions = {"QUALITY=75"};
-                string[] saveOptions = { "EXIF_THUMBNAIL=YES" };
-                //Driver jpegDriver = Gdal.GetDriverByName("PNG");
-                Driver jpegDriver = Gdal.GetDriverByName("JPEG");
-                jpegDriver.CreateCopy(outputPath, ds, 0, saveOptions, new Gdal.GDALProgressFuncDelegate(ProgressFunc),
-                    "Sample Data");
-                */
-
             }
             catch (Exception e)
             {
                 Console.WriteLine("Application error: " + e.Message);
+                outputPath = String.Empty;
             }
 
         }
@@ -803,5 +797,51 @@ namespace GDAL_GUI_New
             }
         }
 
+        public static string GetInfoAboutRaster(string path)
+        {
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("Файл не существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return String.Empty;
+            }
+            try
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+
+                GdalConfiguration.ConfigureGdal();
+
+                Dataset ds = Gdal.Open(path, Access.GA_ReadOnly);
+
+                if (ds == null)
+                {
+                    Console.WriteLine("Can't open " + path);
+                    return String.Empty;
+                }
+
+                stringBuilder.Append("Параметры растра" + Path.GetFileName(path) + ":");
+                stringBuilder.Append("  Проекция: " + ds.GetProjectionRef());
+                stringBuilder.Append("  Количество слоёв: " + ds.RasterCount);
+                stringBuilder.Append("  Размер: (" + ds.RasterXSize + "," + ds.RasterYSize + ")");
+                
+
+                Driver drv = ds.GetDriver();
+
+                if (drv == null)
+                {
+                    Console.WriteLine("Can't get driver.");
+                    return stringBuilder.ToString();
+                }
+
+                stringBuilder.Append("Используемый драйвер: " + drv.LongName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Application error: " + e.Message);
+            }
+
+            string m_Info = String.Empty;
+
+            return m_Info;
+        }
     }
 }
