@@ -19,7 +19,7 @@
             <MenuItem x:Name="Menu_Edit" Header="{DynamicResource m_Menu_Edit}">
                 <MenuItem x:Name="Menu_Edit_AddTask" Header="{DynamicResource m_Menu_Edit_AddTask}" Icon="{DynamicResource m_Menu_Edit_AddTask_Icon}"/>
                 <Separator/>
-                <MenuItem x:Name="Menu_Edit_EditSelectedTask" Header="{DynamicResource m_Menu_Edit_EditSelectedTask}"/>
+                <MenuItem x:Name="Menu_Edit_EditSelectedTask" Header="{DynamicResource m_Menu_Edit_EditSelectedTask}" Icon="{DynamicResource m_Menu_Edit_EditSelectedTask_Icon}"/>
                 <Separator/>
                 <MenuItem x:Name="Menu_Edit_RemoveSelectedTask" Header="{DynamicResource m_Menu_Edit_RemoveSelectedTask}" Icon="{DynamicResource m_Menu_Edit_RemoveSelectedTask_Icon}"/>
                 <MenuItem x:Name="Menu_Edit_RemoveAllTasks" Header="{DynamicResource m_Menu_Edit_RemoveAllTasks}" Icon="{DynamicResource m_Menu_Edit_RemoveAllTasks_Icon}"/>
