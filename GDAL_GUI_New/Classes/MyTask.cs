@@ -40,6 +40,10 @@ namespace GDAL_GUI_New
             Error
         }
         private TaskState m_State;
+        // Нужно для того, чтобы можно было определить, можно ли
+        // использовать выходной результат этой утилиты как
+        // входной для другой утилиты
+        private bool m_IsThereOutput;
 
 
         // Переменные, хранящие данные для восстановления состояния окна
@@ -102,6 +106,7 @@ namespace GDAL_GUI_New
             m_ProcessArguments = String.Empty;
             m_IsEditing = false;
             m_State = TaskState.Default;
+            m_IsThereOutput = false;
 
             // Необходимо для перенаправления входного и выходного потоков командной строки
             m_Process.StartInfo.UseShellExecute = false;
@@ -177,9 +182,10 @@ namespace GDAL_GUI_New
             {
                 if (m_IsEditing == true)
                 {
-                    if (String.IsNullOrEmpty(value))
+                    if (value == null)
                     {
-                        throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
+                        m_ThumbnailFile = String.Empty;
+                        //throw new ArgumentNullException(nameof(value), "Нельзя передавать null в качестве значения");
                     }
                     else
                     {
@@ -212,6 +218,13 @@ namespace GDAL_GUI_New
         {
             get { return m_ProcessArguments; }
             set { m_ProcessArguments = value; }
+        }
+
+        public bool IsThereOutput
+        {
+            get { return m_IsThereOutput; }
+            set
+            { m_IsThereOutput = value; }
         }
         #endregion
 
@@ -249,10 +262,10 @@ namespace GDAL_GUI_New
         {
             m_Process.StartInfo.FileName = Properties.Settings.Default.UtilitiesDirectory + m_UtilityName;
             m_Process.StartInfo.Arguments = m_ProcessArguments;
-            m_TaskElement.SetTaskID = m_TaskID;
-            m_TaskElement.SetUtilityName = m_UtilityName;
-            m_TaskElement.SetFileName = m_SrcFileName;
-            m_TaskElement.SetImage = m_ThumbnailFile;
+            m_TaskElement.SetTaskIDToLabel(m_TaskID);
+            m_TaskElement.SetUtilityNameToLabel(m_UtilityName);
+            m_TaskElement.SetFileNameToLabelAndToolTip(m_SrcFileName);
+            m_TaskElement.SetImageToImagePreviewElement(m_ThumbnailFile);
             //m_TaskElement.SetImage = m_SrcFileName;
         }
 
