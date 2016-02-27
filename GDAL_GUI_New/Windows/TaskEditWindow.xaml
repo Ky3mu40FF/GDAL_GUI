@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="{DynamicResource m_TaskEditWindow_Title}" Height="370" Width="745" MinWidth="745" MinHeight="370">
+        Title="{DynamicResource m_TaskEditWindow_Title}" Height="138" Width="616" MinWidth="745" MinHeight="370">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="17.964"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu x:Name="menu" Grid.Row="0" >
+        <Menu x:Name="menu" Grid.Row="0" Grid.ColumnSpan="2">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <DockPanel HorizontalAlignment="Stretch"/>
@@ -26,14 +26,14 @@
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="244"/>
-                        <ColumnDefinition Width="243"/>
-                        <ColumnDefinition Width="406"/>
+                        <ColumnDefinition Width="243*"/>
+                        <ColumnDefinition Width="244*"/>
                     </Grid.ColumnDefinitions>
-                    <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputPaths}" Grid.Column="1" Margin="0,-1,0,0">
+                    <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputPaths}" Grid.Column="1">
                         <Grid>
                             <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" VerticalAlignment="Top" Height="26" />
                             <TextBox x:Name="TextBox_InputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
-                            <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Margin="155,26,0,0" Height="23"/>
+                            <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Height="23" Margin="0,26,0,0"/>
                             <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -62,11 +62,11 @@
                         </Grid>
                     </GroupBox>
 
-                    <GroupBox x:Name="GroupBox_OutputPaths" Header="{DynamicResource m_GroupBox_OutputPaths}"  Margin="0,-1,163,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
+                    <GroupBox x:Name="GroupBox_OutputPaths" Header="{DynamicResource m_GroupBox_OutputPaths}"  Margin="0,-1,0,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
                         <Grid>
                             <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" VerticalAlignment="Top" Height="26" />
-                            <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" Margin="0,27,0,0" />
-                            <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="155,27,0,0" Height="23"/>
+                            <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,27,75,0" />
+                            <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Height="23" Margin="0,27,0,0"/>
                         </Grid>
                     </GroupBox>
 
@@ -86,7 +86,7 @@
                             </ScrollViewer>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="{DynamicResource m_GroupBox_InputFilePreview}" Grid.Column="2" Margin="0,78,163,0">
+                    <GroupBox Header="{DynamicResource m_GroupBox_InputFilePreview}" Grid.Column="2" Margin="0,78,0,0">
                         <Grid>
                             <Image x:Name="Image_Preview"/>
                         </Grid>
