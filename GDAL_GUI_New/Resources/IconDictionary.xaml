@@ -3,10 +3,16 @@
                     xmlns:local="clr-namespace:GDAL_GUI_New">
     <Image x:Key="m_Menu_File_Exit_Icon" Source="../Resources/Icons/Exit.ico"/>
     <Image x:Key="m_Menu_Edit_AddTask_Icon" Source="../Resources/Icons/AddTask.ico"/>
+    <Image x:Key="m_Menu_Edit_EditSelectedTask_Icon" Source="../Resources/Icons/EditTask.ico"/>
     <Image x:Key="m_Menu_Edit_RemoveSelectedTask_Icon" Source="../Resources/Icons/RemoveSelectedTask.ico"/>
     <Image x:Key="m_Menu_Edit_RemoveAllTasks_Icon" Source="../Resources/Icons/RemoveAllTasks.ico"/>
     <Image x:Key="m_Menu_Run_RunAll_Icon" Source="../Resources/Icons/Run.ico"/>
     <Image x:Key="m_Menu_Run_RunSelected_Icon" Source="../Resources/Icons/RunSelected.ico"/>
     <Image x:Key="m_Menu_Output_SaveToFile_Icon" Source="../Resources/Icons/SaveOuputToFile.ico"/>
     <Image x:Key="m_Menu_Output_Clear_Icon" Source="../Resources/Icons/ClearOutput.ico"/>
+    
+    <Image x:Key="m_TaskElement_ContextMenu_EditTask_Icon" Source="../Resources/Icons/EditTask.ico"/>
+    <Image x:Key="m_TaskElement_ContextMenu_RemoveTask_Icon" Source="../Resources/Icons/RemoveSelectedTask.ico"/>
+    <Image x:Key="m_TaskElement_ContextMenu_RunTask_Icon" Source="../Resources/Icons/RunSelected.ico"/>
+    
 </ResourceDictionary>
