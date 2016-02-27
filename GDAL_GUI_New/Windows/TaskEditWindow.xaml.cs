@@ -40,7 +40,7 @@ namespace GDAL_GUI_New
     public partial class TaskEditWindow : Window, INotifyPropertyChanged
     {
         // Переменные
-                #region Переменные
+            #region Переменные
         private MainWindow m_MainWindow;
         private MyTask m_Task;
         private List<string> m_UtilitiesNames;
@@ -78,7 +78,7 @@ namespace GDAL_GUI_New
         #endregion
 
         // Конструкторы
-        #region Конструкторы
+            #region Конструкторы
         public TaskEditWindow(MainWindow mainWindow)
         {
             InitializeComponent();
@@ -155,13 +155,35 @@ namespace GDAL_GUI_New
             m_InputFiles[0] = m_Task.SrcFileName;
             m_OutputPath = m_Task.OutputPath;
             m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
-
+            if (!String.IsNullOrEmpty(m_ThumbnailsPaths[0]))
+            {
+                try
+                {
+                    Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0], UriKind.RelativeOrAbsolute));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Не удалось загрузить миниатюру", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    Image_Preview.Source = 
+                        new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
+                            UriKind.Relative)); ;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Отсутствует миниатуюра.", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                Image_Preview.Source =
+                    new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
+                        UriKind.Relative));
+            }
         }
 
         #endregion
 
         // Свойства
-        #region Свойства
+            #region Свойства
 
         public string OutputFilePath
         {
@@ -178,7 +200,7 @@ namespace GDAL_GUI_New
         #endregion
 
         // Методы
-                #region Методы
+            #region Методы
         private void EventAndPropertiesInitialization()
         {
             // Подписка на события
@@ -701,7 +723,8 @@ namespace GDAL_GUI_New
                 (int)m_UtilityParameters.Where(
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
-                m_AllParameters[src_Position] = m_InputFiles[index];
+                //m_AllParameters[src_Position] = m_InputFiles[index];
+                m_AllParameters[src_Position] = "\""+ m_InputFiles[index] + "\"";
             }
             // Если утилита поддерживает выходные данные 
             //if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
@@ -722,14 +745,15 @@ namespace GDAL_GUI_New
                 // Добавляем путь
                 if (m_CurrentMode == InputMode.OneFile || m_CurrentMode == InputMode.FromAnotherUtility)
                 {
-                    m_AllParameters[dst_Position] = m_OutputPath;
+                    //m_AllParameters[dst_Position] = m_OutputPath;
+                    m_AllParameters[dst_Position] = "\"" + m_OutputPath + "\"";
                 }
                 else if (m_CurrentMode == InputMode.MultipleFiles)
                 {
                     m_AllParameters[dst_Position] =
                         m_OutputPath + "\\" +
                         System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[index]) +
-                        "_Edited" + System.IO.Path.GetExtension(m_InputFiles[index]);
+                        "_Edited_Task_" + m_Task.GetTaskID + System.IO.Path.GetExtension(m_InputFiles[index]);
                 }
             }
         }
@@ -741,6 +765,12 @@ namespace GDAL_GUI_New
             foreach (string filledParameter in m_AllParameters)
             {
                 m_FormedParametersArgument += filledParameter + " ";
+            }
+            Regex regex = new Regex(@"\s{2,}");
+            MatchCollection matches = regex.Matches(m_FormedParametersArgument);
+            foreach (Match match in matches)
+            {
+                m_FormedParametersArgument = m_FormedParametersArgument.Replace(match.ToString(), " ");
             }
         }
 
@@ -755,6 +785,7 @@ namespace GDAL_GUI_New
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
             m_Task.SrcFileName = m_InputFiles[index];
             m_Task.ThumbnailPath = m_ThumbnailsPaths[index];
+            m_Task.IsThereOutput = (bool)m_UtilityInfo["IsThereOutput"];
             m_Task.EndEdit();
         }
 
@@ -766,26 +797,37 @@ namespace GDAL_GUI_New
                 m_ThumbnailsPaths[i] = System.IO.Path.GetDirectoryName(m_InputFiles[i]) + "\\" +
                                         System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[i]) +
                                         "_thumbnail.tif";
-                GdalFunctions.MakeThumbnail(m_InputFiles[i], m_ThumbnailsPaths[i]);
+                GdalFunctions.MakeThumbnail(m_InputFiles[i], ref m_ThumbnailsPaths[i]);
             }
             Image_Preview.BeginInit();
-            if (System.IO.File.Exists(m_ThumbnailsPaths[0]))
+            if (m_ThumbnailsPaths[0]!= null && System.IO.File.Exists(m_ThumbnailsPaths[0]))
             {
-                Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0]));
+                try
+                {
+                    Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0]));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Не удалось установить миниатюру: " + m_ThumbnailsPaths[0]);
+                    Image_Preview.Source = 
+                        new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath, UriKind.Relative));
+                }
             }
             else
             {
                 MessageBox.Show(
                     "Не удалось отобразить миниатуюру.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //Image_Preview.Source = 
-                //    new BitmapImage(new Uri("C:\\Users\\Ky3mu40FF\\Desktop\\Image_Not_Available.jpg"));
+                Image_Preview.Source =
+                    new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath, UriKind.Relative));
+
             }
             Image_Preview.EndInit();
         }
+
         #endregion
 
         // Обработчики событий
-                #region Обработчики событий
+            #region Обработчики событий
 
         private void ThisWindow_Closing(object sender, CancelEventArgs e)
         {
@@ -799,6 +841,7 @@ namespace GDAL_GUI_New
             if (result == MessageBoxResult.Yes)
             {
                 DataBaseControl.CloseConnection();
+                StackPanel_AdditionalParameters.Children.Clear();
                 return;
             }
             else
@@ -833,6 +876,8 @@ namespace GDAL_GUI_New
                 case InputMode.FromAnotherUtility:
                     MessageBox.Show("Заглушка. Выбор одного из добавленных заданий, чтобы взять " +
                                     "путь выходного файла в качестве входного для данного задания");
+                    TaskList_Window taskList_Window = new TaskList_Window(m_MainWindow.GetTasksList);
+                    taskList_Window.ShowDialog();
                     break;
                 case InputMode.TxtList:
                     openFileDialog.Multiselect = false;
@@ -954,11 +999,6 @@ namespace GDAL_GUI_New
 
         private void TaskEdit_Menu_ExitWithoutAdding_Click(object sender, RoutedEventArgs e)
         {
-            if (m_TaskEditWindowMode == TaskEditWindowMode.EditingExistingTask)
-            {
-                //ListBox_AvailableParameters.Items.Clear();
-                StackPanel_AdditionalParameters.Children.Clear();
-            }
             this.Close();
         }
 
@@ -986,6 +1026,8 @@ namespace GDAL_GUI_New
             m_ProcessForVersion.CancelOutputRead();
             m_ProcessForVersion.Close();
             TextBox_UtilityVersion.Text = m_UtilityVersion.ToString();
+
+            StackPanel_AdditionalParameters.Children.Clear();
 
             // Получаем параметры для данной утилиты, 
             // проверяем их совместимость с выбранной версией утилиты и
