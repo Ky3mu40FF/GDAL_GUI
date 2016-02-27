@@ -90,39 +90,6 @@ namespace GDAL_GUI_New
 
         // Свойства
         #region Свойства
-        public string SetImage
-        {
-            set
-            {
-                /*
-                CreateThumbnail(value, (value+"thumbnail.jpg"), 128,128);
-                ImageSource imgSource = new BitmapImage(new Uri(value + "thumbnail.jpg"));
-                image_SrcImagePreview.Source = imgSource;
-                label_PictureName.Content = value.Substring(value.LastIndexOf('\\') + 1);
-                label_PictureName.ToolTip = label_PictureName.Content;
-                */
-                image_SrcImagePreview.Source = new BitmapImage(new Uri(value));
-            }
-        }
-
-        public int SetTaskID
-        {
-            set { label_TaskID.Content = value.ToString(); }
-        }
-
-        public string SetUtilityName
-        {
-            set { label_UtilityName.Content = value; }
-        }
-
-        public string SetFileName
-        {
-            set
-            {
-                label_ImageName.Content = System.IO.Path.GetFileName(value);
-                label_ImageName.ToolTip = value;
-            }
-        }
 
         public bool IsCurrent
         {
@@ -151,6 +118,61 @@ namespace GDAL_GUI_New
 
         // Методы
         #region Методы
+
+        public void SetImageToImagePreviewElement(string path)
+        {
+            if (!String.IsNullOrEmpty(path) && File.Exists(path))
+            {
+                try
+                {
+                    image_SrcImagePreview.Source = new BitmapImage(new Uri(path));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Не удалось установить миниатюру: " + path);
+                    image_SrcImagePreview.Source = 
+                        new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath, UriKind.Relative));
+                }
+            }
+            else
+            {
+                Console.WriteLine("Не найдена миниатюра или указан некорректный путь");
+                //image_SrcImagePreview.Source = null;
+                image_SrcImagePreview.Source = 
+                    new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath, UriKind.Relative));
+            }
+        }
+
+        public void SetTaskIDToLabel(int id = 0)
+        {
+            label_TaskID.Content = id.ToString();
+        }
+
+        public void SetUtilityNameToLabel(string utilityName)
+        {
+            if (utilityName != null)
+            {
+                label_UtilityName.Content = utilityName;
+            }
+            else
+            {
+                label_UtilityName.Content = String.Empty;
+            }
+        }
+
+        public void SetFileNameToLabelAndToolTip(string inputFileName)
+        {
+            if (!String.IsNullOrEmpty(inputFileName))
+            {
+                label_ImageName.Content = System.IO.Path.GetFileName(inputFileName);
+                label_ImageName.ToolTip = inputFileName;
+            }
+            else
+            {
+                label_ImageName.Content = String.Empty;
+                label_ImageName.ToolTip = String.Empty;
+            }
+        }
 
         public void SetTaskElementState(TaskElementState taskElementState)
         {
@@ -206,10 +228,10 @@ namespace GDAL_GUI_New
             this.MouseEnter += new MouseEventHandler(taskElement_MouseEnter);
             this.MouseLeave += new MouseEventHandler(taskElement_MouseLeave);
             this.MouseLeftButtonDown += new MouseButtonEventHandler(taskElement_MouseLeftButtonDown);
-            this.image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
-            this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
             this.MouseRightButtonDown += new MouseButtonEventHandler(taskElement_MouseRightButtonDown);
             this.MouseRightButtonUp += new MouseButtonEventHandler(taskElement_MouseRightButtonUp);
+            image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
+            image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
             (this.ContextMenu.Items.GetItemAt(0) as MenuItem).Click +=
                 new RoutedEventHandler(taskElement_ContextMenu_RunTask_Click);
             (this.ContextMenu.Items.GetItemAt(2) as MenuItem).Click += 
