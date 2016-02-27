@@ -14,5 +14,8 @@
     <Setting Name="UseTheBundledUtilities" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="ImageNotAvailableRelativePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">..\Resources\ImageNotAvailable.bmp</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

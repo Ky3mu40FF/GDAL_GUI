@@ -70,5 +70,17 @@ namespace GDAL_GUI_New.Properties {
                 this["UseTheBundledUtilities"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\Resources\\ImageNotAvailable.bmp")]
+        public string ImageNotAvailableRelativePath {
+            get {
+                return ((string)(this["ImageNotAvailableRelativePath"]));
+            }
+            set {
+                this["ImageNotAvailableRelativePath"] = value;
+            }
+        }
     }
 }
