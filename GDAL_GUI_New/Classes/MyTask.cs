@@ -16,6 +16,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Data;
 
 namespace GDAL_GUI_New
 {
@@ -58,6 +59,7 @@ namespace GDAL_GUI_New
         private List<MyDataRow> m_ParametersList;   
         private MyDataRow[] m_SelectedParametersList;
         private GroupBox[] m_AdditionalParameters;
+        private List<DataTable> m_AdditionalParametersInputs;
 
         public string OutputPath
         {
@@ -88,6 +90,11 @@ namespace GDAL_GUI_New
         {
             get { return m_AdditionalParameters; }
             set { m_AdditionalParameters = value; }
+        }
+        public List<DataTable> AdditionalParametersInputs
+        {
+            get { return m_AdditionalParametersInputs; }
+            set { m_AdditionalParametersInputs = value; }
         }
 
         #endregion
