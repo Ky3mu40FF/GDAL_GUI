@@ -36,6 +36,7 @@
             <MenuItem x:Name="Menu_Settings" Header="{DynamicResource m_Menu_Settings}">
             </MenuItem>
             <MenuItem x:Name="Menu_About" Header="{DynamicResource m_Menu_About}"/>
+            <MenuItem x:Name="Menu_Help" Header="{DynamicResource m_Menu_Help}"/>
         </Menu>
         <GroupBox x:Name="GroupBox_Output" Header="{DynamicResource m_GroupBox_Output}" Grid.Column="0" Margin="0,18,0,0">
             <Grid>
