@@ -21,6 +21,7 @@
     <v:String x:Key="m_Menu_Output_Clear">Clear</v:String>
     <v:String x:Key="m_Menu_Settings">Settings</v:String>
     <v:String x:Key="m_Menu_About">About</v:String>
+    <v:String x:Key="m_Menu_Help">Help</v:String>
     <v:String x:Key="m_GroupBox_Output">Output</v:String>
     <v:String x:Key="m_GroupBox_TaskList">Task List</v:String>
 
@@ -60,6 +61,11 @@
     <v:String x:Key="m_Label_ContentLanguage">Utilities and Params Info:</v:String>
     <v:String x:Key="m_Label_ProgramLanguage">Program:</v:String>
     <v:String x:Key="m_Button_SaveSettings">Save</v:String>
+    
+    <!--Диалоговое окно выбора задачи-->
+    <v:String x:Key="m_SelectTaskDialogWindow_Title">Select Task</v:String>
+    <v:String x:Key="m_SelectTaskDialogWindow_Button_SelectTask">Select</v:String>
+    <v:String x:Key="m_SelectTaskDialogWindow_Button_Cancel">Cancel</v:String>
     
     <!--Графический элемент отображения задачи-->
     <v:String x:Key="m_TaskElement_Label_TaskIDLabel">ID:</v:String>
