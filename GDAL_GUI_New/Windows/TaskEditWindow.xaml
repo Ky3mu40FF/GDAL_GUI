@@ -32,7 +32,7 @@
                     <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputPaths}" Grid.Column="1">
                         <Grid>
                             <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" VerticalAlignment="Top" Height="26" />
-                            <TextBox x:Name="TextBox_InputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
+                            <TextBox x:Name="TextBox_InputFile" IsReadOnly="True" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
                             <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Height="23" Margin="0,26,0,0"/>
                             <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0">
                                 <Grid>
@@ -53,10 +53,11 @@
                                     <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="3">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherUtility}" />
                                     </RadioButton>
+                                    <!--
                                     <RadioButton x:Name="RadioButton_InputMode_TxtList" Grid.Row="4" Margin="0,0,0,64" Grid.RowSpan="2">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_TxtList}" />
                                     </RadioButton>
-
+                                    -->
                                 </Grid>
                             </GroupBox>
                         </Grid>
@@ -65,7 +66,7 @@
                     <GroupBox x:Name="GroupBox_OutputPaths" Header="{DynamicResource m_GroupBox_OutputPaths}"  Margin="0,-1,0,0" Grid.Column="2" VerticalAlignment="Top" Height="79">
                         <Grid>
                             <Label x:Name="Label_OutputFile" Content="{DynamicResource m_Label_OutputFile}" VerticalAlignment="Top" Height="26" />
-                            <TextBox x:Name="TextBox_OutputFile" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,27,75,0" />
+                            <TextBox x:Name="TextBox_OutputFile" IsReadOnly="True" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,27,75,0" />
                             <Button x:Name="Button_BrowseOutputFile" Content="{DynamicResource m_Button_BrowseOutputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Height="23" Margin="0,27,0,0"/>
                         </Grid>
                     </GroupBox>
