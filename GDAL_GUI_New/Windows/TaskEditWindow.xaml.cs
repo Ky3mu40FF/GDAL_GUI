@@ -152,6 +152,7 @@ namespace GDAL_GUI_New
             {
                 StackPanel_AdditionalParameters.Children.Add(gB);
             }
+            m_AdditionalParametersInputs = m_Task.AdditionalParametersInputs;
             m_InputFiles[0] = m_Task.SrcFileName;
             m_OutputPath = m_Task.OutputPath;
             m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
@@ -224,8 +225,8 @@ namespace GDAL_GUI_New
                 new RoutedEventHandler(RadioButton_InputMode_Checked);
             RadioButton_InputMode_FromAnotherUtility.Checked +=
                 new RoutedEventHandler(RadioButton_InputMode_Checked);
-            RadioButton_InputMode_TxtList.Checked +=
-                new RoutedEventHandler(RadioButton_InputMode_Checked);
+            //RadioButton_InputMode_TxtList.Checked +=
+            //    new RoutedEventHandler(RadioButton_InputMode_Checked);
             ListBox_AvailableParameters.SelectionChanged +=
                 new SelectionChangedEventHandler(ListBox_AvailableParameters_SelectionChanged);
 
@@ -242,7 +243,7 @@ namespace GDAL_GUI_New
             RadioButton_InputMode_OneFile.Tag = InputMode.OneFile;
             RadioButton_InputMode_MultipleFiles.Tag = InputMode.MultipleFiles;
             RadioButton_InputMode_FromAnotherUtility.Tag = InputMode.FromAnotherUtility;
-            RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;            
+            //RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;            
         }
 
         // Подключение к базе данных и получение доступных утилит 
@@ -464,6 +465,27 @@ namespace GDAL_GUI_New
         {
             // Получаем элемент, с которого сняли выделение
             MyDataRow currentParameter = e.RemovedItems[0] as MyDataRow;
+            if (currentParameter == null)
+            {
+                return;
+            }
+            // Если параметр вызывается несколько раз, то удаляем его таблицу с введёнными значениями
+            if ((bool) currentParameter.GetDataRow["MultipleCalls"] == true)
+            {
+                try
+                {
+                    m_AdditionalParametersInputs.Remove(
+                        m_AdditionalParametersInputs.First(
+                            x => x.TableName == currentParameter.GetDataRow["NameOfTheParameter"])
+                        );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Не удалось удалить таблицу с введёнными значениями параметра " +
+                        currentParameter.GetDataRow["NameOfTheParameter"]);
+                }
+            }
+
             // В StackPanel, где хранятся элементы ввода дополнительных параметров,
             // ищем и удаляем GroupBox, в котором хранятся доп. параметры
             // текущего параметра
@@ -784,8 +806,26 @@ namespace GDAL_GUI_New
             m_Task.ParametersString = m_FormedParametersArgument;
             m_Task.UtilityName = ComboBox_UtilitiesNames.SelectedItem.ToString();
             m_Task.SrcFileName = m_InputFiles[index];
-            m_Task.ThumbnailPath = m_ThumbnailsPaths[index];
+            if (m_ThumbnailsPaths != null)
+            {
+                m_Task.ThumbnailPath = m_ThumbnailsPaths[index];
+            }
+            else
+            {
+                m_Task.ThumbnailPath = String.Empty;
+            }
             m_Task.IsThereOutput = (bool)m_UtilityInfo["IsThereOutput"];
+            if (m_Task.IsThereOutput == true)
+            {
+                int dst_Position =
+                    (int)m_UtilityParameters.First(
+                        x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset").GetDataRow["PositionIndex"];
+                m_Task.OutputPath = m_AllParameters[dst_Position];
+            }
+            else
+            {
+                m_Task.OutputPath = String.Empty;
+            }
             m_Task.EndEdit();
         }
 
@@ -862,6 +902,7 @@ namespace GDAL_GUI_New
                     {
                         m_InputFiles = openFileDialog.FileNames;
                         MakeThumbnails();
+                        TextBox_InputFile.Text = m_InputFiles[0];
                     }
                     break;
                 case InputMode.MultipleFiles:
@@ -871,14 +912,35 @@ namespace GDAL_GUI_New
                     {
                         m_InputFiles = openFileDialog.FileNames;
                         MakeThumbnails();
+                        foreach (string file in m_InputFiles)
+                        {
+                            TextBox_InputFile.Text += file + "; ";
+                        }
                     }
                     break;
                 case InputMode.FromAnotherUtility:
                     MessageBox.Show("Заглушка. Выбор одного из добавленных заданий, чтобы взять " +
                                     "путь выходного файла в качестве входного для данного задания");
-                    TaskList_Window taskList_Window = new TaskList_Window(m_MainWindow.GetTasksList);
-                    taskList_Window.ShowDialog();
+                    SelectTaskDialogWindow selectTaskDialogWindow = new SelectTaskDialogWindow(m_MainWindow.GetTasksList);
+                    if (selectTaskDialogWindow.ShowDialog() == true)
+                    {
+                        if (!String.IsNullOrEmpty(selectTaskDialogWindow.FilePath))
+                        {
+                            m_InputFiles = new string[1];
+                            m_InputFiles[0] = selectTaskDialogWindow.FilePath;
+                            TextBox_InputFile.Text = selectTaskDialogWindow.FilePath;
+                        }
+                        else
+                        {
+                            m_InputFiles = new string[1];
+                            m_InputFiles[0] = String.Empty;
+                            TextBox_InputFile.Text = String.Empty;
+                            MessageBox.Show("Не удалось получить путь", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
                     break;
+                    /*
                 case InputMode.TxtList:
                     openFileDialog.Multiselect = false;
                     openFileDialog.CheckPathExists = true;
@@ -888,6 +950,7 @@ namespace GDAL_GUI_New
                         m_InputFiles = openFileDialog.FileNames;
                     }
                     break;
+                    */
             }
 
             /*
@@ -970,7 +1033,8 @@ namespace GDAL_GUI_New
                     m_Task.AdditionalParameters = new GroupBox[StackPanel_AdditionalParameters.Children.Count];
                     StackPanel_AdditionalParameters.Children.CopyTo(m_Task.AdditionalParameters, 0);
                     //StackPanel_AdditionalParameters.Children.Clear();
-                    m_Task.OutputPath = m_OutputPath;
+                    //m_Task.OutputPath = m_OutputPath;
+                    m_Task.AdditionalParametersInputs = m_AdditionalParametersInputs;
 
                     if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
                     {
