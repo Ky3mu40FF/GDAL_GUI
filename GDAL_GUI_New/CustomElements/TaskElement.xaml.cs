@@ -32,6 +32,7 @@ namespace GDAL_GUI_New
         private int m_TaskID;
         private bool m_IsCurrent;
         private System.Windows.Media.SolidColorBrush m_BackgroundBrush;
+        private SelectTaskDialogWindow m_SelectTaskDialogWindow;
 
         public static SolidColorBrush m_NormalStateBrush = 
             new SolidColorBrush(System.Windows.Media.Color.FromRgb(230, 230, 230));
@@ -86,6 +87,39 @@ namespace GDAL_GUI_New
             SetBackgroundBrush = TaskElement.m_NormalStateBrush;
             EventsAndOtherSettings();
         }
+
+        public TaskElement(TaskElement copy, SelectTaskDialogWindow selectTaskDialogWindow)
+        {
+            InitializeComponent();
+            this.m_MainWindow = null;
+            this.m_SelectTaskDialogWindow = selectTaskDialogWindow;
+            this.m_ParentTask = copy.m_ParentTask;
+            this.m_TaskID = copy.m_TaskID;
+            this.m_IsCurrent = false;
+            this.m_TaskElementState = TaskElementState.Normal;
+            this.m_PreviousTaskElementState = m_TaskElementState;
+            this.SetBackgroundBrush = TaskElement.m_NormalStateBrush;
+
+            this.SetImageToImagePreviewElement(this.m_ParentTask.ThumbnailPath);
+            this.SetTaskIDToLabel(this.m_TaskID);
+            this.SetUtilityNameToLabel(this.m_ParentTask.UtilityName);
+            this.SetFileNameToLabelAndToolTip(this.m_ParentTask.SrcFileName);
+            this.SetTaskElementState(TaskElementState.Normal);
+
+            this.MouseEnter += new MouseEventHandler(taskElement_MouseEnter);
+            this.MouseLeave += new MouseEventHandler(taskElement_MouseLeave);
+            this.MouseLeftButtonDown += new MouseButtonEventHandler(taskElement_MouseLeftButtonDown_SelectTaskDialog);
+            this.image_SrcImagePreview.MouseEnter += new MouseEventHandler(Image_SrcImagePreview_MouseEnter);
+            this.image_SrcImagePreview.MouseLeave += new MouseEventHandler(Image_SrcImagePreview_MouseLeave);
+
+            Binding myBinding = new Binding();
+            myBinding.Path = new PropertyPath("SetBackgroundBrush");
+            myBinding.Mode = BindingMode.TwoWay;
+            myBinding.Source = this;
+            myBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            this.SetBinding(UserControl.BackgroundProperty, myBinding);
+        }
+
         #endregion
 
         // Свойства
@@ -164,8 +198,10 @@ namespace GDAL_GUI_New
         {
             if (!String.IsNullOrEmpty(inputFileName))
             {
-                label_ImageName.Content = System.IO.Path.GetFileName(inputFileName);
-                label_ImageName.ToolTip = inputFileName;
+                //label_ImageName.Content = System.IO.Path.GetFileName(inputFileName);
+                //label_ImageName.ToolTip = inputFileName;
+                label_ImageName.Content = System.IO.Path.GetFileName(inputFileName.Replace("\"", ""));
+                label_ImageName.ToolTip = inputFileName.Replace("\"", "");
             }
             else
             {
@@ -303,6 +339,29 @@ namespace GDAL_GUI_New
             taskElement.IsCurrent = true;
             m_MainWindow.CurrentTask = selectedTask;
 
+        }
+
+        private void taskElement_MouseLeftButtonDown_SelectTaskDialog(object sender, RoutedEventArgs e)
+        {
+            TaskElement taskElement = sender as TaskElement;
+
+            if (m_SelectTaskDialogWindow.SelectedTask != null)
+            {
+                TaskElement selectedTaskElement = 
+                    m_SelectTaskDialogWindow.GetTaskElementList.FirstOrDefault(x => x.m_TaskID == m_SelectTaskDialogWindow.SelectedTask.GetTaskID);
+                selectedTaskElement.ReturnToPreviousElementState();
+                selectedTaskElement.IsCurrent = false;
+                if (taskElement.m_TaskID == selectedTaskElement.m_TaskID)
+                {
+                    m_SelectTaskDialogWindow.SelectedTask = null;
+                    return;
+                }
+            }
+
+            MyTask selectedTask = taskElement.m_ParentTask;
+            taskElement.SetTaskElementState(TaskElementState.Selected);
+            taskElement.IsCurrent = true;
+            m_SelectTaskDialogWindow.SelectedTask = selectedTask;
         }
 
         private void Image_SrcImagePreview_MouseEnter(object sender, RoutedEventArgs e)
