@@ -128,8 +128,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Windows\TaskList_Window.xaml.cs">
-      <DependentUpon>TaskList_Window.xaml</DependentUpon>
+    <Compile Include="Windows\SelectTaskDialogWindow.xaml.cs">
+      <DependentUpon>SelectTaskDialogWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\TaskEditWindow.xaml.cs">
       <DependentUpon>TaskEditWindow.xaml</DependentUpon>
@@ -144,7 +144,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\TaskList_Window.xaml">
+    <Page Include="Windows\SelectTaskDialogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
