@@ -161,8 +161,15 @@ namespace GDAL_GUI_New
             {
                 return;
             }
+            if (m_CurrentTask == task)
+            {
+                m_CurrentTask = null;
+                task.GetTaskElement.IsCurrent = false;
+            }
             int index = m_Tasks.IndexOf(m_Tasks.FirstOrDefault(x => x.GetTaskID == task.GetTaskID));
             task.GetTaskElement.SetTaskElementState(TaskElement.TaskElementState.Normal);
+            task.GetTaskElement.SetPreviousState();
+            
             //m_Tasks.Insert(index, task);
             //m_Tasks.Remove(m_Tasks.Where(x => x.GetTaskID == task.GetTaskID).First());
             //m_Tasks.Add(task);
