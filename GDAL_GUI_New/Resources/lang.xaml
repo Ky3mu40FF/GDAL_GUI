@@ -27,7 +27,9 @@
 
     <!--Окно редактирования задачи-->
     <v:String x:Key="m_TaskEditWindow_Title">Task Edit</v:String>
+    <v:String x:Key="m_TaskEditWindow_Title_EditMode">Editing Task № </v:String>
     <v:String x:Key="m_TaskEdit_Menu_AddTask">Add Task</v:String>
+    <v:String x:Key="m_TaskEdit_Menu_AddTask_EditMode">Finish Editing Task</v:String>
     <v:String x:Key="m_TaskEdit_Menu_Exit">Exit without Adding</v:String>
     <v:String x:Key="m_TaskEdit_Menu_ManualInput">Manual Editing</v:String>
     <v:String x:Key="m_TabItem_Input_Output_Utility">Inputs, Outputs and Utility Selection</v:String>
@@ -51,7 +53,7 @@
     <v:String x:Key="m_GroupBox_AvailableParameters">Available Parameters</v:String>
     <v:String x:Key="m_GroupBox_ParameterDescription">Parameter's Description</v:String>
     <v:String x:Key="m_GroupBox_AdditionalParameters">Additional Parameters</v:String>
-
+    
     <!--Окно настроек-->
     <v:String x:Key="m_SettingsWindow_Title">Settings</v:String>
     <v:String x:Key="m_GroupBox_Header_UtilitiesDirectoryPath">Utilities directory path</v:String>
