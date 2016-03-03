@@ -154,7 +154,13 @@ namespace GDAL_GUI_New
             }
             m_AdditionalParametersInputs = m_Task.AdditionalParametersInputs;
             m_InputFiles[0] = m_Task.SrcFileName;
+            TextBox_InputFile.Text = m_InputFiles[0];
             m_OutputPath = m_Task.OutputPath;
+            TextBox_OutputFile.Text = m_OutputPath;
+            this.SetResourceReference(Window.TitleProperty, "m_TaskEditWindow_Title_EditMode");
+            (this.menu.Items[0] as System.Windows.Controls.MenuItem).
+                SetResourceReference(System.Windows.Controls.MenuItem.HeaderProperty, "m_TaskEdit_Menu_AddTask_EditMode");
+            this.Title += m_Task.GetTaskID;
             m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
             if (!String.IsNullOrEmpty(m_ThumbnailsPaths[0]))
             {
@@ -273,7 +279,8 @@ namespace GDAL_GUI_New
                         MessageBox.Show("В указанной папке не найдены поддерживаемые утилиты.\n" +
                                         "Пожалуйста, выберите корректную папку с утилитами в настройках.",
                             "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
-                        this.Close();
+                        //this.Close();
+                        this.Grid_TaskEditWindow.IsEnabled = false;
                     }
                 }
                 catch (Exception ex)

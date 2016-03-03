@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
         Title="{DynamicResource m_TaskEditWindow_Title}" Height="138" Width="616" MinWidth="745" MinHeight="370">
-    <Grid>
+    <Grid x:Name="Grid_TaskEditWindow">
         <Grid.RowDefinitions>
             <RowDefinition Height="17.964"/>
             <RowDefinition/>
