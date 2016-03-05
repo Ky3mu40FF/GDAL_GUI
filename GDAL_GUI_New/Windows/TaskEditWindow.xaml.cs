@@ -455,6 +455,7 @@ namespace GDAL_GUI_New
                     // Создаём новый ComboBox, в котором будeт храниться доступные варианты
                     ComboBox cB = new ComboBox()
                     {
+                        IsEditable = true,
                         // Возможно это (тэг) не потребуется
                         //Tag = currentParameter.GetDataRow["NameOfTheParameter"]
                         Tag = "selected_value"
@@ -463,6 +464,168 @@ namespace GDAL_GUI_New
                     // в GroupBox и затем в StackPanel
                     cB.ItemsSource = additionalParameters;
                     gB.Content = cB;
+                    StackPanel_AdditionalParameters.Children.Add(gB);
+                }
+                else if (currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "OpenFile")
+                {
+                    ColumnDefinition textBoxColumn = new ColumnDefinition();
+                    ColumnDefinition buttonColumn = new ColumnDefinition()
+                    {
+                        Width = new GridLength(75, GridUnitType.Pixel)
+                    };
+                    grid.ColumnDefinitions.Add(textBoxColumn);
+                    grid.ColumnDefinitions.Add(buttonColumn);
+                    // Переменная-счётчик для строк (GridRow) в сетке (Grid)
+                    int rowCount = 0;
+                    // Для каждого дополнительного параметра добавляем две строки 
+                    // в сетке (для Label и TextBox с Button) и сами элементы: Label и TextBox с Button
+                    foreach (string parameter in additionalParameters)
+                    {
+                        // Добавляем две строки в сетку
+                        grid.RowDefinitions.Add(new RowDefinition());
+                        grid.RowDefinitions.Add(new RowDefinition());
+                        // Создаём экземпляр Label
+                        Label label = new Label()
+                        {
+                            Name = "Label_" + parameter,
+                            Content = parameter,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            HorizontalAlignment = HorizontalAlignment.Left
+                        };
+                        TextBox tBParam = new TextBox()
+                        {
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Height = 20,
+                            Tag = parameter
+                        };
+
+                        Button buttonBrowse = new Button()
+                        {
+                            Content = "Browse",
+                            Tag = parameter,
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Height = 20
+                        };
+                        buttonBrowse.Click += Button_Parameter_Browse_Click;
+
+                        Grid.SetColumn(label, 0);
+                        Grid.SetColumn(tBParam, 0);
+                        Grid.SetColumn(buttonBrowse, 1);
+                        // Устанавливаем для Label и TextBox с Button индексы добавленных строк
+                        // (т.е. в каких строках в Grid элементы находятся)
+                        // (прямо при добавлении сразу инкрементируем счётчик)
+                        Grid.SetRow(label, rowCount++);
+                        Grid.SetRow(tBParam, rowCount);
+                        Grid.SetRow(buttonBrowse, rowCount++);
+
+                        grid.Children.Add(label);
+                        grid.Children.Add(tBParam);
+                        grid.Children.Add(buttonBrowse);
+                    }
+                    gB.Content = grid;
+
+                    StackPanel_AdditionalParameters.Children.Add(gB);
+                }
+// В ПРОЦЕССЕ !!!!!
+                else if (currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "Options")
+                {
+                    // Создаём определения строк и столбцов для сетки в GroupBox
+                    RowDefinition rowDataGrid = new RowDefinition();
+                    RowDefinition rowButtonAdd = new RowDefinition();
+                    RowDefinition rowButtonRemove = new RowDefinition();
+                    grid.RowDefinitions.Add(rowDataGrid);
+                    grid.RowDefinitions.Add(rowButtonAdd);
+                    grid.RowDefinitions.Add(rowButtonRemove);
+                    // Создаём экземпляр DataGrid, в который будем вводить дополнительные параметры
+                    DataGrid dataGrid = new DataGrid()
+                    {
+                        Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                        VerticalAlignment = VerticalAlignment.Top,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        GridLinesVisibility = DataGridGridLinesVisibility.All,
+                        CanUserAddRows = false,
+                        AutoGenerateColumns = false
+                    };
+                    // Создаём таблицу, в которой будут храниться введённые 
+                    // значения дополнительных параметров
+                    DataTable table = new DataTable()
+                    {
+                        TableName = currentParameter.GetDataRow["NameOfTheParameter"].ToString()
+                    };
+
+                    DataGridComboBoxColumn typeDataGridComboBoxColumn = new DataGridComboBoxColumn()
+                    {
+                        Header = "Type",
+                        SelectedItemBinding = new Binding("Type")
+                    };
+                    DataGridComboBoxColumn KeyDataGridComboBoxColumn = new DataGridComboBoxColumn()
+                    {
+                        Header = "Key",
+                        SelectedItemBinding = new Binding("Key")
+                    };
+                    DataGridTextColumn valueDataGridTextBoxColumn = new DataGridTextColumn()
+                    {
+                        Header = "Value",
+                        Binding = new Binding("Value")
+                    };
+
+                    dataGrid.Columns.Add(typeDataGridComboBoxColumn);
+                    dataGrid.Columns.Add(KeyDataGridComboBoxColumn);
+                    dataGrid.Columns.Add(valueDataGridTextBoxColumn);
+
+                    DataColumn column1 = new DataColumn
+                    {
+                        ColumnName = "Key",
+                        DataType = typeof(String),
+                        Caption = additionalParameters[0]
+                    };
+                    DataColumn column2 = new DataColumn
+                    {
+                        ColumnName = "Value",
+                        DataType = typeof(String),
+                        Caption = additionalParameters[1]
+                    };
+                    table.Columns.Add(column1);
+                    table.Columns.Add(column2);
+
+                    // Добавляем созданную таблицу в список таблиц для доп. параметров
+                    // и назначаем экземпляру DataGrid в качестве источника эту таблицу
+                    // из списка
+                    m_AdditionalParametersInputs.Add(table);
+                    dataGrid.ItemsSource = m_AdditionalParametersInputs.Last<DataTable>().DefaultView;
+
+                    // Создаём кнопку, при нажатии на которую будет добавляться новая строка
+                    // в DataGrid
+                    Button buttonAddRow = new Button()
+                    {
+                        Content = "Add new row",
+                        Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Bottom
+                    };
+                    // Добавляем этой кнопке обработчик события
+                    buttonAddRow.Click += new RoutedEventHandler(Button_AddRow_Click);
+                    // Создаём кнопку, при нажатии на которую будет удаляться 
+                    // выбранная строка в DataGrid
+                    Button buttonRemoveRow = new Button()
+                    {
+                        Content = "Remove selected row",
+                        Tag = currentParameter.GetDataRow["NameOfTheParameter"].ToString(),
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Bottom
+                    };
+                    // Добавляем этой кнопке обработчик события
+                    buttonRemoveRow.Click += new RoutedEventHandler(Button_RemoveRow_Click);
+                    // Формируем GroupBox и добавляем его в StackPanel
+                    Grid.SetRow(dataGrid, 0);
+                    Grid.SetRow(buttonAddRow, 1);
+                    Grid.SetRow(buttonRemoveRow, 2);
+                    grid.Children.Add(dataGrid);
+                    grid.Children.Add(buttonAddRow);
+                    grid.Children.Add(buttonRemoveRow);
+                    gB.Content = grid;
                     StackPanel_AdditionalParameters.Children.Add(gB);
                 }
             }
@@ -720,6 +883,43 @@ namespace GDAL_GUI_New
                             m_AllParameters[positionIndex] = pattern;
                             m_AllParameters[positionIndex] =
                                 m_AllParameters[positionIndex].Replace("selected_value", cB.SelectedItem.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Не удалось добавить выбранное значение в шаблон."
+                                        + Environment.NewLine + "Параметр " + parameter.ToString() + " будет пропущен.",
+                                        "Ошибка!",
+                                        MessageBoxButton.OK, MessageBoxImage.Error);
+                            m_AllParameters[positionIndex] = String.Empty;
+                            continue;
+                        }
+                    }
+                    else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "OpenFile")
+                    {
+                        try
+                        {
+                            // Получаем Grid, в котором хранится TextBox с введёнными значениями
+                            Grid grid = gB.Content as Grid;
+                            m_AllParameters[positionIndex] = pattern;
+                            // Ищем TextBox'ы, добавляем значения в шаблон
+                            foreach (var child in grid.Children)
+                            {
+                                if (child is TextBox)
+                                {
+                                    TextBox tB = child as TextBox;
+                                    if (!String.IsNullOrEmpty(tB.Text))
+                                    {
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
+                                    }
+                                    else
+                                    {
+                                        m_AllParameters[positionIndex] =
+                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), String.Empty);
+                                    }
+                                }
+                            }
+
                         }
                         catch (Exception ex)
                         {
@@ -1104,7 +1304,7 @@ namespace GDAL_GUI_New
             // проверяем их совместимость с выбранной версией утилиты и
             // выводим список в ListBox
             m_UtilityParameters = DataBaseControl.GetUtilityParameters(name);
-            m_UtilityParameters.RemoveAll(x => new Version(x.GetDataRow["Version"].ToString()) >= m_UtilityVersion);
+            m_UtilityParameters.RemoveAll(x => new Version(x.GetDataRow["Version"].ToString()) > m_UtilityVersion);
             //ListBox_AvailableParameters.ItemsSource = m_UtilityParameters;
             // Добавляем только те параметры, которые должны выводиться 
             // в списке доступных параметров (отсекает src_dataset и dst_dataset)
@@ -1155,10 +1355,8 @@ namespace GDAL_GUI_New
         private void ListBox_AvailableParameters_Item_MouseEnter(object sender, MouseEventArgs e)
         {
             ListBoxItem lBI = sender as ListBoxItem;
-            int index = ListBox_AvailableParameters.Items.IndexOf(lBI.Content);
-            TextBlock_ParameterDescription.Text = 
-                m_UtilityParameters[index].GetDataRow[
-                    "ParameterDescription" + Properties.Settings.Default.DescriptionsLanguage].ToString();
+            TextBlock_ParameterDescription.Text = (lBI.Content as MyDataRow).GetDataRow[
+                "ParameterDescription" + Properties.Settings.Default.DescriptionsLanguage].ToString();
         }
 
         private void Button_AddRow_Click(object sender, RoutedEventArgs e)
@@ -1186,6 +1384,25 @@ namespace GDAL_GUI_New
                     {
                         MessageBox.Show("Не выбрана строка, которую необходимо удалить!",
                             "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void Button_Parameter_Browse_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            Grid grid = btn.Parent as Grid;
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                foreach (UIElement child in grid.Children)
+                {
+                    if (child.GetType() == typeof(TextBox) && (child as TextBox).Tag == btn.Tag)
+                    {
+                        (child as TextBox).Text = "\"" + openFileDialog.FileName + "\"";
+                        break;
                     }
                 }
             }
