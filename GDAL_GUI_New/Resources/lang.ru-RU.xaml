@@ -43,7 +43,12 @@
         <v:String x:Key="m_Button_BrowseInputFile">Обзор</v:String>
     <v:String x:Key="m_GroupBox_InputOptions">Режимы</v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_OneFile">Выбрать один файл</v:String>
-        <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFiles">Выбрать несколько файлов</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFilesForOneTask">
+            Выбрать несколько файлов для одной задачи
+        </v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks">
+            Выбрать несколько файлов для нескольких задач
+        </v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherUtility">
             Использовать выходной файл другой утилиты в качестве входного
         </v:String>
