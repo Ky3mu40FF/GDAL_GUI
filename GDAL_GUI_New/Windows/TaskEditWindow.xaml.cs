@@ -58,13 +58,20 @@ namespace GDAL_GUI_New
         private enum InputMode
         {
             OneFile,
-            MultipleFiles,
+            MultipleFilesForOneTask,
+            MultipleFilesForMultipleTasks,
             FromAnotherUtility,
             TxtList
         };
         private InputMode m_CurrentMode;
         private List<DataTable> m_AdditionalParametersInputs;
-        string[] m_AllParameters;
+        private string[] m_AllParameters;
+        // Списки, необходимые для параметров типа Options
+        private List<string> m_AvailableOptionsTypes;
+        private List<string> m_AvailableGroups;
+        private List<DataRow> m_AvailableKeysWithValues;
+        private List<string> m_AvailableKeys;
+        private List<string> m_AvailableValues;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -227,7 +234,9 @@ namespace GDAL_GUI_New
                 new SelectionChangedEventHandler(ComboBox_UtilitiesNames_SelectionChanged);
             RadioButton_InputMode_OneFile.Checked +=
                 new RoutedEventHandler(RadioButton_InputMode_Checked);
-            RadioButton_InputMode_MultipleFiles.Checked +=
+            RadioButton_InputMode_MultipleFilesForOneTask.Checked +=
+                new RoutedEventHandler(RadioButton_InputMode_Checked);
+            RadioButton_InputMode_MultipleFilesForMultipleTasks.Checked +=
                 new RoutedEventHandler(RadioButton_InputMode_Checked);
             RadioButton_InputMode_FromAnotherUtility.Checked +=
                 new RoutedEventHandler(RadioButton_InputMode_Checked);
@@ -247,9 +256,9 @@ namespace GDAL_GUI_New
 
             // Дополнительная инициализация параметров объектов
             RadioButton_InputMode_OneFile.Tag = InputMode.OneFile;
-            RadioButton_InputMode_MultipleFiles.Tag = InputMode.MultipleFiles;
+            RadioButton_InputMode_MultipleFilesForOneTask.Tag = InputMode.MultipleFilesForOneTask;
+            RadioButton_InputMode_MultipleFilesForMultipleTasks.Tag = InputMode.MultipleFilesForMultipleTasks;
             RadioButton_InputMode_FromAnotherUtility.Tag = InputMode.FromAnotherUtility;
-            //RadioButton_InputMode_TxtList.Tag = InputMode.TxtList;            
         }
 
         // Подключение к базе данных и получение доступных утилит 
@@ -528,7 +537,6 @@ namespace GDAL_GUI_New
 
                     StackPanel_AdditionalParameters.Children.Add(gB);
                 }
-// В ПРОЦЕССЕ !!!!!
                 else if (currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "Options")
                 {
                     // Создаём определения строк и столбцов для сетки в GroupBox
@@ -555,40 +563,110 @@ namespace GDAL_GUI_New
                         TableName = currentParameter.GetDataRow["NameOfTheParameter"].ToString()
                     };
 
-                    DataGridComboBoxColumn typeDataGridComboBoxColumn = new DataGridComboBoxColumn()
+                    // Инициализируем список с доступными группами опций
+                    m_AvailableGroups = new List<string>();
+                    m_AvailableGroups = DataBaseControl.GetGroupsFromOptionsType(
+                        currentParameter.GetDataRow["NameOfTheParameter"].ToString().Split(new char[]{' '})[0]);
+                    // Создаём столбец для DataGrid, в основе которого будет ComboBox
+                    DataGridTemplateColumn dataGridComboBoxTemplateColumnGroup = new DataGridTemplateColumn()
                     {
-                        Header = "Type",
-                        SelectedItemBinding = new Binding("Type")
+                        Header = "Group"
                     };
-                    DataGridComboBoxColumn KeyDataGridComboBoxColumn = new DataGridComboBoxColumn()
-                    {
-                        Header = "Key",
-                        SelectedItemBinding = new Binding("Key")
-                    };
-                    DataGridTextColumn valueDataGridTextBoxColumn = new DataGridTextColumn()
-                    {
-                        Header = "Value",
-                        Binding = new Binding("Value")
-                    };
+                    FrameworkElementFactory comboFactoryGroup = new FrameworkElementFactory(typeof(ComboBox));
+                    comboFactoryGroup.SetValue(ComboBox.NameProperty, "ComboBox_Group");
+                    comboFactoryGroup.SetValue(ComboBox.TagProperty, "ComboBox_Group");
+                    comboFactoryGroup.SetValue(ComboBox.IsTextSearchEnabledProperty, true);
+                    comboFactoryGroup.SetValue(ComboBox.IsEditableProperty, false);
+                    comboFactoryGroup.SetValue(ComboBox.ItemsSourceProperty, m_AvailableGroups);
+                    DataTemplate comboTemplateGroup = new DataTemplate();
+                    comboTemplateGroup.VisualTree = comboFactoryGroup;
+                    dataGridComboBoxTemplateColumnGroup.CellTemplate = comboTemplateGroup;
+                    dataGridComboBoxTemplateColumnGroup.CellEditingTemplate = comboTemplateGroup;
+                    comboFactoryGroup.AddHandler(ComboBox.SelectionChangedEvent,
+                        new SelectionChangedEventHandler(DataGridComboBoxColumn_SelectionChanged));
 
-                    dataGrid.Columns.Add(typeDataGridComboBoxColumn);
-                    dataGrid.Columns.Add(KeyDataGridComboBoxColumn);
-                    dataGrid.Columns.Add(valueDataGridTextBoxColumn);
+                    // Инициализируем список с доступными ключами выбранной группы
+                    m_AvailableKeys = new List<string>();
+                    // Инициализируем привязку к столбцу "Key" таблицы (dataTable)
+                    Binding bindKey = new Binding("Key");
+                    bindKey.Mode = BindingMode.TwoWay;
+                    // Создаём TextBlock
+                    FrameworkElementFactory textFactoryKey = new FrameworkElementFactory(typeof(TextBlock));
+                    textFactoryKey.SetBinding(TextBlock.TextProperty, bindKey);
+                    DataTemplate textTemplateKey = new DataTemplate();
+                    textTemplateKey.VisualTree = textFactoryKey;
+                    // Создаём ComboBox
+                    DataGridTemplateColumn dataGridComboBoxTemplateColumnKey = new DataGridTemplateColumn()
+                    {
+                        Header = "Key"
+                    };
+                    FrameworkElementFactory comboFactoryKey = new FrameworkElementFactory(typeof(ComboBox));
+                    comboFactoryKey.SetValue(ComboBox.NameProperty, "ComboBox_Key");
+                    comboFactoryKey.SetValue(ComboBox.TagProperty, "ComboBox_Key");
+                    comboFactoryKey.SetValue(ComboBox.IsTextSearchEnabledProperty, true);
+                    comboFactoryKey.SetValue(ComboBox.IsEditableProperty, true);
+                    comboFactoryKey.SetValue(ComboBox.ItemsSourceProperty, m_AvailableKeys);
+                    comboFactoryKey.SetBinding(ComboBox.TextProperty, bindKey);
+                    DataTemplate comboTemplateKey = new DataTemplate();
+                    comboTemplateKey.VisualTree = comboFactoryKey;
+                    // В качестве исходного состояния ячейки выбираем TextBlock
+                    dataGridComboBoxTemplateColumnKey.CellTemplate = textTemplateKey;
+                    // В качестве состояния редактирования выбираем ComboBox
+                    dataGridComboBoxTemplateColumnKey.CellEditingTemplate = comboTemplateKey;
+                    // Добавляем обработчик события "Смена выделенного объекта"
+                    comboFactoryKey.AddHandler(ComboBox.SelectionChangedEvent,
+                        new SelectionChangedEventHandler(DataGridComboBoxColumn_SelectionChanged));
 
-                    DataColumn column1 = new DataColumn
+                    // Инициализируем список с доступными значениями выбранного ключа
+                    m_AvailableValues = new List<string>();
+                    // Инициализируем привязку к столбцу "Val" таблицы (dataTable)
+                    Binding bindVal = new Binding("Val");
+                    bindVal.Mode = BindingMode.TwoWay;
+                    // Создаём TextBlock
+                    FrameworkElementFactory textFactoryVal = new FrameworkElementFactory(typeof(TextBlock));
+                    textFactoryVal.SetBinding(TextBlock.TextProperty, bindVal);
+                    DataTemplate textTemplateVal = new DataTemplate();
+                    textTemplateVal.VisualTree = textFactoryVal;
+                    // Создаём ComboBox
+                    DataGridTemplateColumn dataGridComboBoxTemplateColumnValue = new DataGridTemplateColumn()
+                    {
+                        Header = "Val"
+                    };
+                    FrameworkElementFactory comboFactoryValue = new FrameworkElementFactory(typeof(ComboBox));
+                    comboFactoryValue.SetValue(ComboBox.NameProperty, "ComboBox_Value");
+                    comboFactoryValue.SetValue(ComboBox.TagProperty, "ComboBox_Value");
+                    comboFactoryValue.SetValue(ComboBox.IsTextSearchEnabledProperty, true);
+                    comboFactoryValue.SetValue(ComboBox.IsEditableProperty, true);
+                    comboFactoryValue.SetValue(ComboBox.ItemsSourceProperty, m_AvailableValues);
+                    comboFactoryValue.SetBinding(ComboBox.TextProperty, bindVal);
+                    DataTemplate comboTemplateValue = new DataTemplate();
+                    comboTemplateValue.VisualTree = comboFactoryValue;
+                    // В качестве исходного состояния ячейки выбираем TextBlock
+                    dataGridComboBoxTemplateColumnValue.CellTemplate = textTemplateVal;
+                    // В качестве состояния редактирования выбираем ComboBox
+                    dataGridComboBoxTemplateColumnValue.CellEditingTemplate = comboTemplateValue;
+
+                    // Добавляем созданные столбцы в dataGrid
+                    dataGrid.Columns.Add(dataGridComboBoxTemplateColumnGroup);
+                    dataGrid.Columns.Add(dataGridComboBoxTemplateColumnKey);
+                    dataGrid.Columns.Add(dataGridComboBoxTemplateColumnValue);
+
+                    DataColumn dataTableColumnKey = new DataColumn
                     {
                         ColumnName = "Key",
                         DataType = typeof(String),
-                        Caption = additionalParameters[0]
+                        //Caption = additionalParameters[0]
+                        Caption = "Key"
                     };
-                    DataColumn column2 = new DataColumn
+                    DataColumn dataTableColumnVal = new DataColumn
                     {
-                        ColumnName = "Value",
+                        ColumnName = "Val",
                         DataType = typeof(String),
-                        Caption = additionalParameters[1]
+                        //Caption = additionalParameters[1]
+                        Caption = "Val"
                     };
-                    table.Columns.Add(column1);
-                    table.Columns.Add(column2);
+                    table.Columns.Add(dataTableColumnKey);
+                    table.Columns.Add(dataTableColumnVal);
 
                     // Добавляем созданную таблицу в список таблиц для доп. параметров
                     // и назначаем экземпляру DataGrid в качестве источника эту таблицу
@@ -640,7 +718,8 @@ namespace GDAL_GUI_New
                 return;
             }
             // Если параметр вызывается несколько раз, то удаляем его таблицу с введёнными значениями
-            if ((bool) currentParameter.GetDataRow["MultipleCalls"] == true)
+            if ((bool) currentParameter.GetDataRow["MultipleCalls"] == true | 
+                currentParameter.GetDataRow["AdditionalParametersType"].ToString() == "Options")
             {
                 try
                 {
@@ -931,6 +1010,43 @@ namespace GDAL_GUI_New
                             continue;
                         }
                     }
+                    else if (parameter.GetDataRow["AdditionalParametersType"].ToString() == "Options")
+                    {
+                        // Получаем таблицу, в которой хранятся введённые доп. параметры
+                        DataTable tableWithInputedParameters =
+                            m_AdditionalParametersInputs.Where(x => x.TableName == parameter.ToString()).First();
+                        // Формируем шаблон регулярных выражений, чтобы корректно 
+                        // вставлять данные 
+                        // (чтобы корректно отличать обычные параметры, вроде src_min от 
+                        // таких как _bn, где важно сохранить символ "_") 
+                        Regex regex = new Regex("([0-9a-zA-Z]+_[0-9a-zA-Z]+|[0-9a-zA-Z]+)");
+
+                        // Просматриваем все записи в таблице (введённые доп.параметры
+                        // для каждого отдельного вызова данного параметра
+                        foreach (DataRow row in tableWithInputedParameters.Rows)
+                        {
+                            // Каждый вызов параметры отделяем пробелом
+                            m_AllParameters[positionIndex] += pattern + " ";
+                            // Проходим по всем столбцам (доп. параметрам)
+                            // Если что-то введено, то добавляется значение в шаблон
+                            // Если ничего не введено, то параметр удаляется из шаблона
+                            for (int i = 0; i < row.ItemArray.Length; i++)
+                            {
+                                string columnName = tableWithInputedParameters.Columns[i].ColumnName;
+                                if (!String.IsNullOrEmpty(row[i].ToString()))
+                                {
+                                    String match = regex.Match(columnName).ToString();
+                                    m_AllParameters[positionIndex] =
+                                        m_AllParameters[positionIndex].Replace(match, row[i].ToString());
+                                }
+                                else
+                                {
+                                    m_AllParameters[positionIndex] =
+                                        m_AllParameters[positionIndex].Replace(columnName, String.Empty);
+                                }
+                            }
+                        }
+                    }
                 }
                 // Если нет дополнительных параметров, то в массив выбранных параметров
                 // добавляем шаблон
@@ -953,7 +1069,14 @@ namespace GDAL_GUI_New
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
                 //m_AllParameters[src_Position] = m_InputFiles[index];
-                m_AllParameters[src_Position] = "\""+ m_InputFiles[index] + "\"";
+                if (m_CurrentMode == InputMode.MultipleFilesForOneTask)
+                {
+                    m_AllParameters[src_Position] = m_InputFiles[index];
+                }
+                else
+                {
+                    m_AllParameters[src_Position] = "\"" + m_InputFiles[index] + "\"";
+                }
             }
             // Если утилита поддерживает выходные данные 
             //if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
@@ -972,12 +1095,14 @@ namespace GDAL_GUI_New
                 (int)m_UtilityParameters.Where(
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
-                if (m_CurrentMode == InputMode.OneFile || m_CurrentMode == InputMode.FromAnotherUtility)
+                if (m_CurrentMode == InputMode.OneFile || 
+                    m_CurrentMode == InputMode.FromAnotherUtility || 
+                    m_CurrentMode == InputMode.MultipleFilesForOneTask)
                 {
                     //m_AllParameters[dst_Position] = m_OutputPath;
                     m_AllParameters[dst_Position] = "\"" + m_OutputPath + "\"";
                 }
-                else if (m_CurrentMode == InputMode.MultipleFiles)
+                else if (m_CurrentMode == InputMode.MultipleFilesForMultipleTasks)
                 {
                     m_AllParameters[dst_Position] =
                         m_OutputPath + "\\" +
@@ -1112,7 +1237,20 @@ namespace GDAL_GUI_New
                         TextBox_InputFile.Text = m_InputFiles[0];
                     }
                     break;
-                case InputMode.MultipleFiles:
+                case InputMode.MultipleFilesForOneTask:
+                    openFileDialog.Multiselect = true;
+                    openFileDialog.CheckPathExists = true;
+                    if (openFileDialog.ShowDialog() == true)
+                    {
+                        m_InputFiles = openFileDialog.FileNames;
+                        MakeThumbnails();
+                        foreach (string file in m_InputFiles)
+                        {
+                            TextBox_InputFile.Text += file + "; ";
+                        }
+                    }
+                    break;
+                case InputMode.MultipleFilesForMultipleTasks:
                     openFileDialog.Multiselect = true;
                     openFileDialog.CheckPathExists = true;
                     if (openFileDialog.ShowDialog() == true)
@@ -1126,8 +1264,6 @@ namespace GDAL_GUI_New
                     }
                     break;
                 case InputMode.FromAnotherUtility:
-                    MessageBox.Show("Заглушка. Выбор одного из добавленных заданий, чтобы взять " +
-                                    "путь выходного файла в качестве входного для данного задания");
                     SelectTaskDialogWindow selectTaskDialogWindow = new SelectTaskDialogWindow(m_MainWindow.GetTasksList);
                     if (selectTaskDialogWindow.ShowDialog() == true)
                     {
@@ -1147,32 +1283,8 @@ namespace GDAL_GUI_New
                         }
                     }
                     break;
-                    /*
-                case InputMode.TxtList:
-                    openFileDialog.Multiselect = false;
-                    openFileDialog.CheckPathExists = true;
-                    openFileDialog.Filter = "Text Files (*.txt)|*.txt";
-                    if (openFileDialog.ShowDialog() == true)
-                    {
-                        m_InputFiles = openFileDialog.FileNames;
-                    }
-                    break;
-                    */
-            }
 
-            /*
-            OpenFileDialog openFileDialog = new OpenFileDialog()
-            {
-                Multiselect = true,
-                CheckFileExists = true,
-                CheckPathExists = true
-            };
-            openFileDialog.ShowDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                m_InputFiles = openFileDialog.FileNames;
             }
-            */
         }
 
         private void Button_BrowseOutputFile_Click(object sender, RoutedEventArgs e)
@@ -1186,7 +1298,14 @@ namespace GDAL_GUI_New
                         OutputFilePath = saveFileDialog_OneInput.FileName;
                     }
                     break;
-                case InputMode.MultipleFiles:
+                case InputMode.MultipleFilesForOneTask:
+                    SaveFileDialog saveFileDialog_MultipleInput = new SaveFileDialog();
+                    if (saveFileDialog_MultipleInput.ShowDialog() == true)
+                    {
+                        OutputFilePath = saveFileDialog_MultipleInput.FileName;
+                    }
+                    break;
+                case InputMode.MultipleFilesForMultipleTasks:
                     System.Windows.Forms.FolderBrowserDialog folderBrowserDialog =
                         new System.Windows.Forms.FolderBrowserDialog();
                     if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1225,6 +1344,16 @@ namespace GDAL_GUI_New
                 }
 
                 ParametersArgumentForming();
+                if (m_CurrentMode == InputMode.MultipleFilesForOneTask)
+                {
+                    string buffer = String.Empty;
+                    foreach (string name in m_InputFiles)
+                    {
+                        buffer += "\"" + name + "\" ";
+                    }
+                    m_InputFiles = new string[1];
+                    m_InputFiles[0] = buffer;
+                }
                 for (int i = 0; i < m_InputFiles.Length; i++)
                 {
                     InputAndOutputToParametersArgumentString(i);
@@ -1405,6 +1534,46 @@ namespace GDAL_GUI_New
                         break;
                     }
                 }
+            }
+        }
+
+        private void DataGridComboBoxColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cB = sender as ComboBox;
+            switch (cB.Name)
+            {
+                case "ComboBox_Group":
+                    m_AvailableKeysWithValues = new List<DataRow>();
+                    if (e.AddedItems != null && e.AddedItems.Count > 0)
+                    {
+                        m_AvailableKeysWithValues = DataBaseControl.GetKeysWithValuesFromGroup(e.AddedItems[0].ToString());
+                        if (m_AvailableKeysWithValues != null)
+                        {
+                            m_AvailableKeys.Clear();
+                            foreach (DataRow row in m_AvailableKeysWithValues)
+                            {
+                                m_AvailableKeys.Add(row["Key"].ToString());
+                            }
+                        }
+                    }
+                    break;
+                case "ComboBox_Key":
+                    if (e.AddedItems != null && e.AddedItems.Count > 0)
+                    {
+                        //m_AvailableValues = new List<string>();
+                        if (m_AvailableKeysWithValues != null)
+                        {
+                            m_AvailableValues.Clear();
+                            DataRow foundedRow = m_AvailableKeysWithValues.First(x => x["Key"].ToString() == e.AddedItems[0].ToString());
+                            m_AvailableValues.AddRange(
+                                foundedRow["Val"].ToString().Split(new char [] {';'}, StringSplitOptions.RemoveEmptyEntries));
+                        }
+                    }
+                    break;
+                case "ComboBox_Value":
+                    break;
+                default:
+                    break;
             }
         }
 
