@@ -17,6 +17,12 @@ namespace GDAL_GUI_New
             new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + 
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Resources\DB\GDAL_DB.accdb"));
 
+        private static string m_OptionsTableName = "Options";
+        private static string m_OptionsTypeColumnName = "OptionsType";
+        private static string m_GroupsColumnName = "Group";
+        private static string m_KeysColumnName = "Key";
+        private static string m_ValuesColumnName = "Val";
+
         public static bool ConnectToDB()
         {
             try
@@ -160,6 +166,109 @@ namespace GDAL_GUI_New
             }
             return utilityParameters;
         }
+
+        public static List<string> GetOptionsTypes()
+        {
+            List<string> optionsTypes = new List<string>();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = m_Connection;
+            command.CommandText = 
+                "SELECT DISTINCT "+ m_OptionsTableName + "." + m_OptionsTypeColumnName + 
+                " FROM " + m_OptionsTableName;
+            DataSet dataSet = new DataSet();
+            OleDbDataAdapter adapter = new OleDbDataAdapter();
+            try
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(dataSet, m_OptionsTableName);
+                foreach (DataRow row in dataSet.Tables[m_OptionsTableName].Rows)
+                {
+                    optionsTypes.Add(row["OptionsType"].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Не удалось получить типы параметров Options из таблицы "+ m_OptionsTableName + "."
+                    + Environment.NewLine + e.Message);
+            }
+            finally
+            {
+                command.Dispose();
+                dataSet.Dispose();
+                adapter.Dispose();
+            }
+            return optionsTypes;
+        }
+
+        public static List<string> GetGroupsFromOptionsType(string optionsType)
+        {
+            List<string> groups = new List<string>();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = m_Connection;
+            command.CommandText = 
+                "SELECT DISTINCT " + m_OptionsTableName + "." + m_GroupsColumnName + 
+                " FROM " + m_OptionsTableName + 
+                " WHERE " + m_OptionsTableName + "." + m_OptionsTypeColumnName + " LIKE '" + optionsType +"'";
+            DataSet dataSet = new DataSet();
+            OleDbDataAdapter adapter = new OleDbDataAdapter();
+            try
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(dataSet, m_OptionsTableName);
+                foreach (DataRow row in dataSet.Tables[m_OptionsTableName].Rows)
+                {
+                    groups.Add(row[m_GroupsColumnName].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Не удалось получить группы типа " + optionsType + " из таблицы " + m_OptionsTableName + "."
+                    + Environment.NewLine + e.Message);
+            }
+            finally
+            {
+                command.Dispose();
+                dataSet.Dispose();
+                adapter.Dispose();
+            }
+            return groups;
+        }
+
+        public static List<DataRow> GetKeysWithValuesFromGroup(string group)
+        {
+            List<DataRow> keysWithValues = new List<DataRow>();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = m_Connection;
+            command.CommandText = 
+                "SELECT " + m_OptionsTableName + "." + m_KeysColumnName + ", " + m_OptionsTableName + "." + m_ValuesColumnName +
+                " FROM " + m_OptionsTableName +
+                " WHERE " + m_OptionsTableName + "." + m_GroupsColumnName + " LIKE '" + group + "'";
+            DataSet dataSet = new DataSet();
+            OleDbDataAdapter adapter = new OleDbDataAdapter();
+            try
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(dataSet, m_OptionsTableName);
+                foreach (DataRow row in dataSet.Tables[m_OptionsTableName].Rows)
+                {
+                    keysWithValues.Add(row);
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Не удалось получить ключи со значениями группы " + group + 
+                    " из таблицы " + m_OptionsTableName + "."
+                    + Environment.NewLine + e.Message);
+            }
+            finally
+            {
+                command.Dispose();
+                dataSet.Dispose();
+                adapter.Dispose();
+            }
+            return keysWithValues;
+        }
+
         
     }
 }
