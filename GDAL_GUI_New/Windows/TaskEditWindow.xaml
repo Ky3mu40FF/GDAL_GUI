@@ -40,17 +40,20 @@
                                         <RowDefinition Height="13"/>
                                         <RowDefinition Height="34"/>
                                         <RowDefinition Height="34"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="33"/>
+                                        <RowDefinition Height="34"/>
+                                        <RowDefinition Height="34"/>
                                         <RowDefinition Height="65"/>
                                     </Grid.RowDefinitions>
                                     <RadioButton x:Name="RadioButton_InputMode_OneFile" IsChecked="True" Tag="InputMode.OneFile" Grid.Row="1">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_OneFile}" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFiles" Grid.Row="2">
-                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFiles}" />
+                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFilesForOneTask" Grid.Row="2">
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFilesForOneTask}" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="3">
+                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFilesForMultipleTasks" Grid.Row="3">
+                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks}" />
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="4">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherUtility}" />
                                     </RadioButton>
                                     <!--
