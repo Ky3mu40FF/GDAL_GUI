@@ -12,7 +12,11 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="285"/>
         </Grid.ColumnDefinitions>
-        <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" Height="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu x:Name="Menu" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Grid.ColumnSpan="2" Grid.Row="0" Height="20">
             <MenuItem x:Name="Menu_File" Header="{DynamicResource m_Menu_File}">
                 <MenuItem x:Name="Menu_File_Exit" Header="{DynamicResource m_Menu_File_Exit}" Icon="{DynamicResource m_Menu_File_Exit_Icon}"/>
             </MenuItem>
@@ -38,7 +42,7 @@
             <MenuItem x:Name="Menu_About" Header="{DynamicResource m_Menu_About}"/>
             <MenuItem x:Name="Menu_Help" Header="{DynamicResource m_Menu_Help}"/>
         </Menu>
-        <GroupBox x:Name="GroupBox_Output" Header="{DynamicResource m_GroupBox_Output}" Grid.Column="0" Margin="0,18,0,0">
+        <GroupBox x:Name="GroupBox_Output" Header="{DynamicResource m_GroupBox_Output}" Grid.Column="0" Grid.Row="1">
             <Grid>
                 <ScrollViewer>
                     <TextBox x:Name="TextBox_OutputData" 
@@ -49,7 +53,7 @@
                 </ScrollViewer>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="GroupBox_TaskList" Header="{DynamicResource m_GroupBox_TaskList}" Margin="0,18,0,0" Grid.Column="1" Width="285" >
+        <GroupBox x:Name="GroupBox_TaskList" Header="{DynamicResource m_GroupBox_TaskList}" Grid.Column="1" Grid.Row="1" Width="285" >
             <Grid>
                 <ScrollViewer x:Name="ScrollViewer_TaskElements">
                     <StackPanel x:Name="StackPanel_TaskElements"/>
