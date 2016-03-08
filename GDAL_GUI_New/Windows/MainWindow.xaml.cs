@@ -98,28 +98,18 @@ namespace GDAL_GUI_New
         private void EventAndPropertiesInitialization()
         {
             // Подписка на события
-            Menu_File_Exit.Click += 
-                new RoutedEventHandler(Menu_File_Exit_Click);
-            Menu_Edit_AddTask.Click += 
-                new RoutedEventHandler(Menu_Edit_AddTask_Click);
-            Menu_Edit_EditSelectedTask.Click += 
-                new RoutedEventHandler(Menu_Edit_EditSelectedTask_Click);
-            Menu_Edit_RemoveSelectedTask.Click += 
-                new RoutedEventHandler(Menu_Edit_RemoveSelectedTask_Click);
-            Menu_Edit_RemoveAllTasks.Click += 
-                new RoutedEventHandler(Menu_Edit_RemoveAllTasks_Click);
-            Menu_Run_RunAll.Click += 
-                new RoutedEventHandler(Menu_Run_RunAll_Click);
-            Menu_Run_RunSelected.Click += 
-                new RoutedEventHandler(Menu_Run_RunSelected_Click);
-            Menu_Output_Clear.Click += 
-                new RoutedEventHandler(Menu_Output_Clear_Click);
-            Menu_Output_SaveToFile.Click += 
-                new RoutedEventHandler(Menu_Output_SaveToFile_Click);
-            Menu_Settings.Click += 
-                new RoutedEventHandler(Menu_Settings_Click);
-            Menu_About.Click += 
-                new RoutedEventHandler(Menu_About_Click);
+            Menu_File_Exit.Click += Menu_File_Exit_Click;
+            Menu_Edit_AddTask.Click += Menu_Edit_AddTask_Click;
+            Menu_Edit_EditSelectedTask.Click += Menu_Edit_EditSelectedTask_Click;
+            Menu_Edit_RemoveSelectedTask.Click += Menu_Edit_RemoveSelectedTask_Click;
+            Menu_Edit_RemoveAllTasks.Click += Menu_Edit_RemoveAllTasks_Click;
+            Menu_Run_RunAll.Click += Menu_Run_RunAll_Click;
+            Menu_Run_RunSelected.Click += Menu_Run_RunSelected_Click;
+            Menu_Output_Clear.Click += Menu_Output_Clear_Click;
+            Menu_Output_SaveToFile.Click += Menu_Output_SaveToFile_Click;
+            Menu_Settings.Click += Menu_Settings_Click;
+            Menu_About.Click += Menu_About_Click;
+            Menu_Help.Click += Menu_Help_Click;
 
             m_Tasks.CollectionChanged +=
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
@@ -353,6 +343,24 @@ namespace GDAL_GUI_New
             About about = new About();
             about.Show();
         }
+
+        private void Menu_Help_Click(object sender, RoutedEventArgs e)
+        {
+            Process helpProcess = new Process();
+            if (File.Exists(@"Resources\Help\GDAL_GUI_Help.chm"))
+            {
+                helpProcess.StartInfo.FileName = @"Resources\Help\GDAL_GUI_Help.chm";
+                helpProcess.Start();
+            }
+            else
+            {
+                MessageBox.Show("Не удалось найти файл справки: " +
+                     @"Resources\Help\GDAL_GUI_Help.chm");
+                return;
+            }
+            
+        }
+
         // Обработчик события Изменения коллекции задач (для ObservableCollection<MyTask> m_Tasks)
         private void Tasks_CollectionChanged(object sender,
             System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
