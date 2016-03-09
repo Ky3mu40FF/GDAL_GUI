@@ -80,12 +80,18 @@ namespace GDAL_GUI_New
             NewTask,
             EditingExistingTask
         }
-
         private TaskEditWindowMode m_TaskEditWindowMode;
+
+        private string m_InputFilter =
+                "TIFF/GeoTIFF Files (*.tiff)|*.TIFF|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
+                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|All Files (*.*)|*.*";
+        private string m_OutputFilter =
+                "TIFF/GeoTIFF Files (*.tiff)|*.TIFF|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
+                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|Other Files (*.*)|*.*";
         #endregion
 
         // Конструкторы
-            #region Конструкторы
+        #region Конструкторы
         public TaskEditWindow(MainWindow mainWindow)
         {
             InitializeComponent();
@@ -1225,6 +1231,7 @@ namespace GDAL_GUI_New
         private void Button_BrowseInputFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = m_InputFilter;
             switch (m_CurrentMode)
             {
                 case InputMode.OneFile:
@@ -1293,6 +1300,7 @@ namespace GDAL_GUI_New
             {
                 case InputMode.OneFile:
                     SaveFileDialog saveFileDialog_OneInput = new SaveFileDialog();
+                    saveFileDialog_OneInput.Filter = m_OutputFilter;
                     if (saveFileDialog_OneInput.ShowDialog() == true)
                     {
                         OutputFilePath = saveFileDialog_OneInput.FileName;
@@ -1300,6 +1308,7 @@ namespace GDAL_GUI_New
                     break;
                 case InputMode.MultipleFilesForOneTask:
                     SaveFileDialog saveFileDialog_MultipleInput = new SaveFileDialog();
+                    saveFileDialog_MultipleInput.Filter = m_OutputFilter;
                     if (saveFileDialog_MultipleInput.ShowDialog() == true)
                     {
                         OutputFilePath = saveFileDialog_MultipleInput.FileName;
@@ -1315,6 +1324,7 @@ namespace GDAL_GUI_New
                     break;
                 case InputMode.FromAnotherUtility:
                     SaveFileDialog saveFileDialog_FromAnotherUtility = new SaveFileDialog();
+                    saveFileDialog_FromAnotherUtility.Filter = m_OutputFilter;
                     if (saveFileDialog_FromAnotherUtility.ShowDialog() == true)
                     {
                         OutputFilePath = saveFileDialog_FromAnotherUtility.FileName;
