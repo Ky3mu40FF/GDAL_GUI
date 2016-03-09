@@ -60,8 +60,8 @@ namespace GDAL_GUI_New
             OneFile,
             MultipleFilesForOneTask,
             MultipleFilesForMultipleTasks,
-            FromAnotherUtility,
-            TxtList
+            FromAnotherUtility
+            //TxtList
         };
         private InputMode m_CurrentMode;
         private List<DataTable> m_AdditionalParametersInputs;
@@ -234,8 +234,8 @@ namespace GDAL_GUI_New
                 new RoutedEventHandler(TaskEdit_Menu_AddTask_Click);
             TaskEdit_Menu_Exit.Click += 
                 new RoutedEventHandler(TaskEdit_Menu_ExitWithoutAdding_Click);
-            TaskEdit_Menu_ManualInput.Click += 
-                new RoutedEventHandler(TaskEdit_Menu_InputParametersManually_Click);
+            //TaskEdit_Menu_ManualInput.Click += 
+            //    new RoutedEventHandler(TaskEdit_Menu_InputParametersManually_Click);
             ComboBox_UtilitiesNames.SelectionChanged += 
                 new SelectionChangedEventHandler(ComboBox_UtilitiesNames_SelectionChanged);
             RadioButton_InputMode_OneFile.Checked +=
