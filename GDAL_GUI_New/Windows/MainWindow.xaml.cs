@@ -341,7 +341,10 @@ namespace GDAL_GUI_New
         private void Menu_About_Click(object sender, RoutedEventArgs e)
         {
             About about = new About();
+            about.Title = "GDAL GUI";
+            about.AdditionalNotes = String.Empty;
             about.Show();
+            
         }
 
         private void Menu_Help_Click(object sender, RoutedEventArgs e)
