@@ -6,7 +6,7 @@
       <Value Profile="(Default)">en-US</Value>
     </Setting>
     <Setting Name="UtilitiesDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\Ky3mu40FF\Desktop\gdal\bin\</Value>
+      <Value Profile="(Default)">Resources\GDAL_Bundle\</Value>
     </Setting>
     <Setting Name="DescriptionsLanguage" Type="System.String" Scope="User">
       <Value Profile="(Default)">Eng</Value>

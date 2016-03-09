@@ -37,7 +37,7 @@ namespace GDAL_GUI_New.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\Ky3mu40FF\\Desktop\\gdal\\bin\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Resources\\GDAL_Bundle\\")]
         public string UtilitiesDirectory {
             get {
                 return ((string)(this["UtilitiesDirectory"]));
