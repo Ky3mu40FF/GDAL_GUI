@@ -18,7 +18,7 @@
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
             <MenuItem x:Name="TaskEdit_Menu_AddTask" Header="{DynamicResource m_TaskEdit_Menu_AddTask}"/>
-            <MenuItem x:Name="TaskEdit_Menu_ManualInput" Header="{DynamicResource m_TaskEdit_Menu_ManualInput}"/>
+            <!--<MenuItem x:Name="TaskEdit_Menu_ManualInput" Header="{DynamicResource m_TaskEdit_Menu_ManualInput}"/>-->
             <MenuItem x:Name="TaskEdit_Menu_Exit" Header="{DynamicResource m_TaskEdit_Menu_Exit}" HorizontalAlignment="Right"/>
         </Menu>
         <TabControl x:Name="tabControl" Grid.Row="1" >
