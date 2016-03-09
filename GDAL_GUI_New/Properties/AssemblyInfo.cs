@@ -7,11 +7,12 @@ using System.Windows;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("GDAL_GUI_New")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyTitle("GDAL GUI")]
+[assembly: AssemblyDescription("Данная программа предоставляет графический интерфейс для работы " +
+                               "с утилитами из программного пакета GDAL.")]
+[assembly: AssemblyConfiguration("Retail")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GDAL_GUI_New")]
+[assembly: AssemblyProduct("GDAL GUI")]
 [assembly: AssemblyCopyright("Copyright © Фоминых Алексей 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
