@@ -32,6 +32,8 @@ namespace GDAL_GUI_New
         {
             InitializeComponent();
 
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
             EventsAndOtherProperties();
 
             App.LanguageChanged += LanguageChanged;
