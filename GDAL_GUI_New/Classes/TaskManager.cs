@@ -93,6 +93,8 @@ namespace GDAL_GUI_New
             m_RunMode = RunMode.All;
             m_CurrentTask = m_Tasks[0];
             m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
+            m_MainWindow.StatusBarNumOfTasksToComplete = m_Tasks.Count;
+            m_MainWindow.StatusBarCurrentTaskId = m_TaskCounter;
             m_TaskCounter++;
             m_IsCurrentlySomeTaskRunning = true;
             m_MainWindow.SetBordersForProgressBar(m_Tasks.Count);
@@ -121,6 +123,8 @@ namespace GDAL_GUI_New
             m_IsCurrentlySomeTaskRunning = true;
             m_MainWindow.SetBordersForProgressBar(1);
             m_MainWindow.ProgressBarValue = 0;
+            m_MainWindow.StatusBarCurrentTaskId = 0;
+            m_MainWindow.StatusBarNumOfTasksToComplete = 1;
             Execution(m_CurrentTask);
         }
 
@@ -138,6 +142,7 @@ namespace GDAL_GUI_New
                 m_CurrentTask.ParametersString + Environment.NewLine +
                 "\tВывод утилиты:");
             m_MainWindow.StatusBarMessage = "Выполняется задача № " + task.GetTaskID;
+
             task.StartProcess();
         }
 
@@ -166,8 +171,10 @@ namespace GDAL_GUI_New
                     m_CurrentTask = m_Tasks[m_Tasks.IndexOf(m_CurrentTask) + 1];
                     m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
                     m_MainWindow.ProgressBarValue = m_TaskCounter;
+                    m_MainWindow.StatusBarCurrentTaskId = m_TaskCounter;
                     m_TaskCounter++;
                     m_IsCurrentlySomeTaskRunning = true;
+                    
                     Execution(m_CurrentTask);
                 }
                 else
@@ -179,6 +186,7 @@ namespace GDAL_GUI_New
                         "Время завершения: " + DateTime.Now.ToString());
                     m_MainWindow.StatusBarMessage = "Все задачи завершены";
                     m_MainWindow.ProgressBarValue = m_Tasks.Count;
+                    m_MainWindow.StatusBarCurrentTaskId = m_Tasks.Count;
                 }
             }
             else if (m_RunMode == RunMode.Selected)
@@ -189,6 +197,7 @@ namespace GDAL_GUI_New
                         "Время завершения: " + DateTime.Now.ToString());
                 m_MainWindow.StatusBarMessage = "Все задачи завершены";
                 m_MainWindow.ProgressBarValue = 1.0d;
+                m_MainWindow.StatusBarCurrentTaskId = 1;
             }
         }
 
