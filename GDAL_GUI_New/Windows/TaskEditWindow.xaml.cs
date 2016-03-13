@@ -60,7 +60,8 @@ namespace GDAL_GUI_New
             OneFile,
             MultipleFilesForOneTask,
             MultipleFilesForMultipleTasks,
-            FromAnotherUtility
+            FromAnotherTasksForOneTask,
+            FromAnotherTasksForMultipleTasks
             //TxtList
         };
         private InputMode m_CurrentMode;
@@ -83,10 +84,10 @@ namespace GDAL_GUI_New
         private TaskEditWindowMode m_TaskEditWindowMode;
 
         private string m_InputFilter =
-                "TIFF/GeoTIFF Files (*.tiff)|*.TIFF|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
+                "TIFF/GeoTIFF Files (*.tiff;*.tif)|*.tiff;*.tif|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
                 "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|All Files (*.*)|*.*";
         private string m_OutputFilter =
-                "TIFF/GeoTIFF Files (*.tiff)|*.TIFF|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
+                "TIFF/GeoTIFF Files (*.tif)|*.tif|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
                 "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|Other Files (*.*)|*.*";
         #endregion
 
@@ -225,27 +226,29 @@ namespace GDAL_GUI_New
         {
             // Подписка на события
             this.Closing += 
-                new CancelEventHandler(ThisWindow_Closing);
+                ThisWindow_Closing;
             Button_BrowseInputFile.Click +=
-                new RoutedEventHandler(Button_BrowseInputFile_Click);
+                Button_BrowseInputFile_Click;
             Button_BrowseOutputFile.Click +=
-                new RoutedEventHandler(Button_BrowseOutputFile_Click);
+                Button_BrowseOutputFile_Click;
             TaskEdit_Menu_AddTask.Click += 
-                new RoutedEventHandler(TaskEdit_Menu_AddTask_Click);
+                TaskEdit_Menu_AddTask_Click;
             TaskEdit_Menu_Exit.Click += 
-                new RoutedEventHandler(TaskEdit_Menu_ExitWithoutAdding_Click);
+                TaskEdit_Menu_ExitWithoutAdding_Click;
             //TaskEdit_Menu_ManualInput.Click += 
             //    new RoutedEventHandler(TaskEdit_Menu_InputParametersManually_Click);
             ComboBox_UtilitiesNames.SelectionChanged += 
-                new SelectionChangedEventHandler(ComboBox_UtilitiesNames_SelectionChanged);
+                ComboBox_UtilitiesNames_SelectionChanged;
             RadioButton_InputMode_OneFile.Checked +=
-                new RoutedEventHandler(RadioButton_InputMode_Checked);
+                RadioButton_InputMode_Checked;
             RadioButton_InputMode_MultipleFilesForOneTask.Checked +=
-                new RoutedEventHandler(RadioButton_InputMode_Checked);
+                RadioButton_InputMode_Checked;
             RadioButton_InputMode_MultipleFilesForMultipleTasks.Checked +=
-                new RoutedEventHandler(RadioButton_InputMode_Checked);
-            RadioButton_InputMode_FromAnotherUtility.Checked +=
-                new RoutedEventHandler(RadioButton_InputMode_Checked);
+                RadioButton_InputMode_Checked;
+            RadioButton_InputMode_FromAnotherTasksForOneTask.Checked +=
+                RadioButton_InputMode_Checked;
+            RadioButton_InputMode_FromAnotherTasksForMultipleTasks.Checked +=
+                RadioButton_InputMode_Checked;
             //RadioButton_InputMode_TxtList.Checked +=
             //    new RoutedEventHandler(RadioButton_InputMode_Checked);
             ListBox_AvailableParameters.SelectionChanged +=
@@ -264,7 +267,8 @@ namespace GDAL_GUI_New
             RadioButton_InputMode_OneFile.Tag = InputMode.OneFile;
             RadioButton_InputMode_MultipleFilesForOneTask.Tag = InputMode.MultipleFilesForOneTask;
             RadioButton_InputMode_MultipleFilesForMultipleTasks.Tag = InputMode.MultipleFilesForMultipleTasks;
-            RadioButton_InputMode_FromAnotherUtility.Tag = InputMode.FromAnotherUtility;
+            RadioButton_InputMode_FromAnotherTasksForOneTask.Tag = InputMode.FromAnotherTasksForOneTask;
+            RadioButton_InputMode_FromAnotherTasksForMultipleTasks.Tag = InputMode.FromAnotherTasksForMultipleTasks;
         }
 
         // Подключение к базе данных и получение доступных утилит 
@@ -994,8 +998,8 @@ namespace GDAL_GUI_New
                                     TextBox tB = child as TextBox;
                                     if (!String.IsNullOrEmpty(tB.Text))
                                     {
-                                        m_AllParameters[positionIndex] =
-                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), tB.Text);
+                                        m_AllParameters[positionIndex] = 
+                                            m_AllParameters[positionIndex].Replace(tB.Tag.ToString(), "\"" + tB.Text + "\"") ;
                                     }
                                     else
                                     {
@@ -1075,7 +1079,8 @@ namespace GDAL_GUI_New
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
                 //m_AllParameters[src_Position] = m_InputFiles[index];
-                if (m_CurrentMode == InputMode.MultipleFilesForOneTask)
+                if (m_CurrentMode == InputMode.MultipleFilesForOneTask ||
+                    m_CurrentMode == InputMode.FromAnotherTasksForOneTask)
                 {
                     m_AllParameters[src_Position] = m_InputFiles[index];
                 }
@@ -1102,13 +1107,14 @@ namespace GDAL_GUI_New
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "dst_dataset").First().GetDataRow["PositionIndex"];
                 // Добавляем путь
                 if (m_CurrentMode == InputMode.OneFile || 
-                    m_CurrentMode == InputMode.FromAnotherUtility || 
+                    m_CurrentMode == InputMode.FromAnotherTasksForOneTask || 
                     m_CurrentMode == InputMode.MultipleFilesForOneTask)
                 {
                     //m_AllParameters[dst_Position] = m_OutputPath;
                     m_AllParameters[dst_Position] = "\"" + m_OutputPath + "\"";
                 }
-                else if (m_CurrentMode == InputMode.MultipleFilesForMultipleTasks)
+                else if (m_CurrentMode == InputMode.MultipleFilesForMultipleTasks ||
+                         m_CurrentMode == InputMode.FromAnotherTasksForMultipleTasks)
                 {
                     m_AllParameters[dst_Position] =
                         m_OutputPath + "\\" +
@@ -1232,6 +1238,7 @@ namespace GDAL_GUI_New
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = m_InputFilter;
+            SelectTaskDialogWindow selectTaskDialogWindow = new SelectTaskDialogWindow(m_MainWindow.GetTasksList);
             switch (m_CurrentMode)
             {
                 case InputMode.OneFile:
@@ -1270,27 +1277,26 @@ namespace GDAL_GUI_New
                         }
                     }
                     break;
-                case InputMode.FromAnotherUtility:
-                    SelectTaskDialogWindow selectTaskDialogWindow = new SelectTaskDialogWindow(m_MainWindow.GetTasksList);
+                case InputMode.FromAnotherTasksForOneTask:
                     if (selectTaskDialogWindow.ShowDialog() == true)
                     {
-                        if (!String.IsNullOrEmpty(selectTaskDialogWindow.FilePath))
+                        m_InputFiles = selectTaskDialogWindow.FileNames;
+                        foreach (string file in m_InputFiles)
                         {
-                            m_InputFiles = new string[1];
-                            m_InputFiles[0] = selectTaskDialogWindow.FilePath;
-                            TextBox_InputFile.Text = selectTaskDialogWindow.FilePath;
-                        }
-                        else
-                        {
-                            m_InputFiles = new string[1];
-                            m_InputFiles[0] = String.Empty;
-                            TextBox_InputFile.Text = String.Empty;
-                            MessageBox.Show("Не удалось получить путь", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            TextBox_InputFile.Text += file + "; ";
                         }
                     }
                     break;
-
+                case InputMode.FromAnotherTasksForMultipleTasks:
+                    if (selectTaskDialogWindow.ShowDialog() == true)
+                    {
+                        m_InputFiles = selectTaskDialogWindow.FileNames;
+                        foreach (string file in m_InputFiles)
+                        {
+                            TextBox_InputFile.Text += file + "; ";
+                        }
+                    }
+                    break;
             }
         }
 
@@ -1322,12 +1328,20 @@ namespace GDAL_GUI_New
                         OutputFilePath = folderBrowserDialog.SelectedPath;
                     }
                     break;
-                case InputMode.FromAnotherUtility:
+                case InputMode.FromAnotherTasksForOneTask:
                     SaveFileDialog saveFileDialog_FromAnotherUtility = new SaveFileDialog();
                     saveFileDialog_FromAnotherUtility.Filter = m_OutputFilter;
                     if (saveFileDialog_FromAnotherUtility.ShowDialog() == true)
                     {
                         OutputFilePath = saveFileDialog_FromAnotherUtility.FileName;
+                    }
+                    break;
+                case InputMode.FromAnotherTasksForMultipleTasks:
+                    System.Windows.Forms.FolderBrowserDialog folderBrowserDialog_FromAnotherTasks =
+                        new System.Windows.Forms.FolderBrowserDialog();
+                    if (folderBrowserDialog_FromAnotherTasks.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        OutputFilePath = folderBrowserDialog_FromAnotherTasks.SelectedPath;
                     }
                     break;
             }
@@ -1354,7 +1368,8 @@ namespace GDAL_GUI_New
                 }
 
                 ParametersArgumentForming();
-                if (m_CurrentMode == InputMode.MultipleFilesForOneTask)
+                if (m_CurrentMode == InputMode.MultipleFilesForOneTask ||
+                    m_CurrentMode == InputMode.FromAnotherTasksForOneTask)
                 {
                     string buffer = String.Empty;
                     foreach (string name in m_InputFiles)
