@@ -24,7 +24,9 @@ namespace GDAL_GUI_New
         // Переменные
         private ObservableCollection<TaskElement> m_TaskElementList;
         private MyTask m_SelectedTask;
+        private ObservableCollection<MyTask> m_SelectedTasks;
         private string m_GottenOutputPath;
+        private string[] m_FileNames;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -41,23 +43,21 @@ namespace GDAL_GUI_New
             InitializeComponent();
             //m_TaskList = taskList;
             m_TaskElementList = new ObservableCollection<TaskElement>();
+            m_SelectedTasks = new ObservableCollection<MyTask>();
             m_GottenOutputPath = String.Empty;
             EventAndPropertiesInitialization();
             ShowTaskList(taskList);
-            /*
-            Binding myBinding = new Binding();
-            myBinding.Path = new PropertyPath("SelectedTask");
-            myBinding.Mode = BindingMode.TwoWay;
-            myBinding.Source = this;
-            myBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-            this.SetBinding(DependencyProperty.Register("MyTaskProperty", typeof(MyTask), typeof(UserControl)), myBinding);
-            */
         }
 
         // Свойства
-        public string FilePath
+        public string FileName
         {
             get { return m_GottenOutputPath; }
+        }
+
+        public string[] FileNames
+        {
+            get { return m_FileNames; }
         }
 
         public MyTask SelectedTask
@@ -84,6 +84,27 @@ namespace GDAL_GUI_New
         public ObservableCollection<TaskElement> GetTaskElementList
         {
             get { return m_TaskElementList; }
+        }
+
+        public void SelectedTasksChanged(TaskElement taskElement)
+        {
+            if (taskElement == null || taskElement.GetParentTask == null)
+            {
+                return;
+            }
+
+            if (m_SelectedTasks.Contains(taskElement.GetParentTask))
+            {
+                m_SelectedTasks.Remove(taskElement.GetParentTask);
+                taskElement.ReturnToPreviousElementState();
+                taskElement.IsCurrent = false;
+            }
+            else
+            {
+                m_SelectedTasks.Add(taskElement.GetParentTask);
+                taskElement.SetTaskElementState(TaskElement.TaskElementState.Selected);
+                taskElement.IsCurrent = true;
+            }
         }
 
         // Методы
@@ -124,7 +145,19 @@ namespace GDAL_GUI_New
 
         private void Button_SelectTask_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
+            if (m_SelectedTasks.Count > 0)
+            {
+                m_FileNames = new string[m_SelectedTasks.Count];
+                for (int i = 0; i < m_SelectedTasks.Count; i++)
+                {
+                    m_FileNames[i] = m_SelectedTasks[i].OutputPath;
+                }
+                this.DialogResult = true;
+            }
+            else
+            {
+                this.DialogResult = false;
+            }
         }
 
         private void Button_Cancel_Click(object sender, RoutedEventArgs e)
