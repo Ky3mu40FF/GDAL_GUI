@@ -50,7 +50,13 @@
             Выбрать несколько файлов для нескольких задач
         </v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherUtility">
-            Использовать выходной файл другой утилиты в качестве входного
+            Использовать выходной файл другой задачи в качестве входного
+        </v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherTasksForOneTask">
+            Использовать выходные файлы других задач в качестве входных для одной задачи
+        </v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherTasksForMultipleTasks">
+            Использовать выходные файлы других задач в качестве входных для нескольких задач
         </v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_TxtList">
             Выбрать текстовый файл со списком нужных файлов
