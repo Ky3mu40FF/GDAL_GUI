@@ -45,7 +45,12 @@
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_OneFile">Input One File</v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFilesForOneTask">Input Multiple Files For One Task</v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks">Input Multiple Files For Multiple Tasks</v:String>
-        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherUtility">Use Output File of Another Utility as Input</v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherTasksForOneTask">
+            Use Output File of Another Task as Input for One Task
+        </v:String>
+        <v:String x:Key="m_RadioButton_InputMode_TextBlock_FromAnotherTasksForMultipleTasks">
+            Use Output File of Another Task as Input for Multiple Tasks
+        </v:String>
         <v:String x:Key="m_RadioButton_InputMode_TextBlock_TxtList">Input txt File with List of Files</v:String>
     <v:String x:Key="m_GroupBox_OutputPaths">Output Paths</v:String>
         <v:String x:Key="m_Label_OutputFile">Output File</v:String>
