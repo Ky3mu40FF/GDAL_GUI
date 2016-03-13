@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows;
 
 namespace GDAL_GUI_New
 {
@@ -13,6 +14,7 @@ namespace GDAL_GUI_New
         private static MyTask m_CurrentTask;
         private static DataReceivedEventHandler m_DataReceivedHandler;
         private static int m_TaskCounter;
+        private static bool m_IsCurrentlySomeTaskRunning;
 
         private enum RunMode
         {
@@ -70,10 +72,17 @@ namespace GDAL_GUI_New
             m_CurrentTask = null;
             m_DataReceivedHandler = null;
             m_RunMode = RunMode.All;
+            m_IsCurrentlySomeTaskRunning = false;
         }
 
         public static void RunAll()
         {
+            if (m_IsCurrentlySomeTaskRunning)
+            {
+                MessageBox.Show("В данный момент выполняется задача №" + m_CurrentTask.GetTaskID +
+                                Environment.NewLine + "Запуск задач отменён.");
+                return;
+            }
             if (m_Tasks == null || m_Tasks.Count == 0)
             {
                 System.Windows.MessageBox.Show("Отсутствуют задачи!", "Ошибка!",
@@ -85,11 +94,20 @@ namespace GDAL_GUI_New
             m_CurrentTask = m_Tasks[0];
             m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
             m_TaskCounter++;
+            m_IsCurrentlySomeTaskRunning = true;
+            m_MainWindow.SetBordersForProgressBar(m_Tasks.Count);
+            m_MainWindow.ProgressBarValue = 0;
             Execution(m_CurrentTask);
         }
 
         public static void RunSelected(MyTask selectedTask)
         {
+            if (m_IsCurrentlySomeTaskRunning)
+            {
+                MessageBox.Show("В данный момент выполняется задача №" + m_CurrentTask.GetTaskID +
+                                Environment.NewLine + "Запуск задачи отменён.");
+                return;
+            }
             if (m_Tasks == null || m_Tasks.Count == 0)
             {
                 System.Windows.MessageBox.Show("Отсутствуют задачи!", "Ошибка!",
@@ -100,6 +118,9 @@ namespace GDAL_GUI_New
             m_RunMode = RunMode.Selected;
             m_CurrentTask = selectedTask;
             m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
+            m_IsCurrentlySomeTaskRunning = true;
+            m_MainWindow.SetBordersForProgressBar(1);
+            m_MainWindow.ProgressBarValue = 0;
             Execution(m_CurrentTask);
         }
 
@@ -107,6 +128,7 @@ namespace GDAL_GUI_New
         {
             if (task == null)
             {
+                m_IsCurrentlySomeTaskRunning = false;
                 return;
             }
             m_MainWindow.SendMessageToTextBox(Environment.NewLine + 
@@ -115,6 +137,7 @@ namespace GDAL_GUI_New
                 Environment.NewLine + "\tСформированная строка с аргументами:" + Environment.NewLine + 
                 m_CurrentTask.ParametersString + Environment.NewLine +
                 "\tВывод утилиты:");
+            m_MainWindow.StatusBarMessage = "Выполняется задача № " + task.GetTaskID;
             task.StartProcess();
         }
 
@@ -142,24 +165,33 @@ namespace GDAL_GUI_New
                 {
                     m_CurrentTask = m_Tasks[m_Tasks.IndexOf(m_CurrentTask) + 1];
                     m_CurrentTask.SubscribeOutputDataAndErrorReceivedHandler(m_DataReceivedHandler);
+                    m_MainWindow.ProgressBarValue = m_TaskCounter;
                     m_TaskCounter++;
+                    m_IsCurrentlySomeTaskRunning = true;
                     Execution(m_CurrentTask);
                 }
                 else
                 {
                     m_TaskCounter = 0;
+                    m_IsCurrentlySomeTaskRunning = false;
                     m_MainWindow.SendMessageToTextBox(Environment.NewLine + 
                         "Все задачи выполнены!" + Environment.NewLine + 
                         "Время завершения: " + DateTime.Now.ToString());
+                    m_MainWindow.StatusBarMessage = "Все задачи завершены";
+                    m_MainWindow.ProgressBarValue = m_Tasks.Count;
                 }
             }
-            else
+            else if (m_RunMode == RunMode.Selected)
             {
+                m_IsCurrentlySomeTaskRunning = false;
                 m_MainWindow.SendMessageToTextBox(Environment.NewLine +
                         "Выбранная задача выполнена!" + Environment.NewLine +
                         "Время завершения: " + DateTime.Now.ToString());
+                m_MainWindow.StatusBarMessage = "Все задачи завершены";
+                m_MainWindow.ProgressBarValue = 1.0d;
             }
         }
+
         #endregion
 
         // Обработчики событий
