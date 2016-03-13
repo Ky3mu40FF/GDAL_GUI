@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
-        Title="{DynamicResource m_TaskEditWindow_Title}" Height="138" Width="616" MinWidth="745" MinHeight="370">
+        Title="{DynamicResource m_TaskEditWindow_Title}" Height="415" Width="616" MinWidth="745" MinHeight="370">
     <Grid x:Name="Grid_TaskEditWindow">
         <Grid.RowDefinitions>
             <RowDefinition Height="17.964"/>
@@ -37,12 +37,13 @@
                             <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="13"/>
+                                        <RowDefinition Height="5"/>
                                         <RowDefinition Height="34"/>
                                         <RowDefinition Height="34"/>
                                         <RowDefinition Height="34"/>
-                                        <RowDefinition Height="34"/>
-                                        <RowDefinition Height="65"/>
+                                        <RowDefinition Height="auto" MinHeight="34"/>
+                                        <RowDefinition Height="auto" MinHeight="34"/>
+                                        <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
                                     <RadioButton x:Name="RadioButton_InputMode_OneFile" IsChecked="True" Tag="InputMode.OneFile" Grid.Row="1">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_OneFile}" />
@@ -53,8 +54,11 @@
                                     <RadioButton x:Name="RadioButton_InputMode_MultipleFilesForMultipleTasks" Grid.Row="3">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks}" />
                                     </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherUtility" Grid.Row="4">
-                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherUtility}" />
+                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherTasksForOneTask" Grid.Row="4">
+                                        <TextBlock TextWrapping="Wrap" MinHeight="34" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherTasksForOneTask}" />
+                                    </RadioButton>
+                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherTasksForMultipleTasks" Grid.Row="5">
+                                        <TextBlock TextWrapping="Wrap" MinHeight="34" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherTasksForMultipleTasks}" />
                                     </RadioButton>
                                     <!--
                                     <RadioButton x:Name="RadioButton_InputMode_TxtList" Grid.Row="4" Margin="0,0,0,64" Grid.RowSpan="2">
