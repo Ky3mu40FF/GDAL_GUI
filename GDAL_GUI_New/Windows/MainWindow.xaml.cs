@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using Gat.Controls;
@@ -23,7 +24,7 @@ namespace GDAL_GUI_New
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         // Переменные
                 #region Переменные
@@ -35,11 +36,23 @@ namespace GDAL_GUI_New
         private MyTask m_CurrentTask;
         // StringBuilder, в который будет сохраняться выходная информация от утилит
         private MyStringBuilder m_OutputStringBuilder;
+        private string m_StatusBarMessage;
+        private double m_ProgressBarValue;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        //private void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName = null)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
 
         #endregion
 
         // Конструкторы
-                #region Конструкторы
+        #region Конструкторы
 
         public MainWindow()
         {
@@ -49,6 +62,7 @@ namespace GDAL_GUI_New
             m_TasksCounter = 0;
             m_CurrentTask = null;
             m_OutputStringBuilder = new MyStringBuilder();
+            m_StatusBarMessage = String.Empty;
 
             TaskManager.InitializeProcessManager(this);
             TaskManager.SetDataReceivedHandler = OutputDataRecieved;
@@ -61,8 +75,24 @@ namespace GDAL_GUI_New
             myBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
             TextBox_OutputData.SetBinding(TextBox.TextProperty, myBinding);
 
+            Binding myBindingStatusBar = new Binding();
+            myBindingStatusBar.Path = new PropertyPath("StatusBarMessage");
+            myBindingStatusBar.Mode = BindingMode.TwoWay;
+            myBindingStatusBar.Source = this;
+            myBindingStatusBar.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            //StatusBar_Label.SetBinding(Label.ContentProperty, myBindingStatusBar);
+            StatusBar_TextBlock.SetBinding(TextBlock.TextProperty, myBindingStatusBar);
+
+            Binding myBindingProgressBar = new Binding();
+            myBindingProgressBar.Path = new PropertyPath("ProgressBarValue");
+            myBindingProgressBar.Mode = BindingMode.TwoWay;
+            myBindingProgressBar.Source = this;
+            myBindingProgressBar.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            StatusBar_ProgressBar.SetBinding(ProgressBar.ValueProperty, myBindingProgressBar);
+
             EventAndPropertiesInitialization();
         }
+
         #endregion
 
         // Свойства
@@ -89,7 +119,34 @@ namespace GDAL_GUI_New
                     m_CurrentTask = value;
             }
         }
-        
+
+        public string StatusBarMessage
+        {
+            get { return m_StatusBarMessage; }
+            set
+            {
+                if (!String.IsNullOrEmpty(value))
+                {
+                    m_StatusBarMessage = value;
+                    OnPropertyChanged("StatusBarMessage");
+                }
+                else
+                {
+                    m_StatusBarMessage = String.Empty;
+                    OnPropertyChanged("StatusBarMessage");
+                }
+            }
+        }
+
+        public double ProgressBarValue
+        {
+            get { return m_ProgressBarValue; }
+            set
+            {
+                m_ProgressBarValue = value;
+                OnPropertyChanged("ProgressBarValue");
+            }
+        }
         #endregion
 
         // Методы
@@ -201,6 +258,12 @@ namespace GDAL_GUI_New
             }
             TaskManager.TasksCollection = m_Tasks;
             TaskManager.RunSelected(task);
+        }
+
+        public void SetBordersForProgressBar(int max)
+        {
+            StatusBar_ProgressBar.Minimum = 0.0d;
+            StatusBar_ProgressBar.Maximum = max;
         }
         #endregion
 
