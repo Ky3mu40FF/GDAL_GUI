@@ -38,6 +38,8 @@ namespace GDAL_GUI_New
         private MyStringBuilder m_OutputStringBuilder;
         private string m_StatusBarMessage;
         private double m_ProgressBarValue;
+        private int m_CurrentTaskId;
+        private int m_NumOfTasksToComplete;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -63,6 +65,9 @@ namespace GDAL_GUI_New
             m_CurrentTask = null;
             m_OutputStringBuilder = new MyStringBuilder();
             m_StatusBarMessage = String.Empty;
+            //m_CurrentTaskId = 0;
+            //m_NumOfTasksToComplete = 0;
+
 
             TaskManager.InitializeProcessManager(this);
             TaskManager.SetDataReceivedHandler = OutputDataRecieved;
@@ -89,6 +94,20 @@ namespace GDAL_GUI_New
             myBindingProgressBar.Source = this;
             myBindingProgressBar.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
             StatusBar_ProgressBar.SetBinding(ProgressBar.ValueProperty, myBindingProgressBar);
+
+            Binding myBindingCurrentTaskIdTextBlock = new Binding();
+            myBindingCurrentTaskIdTextBlock.Path = new PropertyPath("StatusBarCurrentTaskId");
+            myBindingCurrentTaskIdTextBlock.Mode = BindingMode.TwoWay;
+            myBindingCurrentTaskIdTextBlock.Source = this;
+            myBindingCurrentTaskIdTextBlock.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            StatusBar_TextBlock_CurrentTaskId.SetBinding(TextBlock.TextProperty, myBindingCurrentTaskIdTextBlock);
+
+            Binding myBindingNumOfTasksToComplete = new Binding();
+            myBindingNumOfTasksToComplete.Path = new PropertyPath("StatusBarNumOfTasksToComplete");
+            myBindingNumOfTasksToComplete.Mode = BindingMode.TwoWay;
+            myBindingNumOfTasksToComplete.Source = this;
+            myBindingNumOfTasksToComplete.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            StatusBar_TextBlock_NumOfTasksToComplete.SetBinding(TextBlock.TextProperty, myBindingNumOfTasksToComplete);
 
             EventAndPropertiesInitialization();
         }
@@ -147,10 +166,30 @@ namespace GDAL_GUI_New
                 OnPropertyChanged("ProgressBarValue");
             }
         }
+
+        public int StatusBarCurrentTaskId
+        {
+            get { return m_CurrentTaskId; }
+            set
+            {
+                m_CurrentTaskId = value;
+                OnPropertyChanged("StatusBarCurrentTaskId");
+            }
+        }
+
+        public int StatusBarNumOfTasksToComplete
+        {
+            get { return m_NumOfTasksToComplete; }
+            set
+            {
+                m_NumOfTasksToComplete = value;
+                OnPropertyChanged("StatusBarNumOfTasksToComplete");
+            }
+        }
         #endregion
 
         // Методы
-                #region Методы
+        #region Методы
         // Подписка на события и другие инициализации
         private void EventAndPropertiesInitialization()
         {
