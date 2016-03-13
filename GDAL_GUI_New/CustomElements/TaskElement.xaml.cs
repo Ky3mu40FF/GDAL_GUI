@@ -148,6 +148,17 @@ namespace GDAL_GUI_New
                 }
             }
         }
+
+        public int GetTaskID
+        {
+            get { return m_TaskID; }
+        }
+
+        public MyTask GetParentTask
+        {
+            get { return m_ParentTask; }
+        }
+
         #endregion
 
         // Методы
@@ -345,23 +356,7 @@ namespace GDAL_GUI_New
         {
             TaskElement taskElement = sender as TaskElement;
 
-            if (m_SelectTaskDialogWindow.SelectedTask != null)
-            {
-                TaskElement selectedTaskElement = 
-                    m_SelectTaskDialogWindow.GetTaskElementList.FirstOrDefault(x => x.m_TaskID == m_SelectTaskDialogWindow.SelectedTask.GetTaskID);
-                selectedTaskElement.ReturnToPreviousElementState();
-                selectedTaskElement.IsCurrent = false;
-                if (taskElement.m_TaskID == selectedTaskElement.m_TaskID)
-                {
-                    m_SelectTaskDialogWindow.SelectedTask = null;
-                    return;
-                }
-            }
-
-            MyTask selectedTask = taskElement.m_ParentTask;
-            taskElement.SetTaskElementState(TaskElementState.Selected);
-            taskElement.IsCurrent = true;
-            m_SelectTaskDialogWindow.SelectedTask = selectedTask;
+            m_SelectTaskDialogWindow.SelectedTasksChanged(taskElement);
         }
 
         private void Image_SrcImagePreview_MouseEnter(object sender, RoutedEventArgs e)
