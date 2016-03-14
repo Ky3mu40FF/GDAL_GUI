@@ -207,8 +207,24 @@ namespace GDAL_GUI_New
             Menu_About.Click += Menu_About_Click;
             Menu_Help.Click += Menu_Help_Click;
 
+            this.Closing += MainWindow_Closing;
+
             m_Tasks.CollectionChanged +=
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
+        }
+
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Вы уверены, что хотите выйти?",
+                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown(0);
+            }
+            else
+            {
+                e.Cancel = true;
+            }
         }
 
         public void SendMessageToTextBox(string message)
@@ -311,7 +327,7 @@ namespace GDAL_GUI_New
         // Выход из приложения по нажатию на кнопку Выход в меню
         private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown(0);
+            this.Close();
         }
         // Добавление нового задания
         private void Menu_Edit_AddTask_Click(object sender, RoutedEventArgs e)
