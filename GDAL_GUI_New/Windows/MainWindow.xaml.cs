@@ -68,6 +68,9 @@ namespace GDAL_GUI_New
             //m_CurrentTaskId = 0;
             //m_NumOfTasksToComplete = 0;
 
+            Properties.Settings.Default.TempDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                "GDAL_GUI_TEMP_THUMBNAILS");
+            System.IO.Directory.CreateDirectory(Properties.Settings.Default.TempDirectory);
 
             TaskManager.InitializeProcessManager(this);
             TaskManager.SetDataReceivedHandler = OutputDataRecieved;
@@ -213,20 +216,6 @@ namespace GDAL_GUI_New
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Tasks_CollectionChanged);
         }
 
-        private void MainWindow_Closing(object sender, CancelEventArgs e)
-        {
-            MessageBoxResult result = MessageBox.Show("Вы уверены, что хотите выйти?",
-                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-            if (result == MessageBoxResult.Yes)
-            {
-                Application.Current.Shutdown(0);
-            }
-            else
-            {
-                e.Cancel = true;
-            }
-        }
-
         public void SendMessageToTextBox(string message)
         {
             m_OutputStringBuilder.Text =
@@ -324,6 +313,46 @@ namespace GDAL_GUI_New
 
         // Обработчики событий
         #region Обработчики событий
+        // Закрытие окна
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Вы уверены, что хотите выйти?",
+                "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
+            if (result == MessageBoxResult.Yes)
+            {
+                StackPanel_TaskElements.Children.Clear();
+                if (System.IO.Directory.Exists(Properties.Settings.Default.TempDirectory))
+                {
+                    string[] tempFiles = System.IO.Directory.GetFiles(Properties.Settings.Default.TempDirectory);
+                    foreach (string tmpFile in tempFiles)
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(tmpFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Не удалось удалить временный файл: " + tmpFile +
+                                Environment.NewLine + ex.Message);
+                        }
+                    }
+                    try
+                    {
+                        System.IO.Directory.Delete(Properties.Settings.Default.TempDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Не удалось удалить папку с временными файлами: " + 
+                            Properties.Settings.Default.TempDirectory + Environment.NewLine + ex.Message);
+                    }
+                }
+                Application.Current.Shutdown(0);
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
         // Выход из приложения по нажатию на кнопку Выход в меню
         private void Menu_File_Exit_Click(object sender, RoutedEventArgs e)
         {
@@ -339,17 +368,6 @@ namespace GDAL_GUI_New
         private void Menu_Edit_EditSelectedTask_Click(object sender, RoutedEventArgs e)
         {
             EditSelectedTask(m_CurrentTask);
-            /*
-            if (m_Tasks != null && m_Tasks.Count > 0 && m_CurrentTask != null)
-            {
-                TaskEditWindow taskEditWindow = new TaskEditWindow(this, m_CurrentTask);
-                taskEditWindow.ShowDialog();
-            }
-            else
-            {
-                MessageBox.Show("Нечего редактировать.");
-            }
-            */
         }
         // Удаление выбранной задачи
         private void Menu_Edit_RemoveSelectedTask_Click(object sender, RoutedEventArgs e)
@@ -492,10 +510,15 @@ namespace GDAL_GUI_New
                 //StackPanel_TaskElements.Children.Add(task.GetTaskElement);
                 StackPanel_TaskElements.Children.Insert(e.NewStartingIndex, task.GetTaskElement);
             }
-            else if (e.OldItems != null && e.OldItems[0] != null)
+            //else if (e.OldItems != null && e.OldItems[0] != null)
+            else if (e.OldItems != null && e.OldItems.Count > 0)
             {
-                MyTask task = e.OldItems[0] as MyTask;
-                StackPanel_TaskElements.Children.Remove(task.GetTaskElement);
+                for(int i = 0; i < e.OldItems.Count; i++)
+                {
+                    StackPanel_TaskElements.Children.Remove((e.OldItems[0] as MyTask).GetTaskElement);
+                }
+                //MyTask task = e.OldItems[0] as MyTask;
+                //StackPanel_TaskElements.Children.Remove(task.GetTaskElement);
             }
         }
         // Обработчик события Получения новых данных вывода запущенного процесса
