@@ -69,15 +69,15 @@
             <StatusBarItem Width="285" HorizontalAlignment="Right">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="222"/>
-                        <ColumnDefinition Width="23"/>
+                        <ColumnDefinition Width="202"/>
+                        <ColumnDefinition Width="36"/>
                         <ColumnDefinition Width="5"/>
-                        <ColumnDefinition Width="23"/>
+                        <ColumnDefinition Width="36"/>
                     </Grid.ColumnDefinitions>
                     <ProgressBar x:Name="StatusBar_ProgressBar" Height="16" />
-                    <TextBlock x:Name="StatusBar_TextBlock_CurrentTaskId" MinWidth="23" Width="23" Grid.Column="1" TextAlignment="Center"/>
+                    <TextBlock x:Name="StatusBar_TextBlock_CurrentTaskId" MinWidth="23" Grid.Column="1" TextAlignment="Right"/>
                     <Label x:Name="StatusBar_Label_TasksToComplete" Content="/" MinWidth="5" Padding="0" Grid.Column="2" Width="5"/>
-                    <TextBlock x:Name="StatusBar_TextBlock_NumOfTasksToComplete" MinWidth="23" Width="23" Grid.Column="3" TextAlignment="Center"/>
+                    <TextBlock x:Name="StatusBar_TextBlock_NumOfTasksToComplete" MinWidth="23" Grid.Column="3" TextAlignment="Left"/>
                 </Grid>
             </StatusBarItem>
         </StatusBar>
