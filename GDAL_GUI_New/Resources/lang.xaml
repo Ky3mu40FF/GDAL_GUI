@@ -68,6 +68,8 @@
     <v:String x:Key="m_GroupBox_Header_LanguageSelection">Language selection</v:String>
     <v:String x:Key="m_Label_ContentLanguage">Utilities and Params Info:</v:String>
     <v:String x:Key="m_Label_ProgramLanguage">Program:</v:String>
+    <v:String x:Key="m_GroupBox_ThumbnailOptions">Thumbnail Options</v:String>
+    <v:String x:Key="m_CheckBox_GenerateThumbnail">Generate Thumbnails</v:String>
     <v:String x:Key="m_Button_SaveSettings">Save</v:String>
     
     <!--Диалоговое окно выбора задачи-->
