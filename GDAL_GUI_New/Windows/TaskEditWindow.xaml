@@ -108,13 +108,14 @@
                         <RowDefinition Height="149*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="228"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition MinWidth="256"/>
+                        <ColumnDefinition Width="Auto" MinWidth="4"/>
+                        <ColumnDefinition MinWidth="256"/>
                     </Grid.ColumnDefinitions>
 
-                    <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="0" Grid.Row="0"  HorizontalAlignment="Left" Width="228" >
+                    <GroupBox x:Name="GroupBox_AvailableParameters" Header="{DynamicResource m_GroupBox_AvailableParameters}" Grid.Column="0" Grid.Row="0"  HorizontalAlignment="Stretch" >
                         <Grid>
-                            <ScrollViewer >
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible">
                                 <ListBox x:Name="ListBox_AvailableParameters" BorderBrush="{x:Null}" SelectionMode="Multiple">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="{x:Type ListBoxItem}">
@@ -125,14 +126,15 @@
                             </ScrollViewer>
                         </Grid>
                     </GroupBox>
-                    <GroupBox x:Name="GroupBox_ParameterDescription" Header="{DynamicResource m_GroupBox_ParameterDescription}" Grid.Column="0" HorizontalAlignment="Left" Width="228" Grid.Row="1">
+                    <GroupBox x:Name="GroupBox_ParameterDescription" Header="{DynamicResource m_GroupBox_ParameterDescription}" Grid.Column="0" Grid.Row="1">
                         <Grid>
                             <ScrollViewer>
                                 <TextBlock x:Name="TextBlock_ParameterDescription" Background="White" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </Grid>
                     </GroupBox>
-                    <GroupBox x:Name="GroupBox_AdditionalParameters" Header="{DynamicResource m_GroupBox_AdditionalParameters}" Grid.Column="1" Grid.RowSpan="2">
+                    <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="4" VerticalAlignment="Stretch" HorizontalAlignment="Center" />
+                    <GroupBox x:Name="GroupBox_AdditionalParameters" Header="{DynamicResource m_GroupBox_AdditionalParameters}" Grid.Column="2" Grid.RowSpan="2">
                         <Grid>
                             <ScrollViewer>
                                 <StackPanel x:Name="StackPanel_AdditionalParameters"/>
