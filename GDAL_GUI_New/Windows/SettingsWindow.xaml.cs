@@ -112,6 +112,13 @@ namespace GDAL_GUI_New
                     comboBox_ContentLanguage.SelectedItem.ToString();
             }
 
+            // Сохранение настроек создания миниатюр
+            if (checkBox_GenerateThumbnail.IsChecked != null)
+            {
+                Properties.Settings.Default.GenerateThumbnails =
+                    (bool) checkBox_GenerateThumbnail.IsChecked;
+            }
+
             // Сохранение всех изменений в настройках
             Properties.Settings.Default.Save();
             System.Windows.MessageBox.Show("Изменения сохранены!", "Успех!",
