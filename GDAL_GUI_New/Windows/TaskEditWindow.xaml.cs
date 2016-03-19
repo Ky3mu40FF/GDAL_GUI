@@ -180,7 +180,14 @@ namespace GDAL_GUI_New
             {
                 try
                 {
-                    Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0], UriKind.RelativeOrAbsolute));
+                    //Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0], UriKind.RelativeOrAbsolute));
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.UriSource = new Uri(m_ThumbnailsPaths[0]);
+                    image.EndInit();
+                    Image_Preview.Source = image;
+
                 }
                 catch (Exception ex)
                 {
@@ -1093,14 +1100,6 @@ namespace GDAL_GUI_New
             //if ((bool)m_UtilityInfo["IsThereOutput"] == true && !String.IsNullOrEmpty(m_OutputPath))
             if ((bool)m_UtilityInfo["IsThereOutput"] == true)
             {
-                /*
-                if (String.IsNullOrEmpty(m_OutputPath))
-                {
-                    MessageBox.Show("Не указан путь сохранения результата!", "Ошибка!",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    throw new Exception("");
-                }
-                */
                 // Получаем индекс параметра выходных данных
                 int dst_Position =
                 (int)m_UtilityParameters.Where(
@@ -1116,10 +1115,11 @@ namespace GDAL_GUI_New
                 else if (m_CurrentMode == InputMode.MultipleFilesForMultipleTasks ||
                          m_CurrentMode == InputMode.FromAnotherTasksForMultipleTasks)
                 {
-                    m_AllParameters[dst_Position] =
-                        m_OutputPath + "\\" +
+                    m_AllParameters[dst_Position] = "\"" + 
+                        System.IO.Path.Combine(m_OutputPath,
                         System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[index]) +
-                        "_Edited_Task_" + m_Task.GetTaskID + System.IO.Path.GetExtension(m_InputFiles[index]);
+                        "_Edited_Task_" + m_Task.GetTaskID + System.IO.Path.GetExtension(m_InputFiles[index]))
+                        + "\"";
                 }
             }
         }
@@ -1178,9 +1178,16 @@ namespace GDAL_GUI_New
             m_ThumbnailsPaths = new string[m_InputFiles.Length];
             for (int i = 0; i < m_InputFiles.Length; i++)
             {
-                m_ThumbnailsPaths[i] = System.IO.Path.GetDirectoryName(m_InputFiles[i]) + "\\" +
-                                        System.IO.Path.GetFileNameWithoutExtension(m_InputFiles[i]) +
-                                        "_thumbnail.tif";
+                //m_ThumbnailsPaths[i] = System.IO.Path.GetTempFileName();
+                while (true)
+                {
+                    m_ThumbnailsPaths[i] = System.IO.Path.Combine(Properties.Settings.Default.TempDirectory,
+                        System.IO.Path.GetRandomFileName());
+                    if (!System.IO.File.Exists(m_ThumbnailsPaths[i]))
+                    {
+                        break;
+                    }
+                }
                 GdalFunctions.MakeThumbnail(m_InputFiles[i], ref m_ThumbnailsPaths[i]);
             }
             Image_Preview.BeginInit();
@@ -1188,7 +1195,14 @@ namespace GDAL_GUI_New
             {
                 try
                 {
-                    Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0]));
+                    //Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0]));
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    image.UriSource = new Uri(m_ThumbnailsPaths[0]);
+                    image.EndInit();
+                    Image_Preview.Source = image;
                 }
                 catch (Exception ex)
                 {
@@ -1226,6 +1240,21 @@ namespace GDAL_GUI_New
             {
                 DataBaseControl.CloseConnection();
                 StackPanel_AdditionalParameters.Children.Clear();
+                if (m_ThumbnailsPaths != null && m_ThumbnailsPaths.Length > 0)
+                {
+                    for (int i = 0; i < m_ThumbnailsPaths.Length; i++)
+                    {
+                        try
+                        {
+                            File.Delete(m_ThumbnailsPaths[i]);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Не удалось удалить временный файл: " + m_ThumbnailsPaths[i] + 
+                                Environment.NewLine + ex.Message);
+                        }
+                    }
+                }
                 return;
             }
             else
@@ -1247,7 +1276,10 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
-                        MakeThumbnails();
+                        if (Properties.Settings.Default.GenerateThumbnails == true)
+                        {
+                            MakeThumbnails();
+                        }
                         TextBox_InputFile.Text = m_InputFiles[0];
                     }
                     break;
@@ -1257,7 +1289,10 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
-                        MakeThumbnails();
+                        if (Properties.Settings.Default.GenerateThumbnails == true)
+                        {
+                            MakeThumbnails();
+                        }
                         foreach (string file in m_InputFiles)
                         {
                             TextBox_InputFile.Text += file + "; ";
@@ -1270,7 +1305,10 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
-                        MakeThumbnails();
+                        if (Properties.Settings.Default.GenerateThumbnails == true)
+                        {
+                            MakeThumbnails();
+                        }
                         foreach (string file in m_InputFiles)
                         {
                             TextBox_InputFile.Text += file + "; ";
