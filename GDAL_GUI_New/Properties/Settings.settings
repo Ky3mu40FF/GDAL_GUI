@@ -17,5 +17,11 @@
     <Setting Name="ImageNotAvailableRelativePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\Resources\ImageNotAvailable.bmp</Value>
     </Setting>
+    <Setting Name="TempDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GenerateThumbnails" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

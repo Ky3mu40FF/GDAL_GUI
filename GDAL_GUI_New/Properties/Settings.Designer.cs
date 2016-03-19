@@ -82,5 +82,29 @@ namespace GDAL_GUI_New.Properties {
                 this["ImageNotAvailableRelativePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TempDirectory {
+            get {
+                return ((string)(this["TempDirectory"]));
+            }
+            set {
+                this["TempDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GenerateThumbnails {
+            get {
+                return ((bool)(this["GenerateThumbnails"]));
+            }
+            set {
+                this["GenerateThumbnails"] = value;
+            }
+        }
     }
 }
