@@ -170,7 +170,13 @@ namespace GDAL_GUI_New
             {
                 try
                 {
-                    image_SrcImagePreview.Source = new BitmapImage(new Uri(path));
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    image.UriSource = new Uri(path);
+                    image.EndInit();
+                    image_SrcImagePreview.Source = image;
                 }
                 catch (Exception ex)
                 {
