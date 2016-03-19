@@ -6,9 +6,15 @@
         xmlns:local="clr-namespace:GDAL_GUI_New"
         mc:Ignorable="d"
         xmlns:properties="clr-namespace:GDAL_GUI_New.Properties"
-        Title="{DynamicResource m_SettingsWindow_Title}" Height="297.453" Width="340.528" MinWidth="220">
+        Title="{DynamicResource m_SettingsWindow_Title}" Height="340" Width="255" MinWidth="220" MinHeight="340">
     <Grid>
-        <GroupBox x:Name="groupBox_UtilitiesPath" Header="{DynamicResource m_GroupBox_Header_UtilitiesDirectoryPath}" VerticalAlignment="Top" Height="98">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="98"/>
+            <RowDefinition Height="125"/>
+            <RowDefinition Height="48"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox x:Name="groupBox_UtilitiesPath" Header="{DynamicResource m_GroupBox_Header_UtilitiesDirectoryPath}" Grid.Row="0" VerticalAlignment="Top" Height="98">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -23,16 +29,20 @@
                 </CheckBox>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="groupBox_Language" Header="{DynamicResource m_GroupBox_Header_LanguageSelection}" VerticalAlignment="Top" Margin="0,103,0,0" Height="125">
+        <GroupBox x:Name="groupBox_Language" Header="{DynamicResource m_GroupBox_Header_LanguageSelection}" Grid.Row="1"  VerticalAlignment="Top" Height="125">
             <Grid>
                 <Label x:Name="label_ContentLanguage" Content="{DynamicResource m_Label_ContentLanguage}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <ComboBox x:Name="comboBox_ContentLanguage" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label x:Name="label_ProgramLanguage" Content="{DynamicResource m_Label_ProgramLanguage}" HorizontalAlignment="Left" Margin="0,53,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="comboBox_ProgramLanguage" HorizontalAlignment="Left" Margin="10,79,0,0" VerticalAlignment="Top" Width="120"/>
-
             </Grid>
         </GroupBox>
-        <Button x:Name="button_SaveSettings" Content="{DynamicResource m_Button_SaveSettings}" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75"/>
+        <GroupBox x:Name="groupBox_ThumbnailOptions" Header="{DynamicResource m_GroupBox_ThumbnailOptions}" Grid.Row="2">
+            <Grid>
+                <CheckBox x:Name="checkBox_GenerateThumbnail" Content="{DynamicResource m_CheckBox_GenerateThumbnail}" Margin="0,6,0,4"/>
+            </Grid>
+        </GroupBox>
+        <Button x:Name="button_SaveSettings" Content="{DynamicResource m_Button_SaveSettings}" Grid.Row="3" HorizontalAlignment="Right" Margin="0,0,10,4" VerticalAlignment="Bottom" Width="75" Height="20"/>
 
     </Grid>
 </Window>
