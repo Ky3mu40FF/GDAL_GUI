@@ -22,7 +22,15 @@ namespace GDAL_GUI_New
 
         public override string ToString()
         {
-            return this.m_Row["NameOfTheParameter"].ToString();
+            //return this.m_Row["NameOfTheParameter"].ToString();
+            if (!String.IsNullOrEmpty(this.m_Row["ParameterInput"].ToString()))
+            {
+                return "(" + this.m_Row["ParameterInput"].ToString() + ") " + this.m_Row["NameOfTheParameter"].ToString();
+            }
+            else
+            {
+                return this.m_Row["NameOfTheParameter"].ToString();
+            }
         }
     }
 }
