@@ -15,7 +15,8 @@ namespace GDAL_GUI_New
             int numOfAvailableUtilities = 0;
             try
             {
-                List<string> utilitiesInDirectory = Directory.GetFiles(path, "gdal*.exe").ToList<string>();
+                //List<string> utilitiesInDirectory = Directory.GetFiles(path, "gdal*.exe").ToList<string>();
+                List<string> utilitiesInDirectory = Directory.GetFiles(path, "*.exe").ToList<string>();
                 if (utilitiesInDirectory.Count > 0)
                 {
                     for (int i = 0; i < utilitiesInDirectory.Count; i++)
@@ -41,7 +42,8 @@ namespace GDAL_GUI_New
             List<string> availableUtilities = new List<string>();
             try
             {
-                List<string> utilitiesInDirectory = Directory.GetFiles(path, "gdal*.exe").ToList<string>();
+                //List<string> utilitiesInDirectory = Directory.GetFiles(path, "gdal*.exe").ToList<string>();
+                List<string> utilitiesInDirectory = Directory.GetFiles(path, "*.exe").ToList<string>();
                 if (utilitiesInDirectory.Count > 0)
                 {
                     for (int i = 0; i < utilitiesInDirectory.Count; i++)
