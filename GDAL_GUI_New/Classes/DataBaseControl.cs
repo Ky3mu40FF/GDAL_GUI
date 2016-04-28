@@ -18,7 +18,7 @@ namespace GDAL_GUI_New
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Resources\DB\GDAL_DB.accdb"));
 
         private static string m_OptionsTableName = "Options";
-        private static string m_OptionsTypeColumnName = "OptionsType";
+        private static string m_OptionsTypeColumnName = "OptionsTypeKey";
         private static string m_GroupsColumnName = "Group";
         private static string m_KeysColumnName = "Key";
         private static string m_ValuesColumnName = "Val";
@@ -223,6 +223,40 @@ namespace GDAL_GUI_New
             catch (Exception e)
             {
                 MessageBox.Show("Не удалось получить группы типа " + optionsType + " из таблицы " + m_OptionsTableName + "."
+                    + Environment.NewLine + e.Message);
+            }
+            finally
+            {
+                command.Dispose();
+                dataSet.Dispose();
+                adapter.Dispose();
+            }
+            return groups;
+        }
+
+        public static List<string> GetGroupsFromOptionsTypeByTypeKey(string optionsTypeKey)
+        {
+            List<string> groups = new List<string>();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = m_Connection;
+            command.CommandText =
+                "SELECT DISTINCT " + m_OptionsTableName + "." + m_GroupsColumnName +
+                " FROM " + m_OptionsTableName +
+                " WHERE " + m_OptionsTableName + "." + m_OptionsTypeColumnName + " LIKE '" + optionsTypeKey + "'";
+            DataSet dataSet = new DataSet();
+            OleDbDataAdapter adapter = new OleDbDataAdapter();
+            try
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(dataSet, m_OptionsTableName);
+                foreach (DataRow row in dataSet.Tables[m_OptionsTableName].Rows)
+                {
+                    groups.Add(row[m_GroupsColumnName].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Не удалось получить группы типа " + optionsTypeKey + " из таблицы " + m_OptionsTableName + "."
                     + Environment.NewLine + e.Message);
             }
             finally
