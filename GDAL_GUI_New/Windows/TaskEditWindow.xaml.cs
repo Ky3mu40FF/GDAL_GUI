@@ -582,8 +582,12 @@ namespace GDAL_GUI_New
 
                     // Инициализируем список с доступными группами опций
                     m_AvailableGroups = new List<string>();
+                    /*
                     m_AvailableGroups = DataBaseControl.GetGroupsFromOptionsType(
                         currentParameter.GetDataRow["NameOfTheParameter"].ToString().Split(new char[]{' '})[0]);
+                    */
+                    m_AvailableGroups = DataBaseControl.GetGroupsFromOptionsTypeByTypeKey(
+                        currentParameter.GetDataRow["ParameterInput"].ToString());
                     // Создаём столбец для DataGrid, в основе которого будет ComboBox
                     DataGridTemplateColumn dataGridComboBoxTemplateColumnGroup = new DataGridTemplateColumn()
                     {
