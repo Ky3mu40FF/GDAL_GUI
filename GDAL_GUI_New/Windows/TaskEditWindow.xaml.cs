@@ -50,19 +50,19 @@ namespace GDAL_GUI_New
         // диалог-предупреждение, что изменения не будут сохранены
         private bool m_IsThisTaskAdded;
         private string[] m_InputFiles;
+        //private List<string> m_InputFilesL;
         private string[] m_ThumbnailsPaths;
         private string m_OutputPath;
         private string m_FormedParametersArgument;
         private Process m_ProcessForVersion;
         private Version m_UtilityVersion;
-        private enum InputMode
+        public enum InputMode
         {
             OneFile,
             MultipleFilesForOneTask,
             MultipleFilesForMultipleTasks,
             FromAnotherTasksForOneTask,
             FromAnotherTasksForMultipleTasks
-            //TxtList
         };
         private InputMode m_CurrentMode;
         private List<DataTable> m_AdditionalParametersInputs;
@@ -85,10 +85,12 @@ namespace GDAL_GUI_New
 
         private string m_InputFilter =
                 "TIFF/GeoTIFF Files (*.tiff;*.tif)|*.tiff;*.tif|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
-                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|All Files (*.*)|*.*";
+                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|VRT Files (*.vrt)|*.vrt|All Files (*.*)|*.*";
         private string m_OutputFilter =
                 "TIFF/GeoTIFF Files (*.tif)|*.tif|JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|" +
-                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|Other Files (*.*)|*.*";
+                "GIF Files (*.gif)|*.gif|IMG Files (*.img)|*.img|ESRI/ENVI/GenBin (*.hdr)|*.hdr|VRT Files (*.vrt)|*.vrt|Other Files (*.*)|*.*";
+
+        private Dictionary<InputMode, string> m_InputModeChoices;
         #endregion
 
         // Конструкторы
@@ -107,6 +109,7 @@ namespace GDAL_GUI_New
             m_FormedParametersArgument = String.Empty;
             m_AdditionalParametersInputs = new List<DataTable>();
             m_TaskEditWindowMode = TaskEditWindowMode.NewTask;
+            m_InputModeChoices = new Dictionary<InputMode, string>();
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -134,7 +137,7 @@ namespace GDAL_GUI_New
             m_FormedParametersArgument = String.Empty;
             m_AdditionalParametersInputs = new List<DataTable>();
             m_TaskEditWindowMode = TaskEditWindowMode.EditingExistingTask;
-            
+            m_InputModeChoices = new Dictionary<InputMode, string>();
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -146,67 +149,9 @@ namespace GDAL_GUI_New
 
             EventAndPropertiesInitialization();
             ConnectToDbAndGetNecessaryData();
-
-            // Восстановление предыдущего состояния окна
-            m_InputFiles = new string[1];
-            m_ThumbnailsPaths = new string[1];
-            ComboBox_UtilitiesNames.SelectedItem = m_Task.UtilityName;
-            m_UtilityParameters = m_Task.ParametersList;
-            ListBox_AvailableParameters.ItemsSource =
-                m_UtilityParameters.Where(x => (bool)x.GetDataRow["MustBeInAvailableParametersList"] == true);
-            foreach (MyDataRow selectedParam in m_Task.SelectedParametersList)
-            {
-                if (m_UtilityParameters.Contains(selectedParam))
-                {
-                    ListBox_AvailableParameters.SelectedItems.Add(selectedParam);
-                }
-            }
-            StackPanel_AdditionalParameters.Children.Clear();
-            foreach (GroupBox gB in m_Task.AdditionalParameters)
-            {
-                StackPanel_AdditionalParameters.Children.Add(gB);
-            }
-            m_AdditionalParametersInputs = m_Task.AdditionalParametersInputs;
-            m_InputFiles[0] = m_Task.SrcFileName;
-            TextBox_InputFile.Text = m_InputFiles[0];
-            m_OutputPath = m_Task.OutputPath;
-            TextBox_OutputFile.Text = m_OutputPath;
-            this.SetResourceReference(Window.TitleProperty, "m_TaskEditWindow_Title_EditMode");
-            (this.menu.Items[0] as System.Windows.Controls.MenuItem).
-                SetResourceReference(System.Windows.Controls.MenuItem.HeaderProperty, "m_TaskEdit_Menu_AddTask_EditMode");
-            this.Title += m_Task.GetTaskID;
-            m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
-            if (!String.IsNullOrEmpty(m_ThumbnailsPaths[0]))
-            {
-                try
-                {
-                    //Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0], UriKind.RelativeOrAbsolute));
-                    BitmapImage image = new BitmapImage();
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.UriSource = new Uri(m_ThumbnailsPaths[0]);
-                    image.EndInit();
-                    Image_Preview.Source = image;
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Не удалось загрузить миниатюру", "Информация",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                    Image_Preview.Source = 
-                        new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
-                            UriKind.Relative)); ;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Отсутствует миниатуюра.", "Информация",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                Image_Preview.Source =
-                    new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
-                        UriKind.Relative));
-            }
+            RestorePreviousStateOfTask();
         }
+
 
         #endregion
 
@@ -242,24 +187,17 @@ namespace GDAL_GUI_New
                 TaskEdit_Menu_AddTask_Click;
             TaskEdit_Menu_Exit.Click += 
                 TaskEdit_Menu_ExitWithoutAdding_Click;
-            //TaskEdit_Menu_ManualInput.Click += 
-            //    new RoutedEventHandler(TaskEdit_Menu_InputParametersManually_Click);
             ComboBox_UtilitiesNames.SelectionChanged += 
                 ComboBox_UtilitiesNames_SelectionChanged;
-            RadioButton_InputMode_OneFile.Checked +=
-                RadioButton_InputMode_Checked;
-            RadioButton_InputMode_MultipleFilesForOneTask.Checked +=
-                RadioButton_InputMode_Checked;
-            RadioButton_InputMode_MultipleFilesForMultipleTasks.Checked +=
-                RadioButton_InputMode_Checked;
-            RadioButton_InputMode_FromAnotherTasksForOneTask.Checked +=
-                RadioButton_InputMode_Checked;
-            RadioButton_InputMode_FromAnotherTasksForMultipleTasks.Checked +=
-                RadioButton_InputMode_Checked;
-            //RadioButton_InputMode_TxtList.Checked +=
-            //    new RoutedEventHandler(RadioButton_InputMode_Checked);
             ListBox_AvailableParameters.SelectionChanged +=
                 new SelectionChangedEventHandler(ListBox_AvailableParameters_SelectionChanged);
+            ComboBox_InputOptions.SelectionChanged +=
+                ComboBox_InputOptions_SelectionChanged;
+            Button_FileList_MoveUp.Click +=
+                Button_FileList_MoveUp_Click;
+            Button_FileList_MoveDown.Click +=
+                Button_FileList_MoveDown_Click;
+
 
             Binding outputBinding = new Binding()
             {
@@ -271,11 +209,18 @@ namespace GDAL_GUI_New
             TextBox_OutputFile.SetBinding(TextBox.TextProperty, outputBinding);
 
             // Дополнительная инициализация параметров объектов
-            RadioButton_InputMode_OneFile.Tag = InputMode.OneFile;
-            RadioButton_InputMode_MultipleFilesForOneTask.Tag = InputMode.MultipleFilesForOneTask;
-            RadioButton_InputMode_MultipleFilesForMultipleTasks.Tag = InputMode.MultipleFilesForMultipleTasks;
-            RadioButton_InputMode_FromAnotherTasksForOneTask.Tag = InputMode.FromAnotherTasksForOneTask;
-            RadioButton_InputMode_FromAnotherTasksForMultipleTasks.Tag = InputMode.FromAnotherTasksForMultipleTasks;
+            m_InputModeChoices.Add(InputMode.OneFile,
+                FindResource("m_RadioButton_InputMode_TextBlock_OneFile").ToString());
+            m_InputModeChoices.Add(InputMode.MultipleFilesForOneTask,
+                FindResource("m_RadioButton_InputMode_TextBlock_MultipleFilesForOneTask").ToString());
+            m_InputModeChoices.Add(InputMode.MultipleFilesForMultipleTasks,
+                FindResource("m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks").ToString());
+            m_InputModeChoices.Add(InputMode.FromAnotherTasksForOneTask,
+                FindResource("m_RadioButton_InputMode_TextBlock_FromAnotherTasksForOneTask").ToString());
+            m_InputModeChoices.Add(InputMode.FromAnotherTasksForMultipleTasks,
+                FindResource("m_RadioButton_InputMode_TextBlock_FromAnotherTasksForMultipleTasks").ToString());
+            ComboBox_InputOptions.ItemsSource = m_InputModeChoices;
+            ComboBox_InputOptions.SelectedIndex = 0;
         }
 
         // Подключение к базе данных и получение доступных утилит 
@@ -900,7 +845,7 @@ namespace GDAL_GUI_New
                         {
                             // Получаем таблицу, в которой хранятся введённые доп. параметры
                             DataTable tableWithInputedParameters =
-                                m_AdditionalParametersInputs.Where(x => x.TableName == parameter.ToString()).First();
+                                m_AdditionalParametersInputs.Where(x => x.TableName == parameter.GetDataRow["NameOfTheParameter"].ToString()).First();
                             // Формируем шаблон регулярных выражений, чтобы корректно 
                             // вставлять данные 
                             // (чтобы корректно отличать обычные параметры, вроде src_min от 
@@ -1035,7 +980,7 @@ namespace GDAL_GUI_New
                     {
                         // Получаем таблицу, в которой хранятся введённые доп. параметры
                         DataTable tableWithInputedParameters =
-                            m_AdditionalParametersInputs.Where(x => x.TableName == parameter.ToString()).First();
+                            m_AdditionalParametersInputs.Where(x => x.TableName == parameter.GetDataRow["NameOfTheParameter"].ToString()).First();
                         // Формируем шаблон регулярных выражений, чтобы корректно 
                         // вставлять данные 
                         // (чтобы корректно отличать обычные параметры, вроде src_min от 
@@ -1088,12 +1033,16 @@ namespace GDAL_GUI_New
                 int src_Position =
                 (int)m_UtilityParameters.Where(
                     x => x.GetDataRow["NameOfTheParameter"].ToString() == "src_dataset").First().GetDataRow["PositionIndex"];
-                // Добавляем путь
-                //m_AllParameters[src_Position] = m_InputFiles[index];
+
+                string buffer = String.Empty;
                 if (m_CurrentMode == InputMode.MultipleFilesForOneTask ||
                     m_CurrentMode == InputMode.FromAnotherTasksForOneTask)
                 {
-                    m_AllParameters[src_Position] = m_InputFiles[index];
+                    foreach (string name in m_InputFiles)
+                    {
+                        buffer += "\"" + name + "\" ";
+                    }
+                    m_AllParameters[src_Position] = buffer;
                 }
                 else
                 {
@@ -1226,10 +1175,98 @@ namespace GDAL_GUI_New
             Image_Preview.EndInit();
         }
 
+        private void MoveFileInListBox(int direction)
+        {
+            // Checking selected item
+            if (ListBox_SelectedFiles.SelectedItem == null || ListBox_SelectedFiles.SelectedIndex < 0)
+                return; // No selected item - nothing to do
+
+            // Calculate new index using move direction
+            int newIndex = ListBox_SelectedFiles.SelectedIndex + direction;
+
+            // Checking bounds of the range
+            if (newIndex < 0 || newIndex >= ListBox_SelectedFiles.Items.Count)
+                return; // Index out of range - nothing to do
+
+            object selected = ListBox_SelectedFiles.SelectedItem;
+
+            // Removing removable element
+            ListBox_SelectedFiles.Items.Remove(selected);
+            // Insert it in new position
+            ListBox_SelectedFiles.Items.Insert(newIndex, selected);
+            // Restore selection
+            ListBox_SelectedFiles.SelectedItem = ListBox_SelectedFiles.Items[newIndex];
+        }
+
+        private void RestorePreviousStateOfTask()
+        {
+            // Восстановление предыдущего состояния окна
+            m_ThumbnailsPaths = new string[1];
+            ComboBox_UtilitiesNames.SelectedItem = m_Task.UtilityName;
+            m_UtilityParameters = m_Task.ParametersList;
+            ListBox_AvailableParameters.ItemsSource =
+                m_UtilityParameters.Where(x => (bool)x.GetDataRow["MustBeInAvailableParametersList"] == true);
+            foreach (MyDataRow selectedParam in m_Task.SelectedParametersList)
+            {
+                if (m_UtilityParameters.Contains(selectedParam))
+                {
+                    ListBox_AvailableParameters.SelectedItems.Add(selectedParam);
+                }
+            }
+            StackPanel_AdditionalParameters.Children.Clear();
+            foreach (GroupBox gB in m_Task.AdditionalParameters)
+            {
+                StackPanel_AdditionalParameters.Children.Add(gB);
+            }
+            m_AdditionalParametersInputs = m_Task.AdditionalParametersInputs;
+            m_InputFiles = m_Task.InputFilesArray;
+            foreach (string file in m_InputFiles)
+            {
+                TextBox_InputFile.Text += file + " ";
+            }
+            m_OutputPath = m_Task.OutputPath.Replace("\"", "");
+            TextBox_OutputFile.Text = m_OutputPath;
+            this.SetResourceReference(Window.TitleProperty, "m_TaskEditWindow_Title_EditMode");
+            (this.menu.Items[0] as System.Windows.Controls.MenuItem).
+                SetResourceReference(System.Windows.Controls.MenuItem.HeaderProperty, "m_TaskEdit_Menu_AddTask_EditMode");
+            this.Title += m_Task.GetTaskID;
+            m_ThumbnailsPaths[0] = m_Task.ThumbnailPath;
+            if (!String.IsNullOrEmpty(m_ThumbnailsPaths[0]))
+            {
+                try
+                {
+                    //Image_Preview.Source = new BitmapImage(new Uri(m_ThumbnailsPaths[0], UriKind.RelativeOrAbsolute));
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.UriSource = new Uri(m_ThumbnailsPaths[0]);
+                    image.EndInit();
+                    Image_Preview.Source = image;
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Не удалось загрузить миниатюру", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    Image_Preview.Source =
+                        new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
+                            UriKind.Relative)); ;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Отсутствует миниатуюра.", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                Image_Preview.Source =
+                    new BitmapImage(new Uri(Properties.Settings.Default.ImageNotAvailableRelativePath,
+                        UriKind.Relative));
+            }
+        }
+
         #endregion
 
         // Обработчики событий
-            #region Обработчики событий
+        #region Обработчики событий
 
         private void ThisWindow_Closing(object sender, CancelEventArgs e)
         {
@@ -1280,6 +1317,11 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
+                        ListBox_SelectedFiles.Items.Clear();
+                        foreach (string fileName in m_InputFiles)
+                        {
+                            ListBox_SelectedFiles.Items.Add(fileName);
+                        }
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1293,6 +1335,11 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
+                        ListBox_SelectedFiles.Items.Clear();
+                        foreach (string fileName in m_InputFiles)
+                        {
+                            ListBox_SelectedFiles.Items.Add(fileName);
+                        }
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1309,6 +1356,11 @@ namespace GDAL_GUI_New
                     if (openFileDialog.ShowDialog() == true)
                     {
                         m_InputFiles = openFileDialog.FileNames;
+                        ListBox_SelectedFiles.Items.Clear();
+                        foreach (string fileName in m_InputFiles)
+                        {
+                            ListBox_SelectedFiles.Items.Add(fileName);
+                        }
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1409,23 +1461,24 @@ namespace GDAL_GUI_New
                     throw new Exception("");
                 }
 
-                ParametersArgumentForming();
-                if (m_CurrentMode == InputMode.MultipleFilesForOneTask ||
-                    m_CurrentMode == InputMode.FromAnotherTasksForOneTask)
+                int numOfFormingUtilities = 0;
+                if (m_CurrentMode == InputMode.OneFile ||
+                    m_CurrentMode == InputMode.FromAnotherTasksForOneTask ||
+                    m_CurrentMode == InputMode.MultipleFilesForOneTask)
                 {
-                    string buffer = String.Empty;
-                    foreach (string name in m_InputFiles)
-                    {
-                        buffer += "\"" + name + "\" ";
-                    }
-                    m_InputFiles = new string[1];
-                    m_InputFiles[0] = buffer;
+                    numOfFormingUtilities = 1;
                 }
-                for (int i = 0; i < m_InputFiles.Length; i++)
+                else
+                {
+                    numOfFormingUtilities = m_InputFiles.Length;
+                }
+                
+                ParametersArgumentForming();
+                
+                for (int i = 0; i < numOfFormingUtilities; i++)
                 {
                     InputAndOutputToParametersArgumentString(i);
                     CompleteParametersArgumentString();
-                    //MessageBox.Show(m_FormedParametersArgument);
                     MakeTask(i);
 
                     // Процесс сохранения всех выбранных параметров и т.п. на случай,
@@ -1435,9 +1488,9 @@ namespace GDAL_GUI_New
                     ListBox_AvailableParameters.SelectedItems.CopyTo(m_Task.SelectedParametersList, 0);
                     m_Task.AdditionalParameters = new GroupBox[StackPanel_AdditionalParameters.Children.Count];
                     StackPanel_AdditionalParameters.Children.CopyTo(m_Task.AdditionalParameters, 0);
-                    //StackPanel_AdditionalParameters.Children.Clear();
-                    //m_Task.OutputPath = m_OutputPath;
                     m_Task.AdditionalParametersInputs = m_AdditionalParametersInputs;
+                    m_Task.CurrentInputMode = m_CurrentMode;
+                    m_Task.InputFilesArray = m_InputFiles;
 
                     if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
                     {
@@ -1445,7 +1498,6 @@ namespace GDAL_GUI_New
                     }
                     else if (m_TaskEditWindowMode == TaskEditWindowMode.EditingExistingTask)
                     {
-                        //MessageBox.Show("Типа отредактировано");
                         m_MainWindow.ReplaceEditedTask(m_Task);
                     }
                 }
@@ -1467,11 +1519,6 @@ namespace GDAL_GUI_New
         private void TaskEdit_Menu_ExitWithoutAdding_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void TaskEdit_Menu_InputParametersManually_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Заглушка. AddParametersManually");
         }
 
         // При смене утилиты определяется её версия, 
@@ -1519,14 +1566,24 @@ namespace GDAL_GUI_New
             GroupBox_OutputPaths.IsEnabled = (bool)m_UtilityInfo["IsThereOutput"];
         }
 
-        // Меняет режим выбора входного файла при выборе одного из RadioButton
-        private void RadioButton_InputMode_Checked(object sender, RoutedEventArgs e)
+        // Меняет режим выбора входного файла
+        private void ComboBox_InputOptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            RadioButton rB = sender as RadioButton;
-            if (rB.Tag != null & rB.IsChecked == true)
+            ComboBox cB = sender as ComboBox;
+            if (cB.SelectedIndex >= 0)
             {
-                m_CurrentMode = (InputMode) rB.Tag;
+                m_CurrentMode = (InputMode) cB.SelectedValue;
             }
+        }
+
+        private void Button_FileList_MoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            MoveFileInListBox(-1);
+        }
+
+        private void Button_FileList_MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            MoveFileInListBox(1);
         }
 
         // При выборе параметра из ListBox проверяется наличие у него дополнительных параметров.
