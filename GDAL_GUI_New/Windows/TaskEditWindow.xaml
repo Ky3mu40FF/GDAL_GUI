@@ -31,40 +31,52 @@
                     </Grid.ColumnDefinitions>
                     <GroupBox x:Name="GroupBox_InputPaths" Header="{DynamicResource m_GroupBox_InputPaths}" Grid.Column="1">
                         <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="57*"/>
+                                <RowDefinition Height="101*"/>
+                            </Grid.RowDefinitions>
                             <Label x:Name="Label_InputFile" Content="{DynamicResource m_Label_InputFile}" VerticalAlignment="Top" Height="26" />
                             <TextBox x:Name="TextBox_InputFile" IsReadOnly="True" HorizontalAlignment="Stretch" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,26,75,0"/>
                             <Button x:Name="Button_BrowseInputFile" Content="{DynamicResource m_Button_BrowseInputFile}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Height="23" Margin="0,26,0,0"/>
-                            <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0">
+                            <GroupBox x:Name="GroupBox_InputOptions" Header="{DynamicResource m_GroupBox_InputOptions}" Margin="0,54,1,0" VerticalAlignment="Top" Height="60">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="5"/>
-                                        <RowDefinition Height="34"/>
-                                        <RowDefinition Height="34"/>
-                                        <RowDefinition Height="34"/>
-                                        <RowDefinition Height="auto" MinHeight="34"/>
-                                        <RowDefinition Height="auto" MinHeight="34"/>
-                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="1"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition />
                                     </Grid.RowDefinitions>
-                                    <RadioButton x:Name="RadioButton_InputMode_OneFile" IsChecked="True" Tag="InputMode.OneFile" Grid.Row="1">
-                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_OneFile}" />
-                                    </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFilesForOneTask" Grid.Row="2">
-                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFilesForOneTask}" />
-                                    </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_MultipleFilesForMultipleTasks" Grid.Row="3">
-                                        <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_MultipleFilesForMultipleTasks}" />
-                                    </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherTasksForOneTask" Grid.Row="4">
-                                        <TextBlock TextWrapping="Wrap" MinHeight="34" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherTasksForOneTask}" />
-                                    </RadioButton>
-                                    <RadioButton x:Name="RadioButton_InputMode_FromAnotherTasksForMultipleTasks" Grid.Row="5">
-                                        <TextBlock TextWrapping="Wrap" MinHeight="34" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_FromAnotherTasksForMultipleTasks}" />
-                                    </RadioButton>
+
+                                    <ComboBox x:Name="ComboBox_InputOptions" Grid.Row="1" SelectedValuePath="Key" DisplayMemberPath="Value" Margin="0,5,0,3" VerticalAlignment="Center" Height="22"/>
                                     <!--
                                     <RadioButton x:Name="RadioButton_InputMode_TxtList" Grid.Row="4" Margin="0,0,0,64" Grid.RowSpan="2">
                                         <TextBlock TextWrapping="Wrap" Text="{DynamicResource m_RadioButton_InputMode_TextBlock_TxtList}" />
                                     </RadioButton>
                                     -->
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox x:Name="GroupBox_SelectedFiles" Header="Selected Files" Grid.Row="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="90"/>
+                                        <RowDefinition Height="90"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="32"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ListBox x:Name="ListBox_SelectedFiles" Grid.RowSpan="2" />
+                                    <Button x:Name="Button_FileList_MoveUp" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="/GDAL_GUI_New;component/Resources/Icons/MoveItemUp.ico"/>
+                                        </Button.Background>
+
+                                    </Button>
+                                    <Button x:Name="Button_FileList_MoveDown" Content="" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Grid.Row="1">
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="/GDAL_GUI_New;component/Resources/Icons/MoveItemDown.ico"/>
+                                        </Button.Background>
+
+                                    </Button>
                                 </Grid>
                             </GroupBox>
                         </Grid>
