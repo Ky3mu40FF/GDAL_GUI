@@ -60,6 +60,8 @@ namespace GDAL_GUI_New
         private MyDataRow[] m_SelectedParametersList;
         private GroupBox[] m_AdditionalParameters;
         private List<DataTable> m_AdditionalParametersInputs;
+        private TaskEditWindow.InputMode m_CurrentMode;
+        private string[] m_InputFiles;
 
         public string OutputPath
         {
@@ -95,6 +97,16 @@ namespace GDAL_GUI_New
         {
             get { return m_AdditionalParametersInputs; }
             set { m_AdditionalParametersInputs = value; }
+        }
+        public TaskEditWindow.InputMode CurrentInputMode
+        {
+            get { return m_CurrentMode; }
+            set { m_CurrentMode = value; }
+        }
+        public string[] InputFilesArray
+        {
+            get { return m_InputFiles; }
+            set { m_InputFiles = value; }
         }
 
         #endregion
