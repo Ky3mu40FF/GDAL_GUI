@@ -15,4 +15,6 @@
     <Image x:Key="m_TaskElement_ContextMenu_RemoveTask_Icon" Source="../Resources/Icons/RemoveSelectedTask.ico"/>
     <Image x:Key="m_TaskElement_ContextMenu_RunTask_Icon" Source="../Resources/Icons/RunSelected.ico"/>
     
+    <Image x:Key="m_OpenedFilesList_Button_MoveUp" Source="../Resources/Icons/MoveItemUp"/>
+    <Image x:Key="m_OpenedFilesList_Button_MoveDown" Source="../Resources/Icons/MoveItemDown"/>
 </ResourceDictionary>
