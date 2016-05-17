@@ -61,7 +61,7 @@ namespace GDAL_GUI_New
         private GroupBox[] m_AdditionalParameters;
         private List<DataTable> m_AdditionalParametersInputs;
         private TaskEditWindow.InputMode m_CurrentMode;
-        private string[] m_InputFiles;
+        private List<string> m_InputFilesList;
 
         public string OutputPath
         {
@@ -103,10 +103,10 @@ namespace GDAL_GUI_New
             get { return m_CurrentMode; }
             set { m_CurrentMode = value; }
         }
-        public string[] InputFilesArray
+        public List<string> InputFilesList
         {
-            get { return m_InputFiles; }
-            set { m_InputFiles = value; }
+            get { return m_InputFilesList; }
+            set { m_InputFilesList = value; }
         }
 
         #endregion
