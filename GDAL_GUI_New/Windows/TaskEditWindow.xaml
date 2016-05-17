@@ -54,7 +54,7 @@
                                     -->
                                 </Grid>
                             </GroupBox>
-                            <GroupBox x:Name="GroupBox_SelectedFiles" Header="Selected Files" Grid.Row="1">
+                            <GroupBox x:Name="GroupBox_SelectedFiles" Header="{DynamicResource m_InputMode_GroupBox_SelectedFiles}" Grid.Row="1">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="90"/>
