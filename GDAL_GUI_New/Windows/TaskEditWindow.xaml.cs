@@ -49,8 +49,8 @@ namespace GDAL_GUI_New
         // Этот флаг используется при закрытии данного окна, чтобы выводить/не выводить 
         // диалог-предупреждение, что изменения не будут сохранены
         private bool m_IsThisTaskAdded;
-        private string[] m_InputFiles;
-        //private List<string> m_InputFilesL;
+        //private string[] m_InputFiles;
+        private List<string> m_InputFiles;
         private string[] m_ThumbnailsPaths;
         private string m_OutputPath;
         private string m_FormedParametersArgument;
@@ -110,6 +110,7 @@ namespace GDAL_GUI_New
             m_AdditionalParametersInputs = new List<DataTable>();
             m_TaskEditWindowMode = TaskEditWindowMode.NewTask;
             m_InputModeChoices = new Dictionary<InputMode, string>();
+            m_InputFiles = new List<string>();
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -138,6 +139,7 @@ namespace GDAL_GUI_New
             m_AdditionalParametersInputs = new List<DataTable>();
             m_TaskEditWindowMode = TaskEditWindowMode.EditingExistingTask;
             m_InputModeChoices = new Dictionary<InputMode, string>();
+            m_InputFiles = new List<string>();
 
             // Инициализируем экземпляр процесса, чтобы узнавать версии утилит
             m_ProcessForVersion = new Process();
@@ -1128,8 +1130,8 @@ namespace GDAL_GUI_New
 
         private void MakeThumbnails()
         {
-            m_ThumbnailsPaths = new string[m_InputFiles.Length];
-            for (int i = 0; i < m_InputFiles.Length; i++)
+            m_ThumbnailsPaths = new string[m_InputFiles.Count];
+            for (int i = 0; i < m_InputFiles.Count; i++)
             {
                 //m_ThumbnailsPaths[i] = System.IO.Path.GetTempFileName();
                 while (true)
@@ -1181,6 +1183,9 @@ namespace GDAL_GUI_New
             if (ListBox_SelectedFiles.SelectedItem == null || ListBox_SelectedFiles.SelectedIndex < 0)
                 return; // No selected item - nothing to do
 
+            if (!m_InputFiles.Contains(ListBox_SelectedFiles.SelectedItem))
+                return;
+
             // Calculate new index using move direction
             int newIndex = ListBox_SelectedFiles.SelectedIndex + direction;
 
@@ -1191,11 +1196,15 @@ namespace GDAL_GUI_New
             object selected = ListBox_SelectedFiles.SelectedItem;
 
             // Removing removable element
-            ListBox_SelectedFiles.Items.Remove(selected);
+            //ListBox_SelectedFiles.Items.Remove(selected);
+            m_InputFiles.Remove(selected.ToString());
             // Insert it in new position
-            ListBox_SelectedFiles.Items.Insert(newIndex, selected);
+            //ListBox_SelectedFiles.Items.Insert(newIndex, selected);
+            m_InputFiles.Insert(newIndex, selected.ToString());
+            ListBox_SelectedFiles.Items.Refresh();
             // Restore selection
-            ListBox_SelectedFiles.SelectedItem = ListBox_SelectedFiles.Items[newIndex];
+            //ListBox_SelectedFiles.SelectedItem = ListBox_SelectedFiles.Items[newIndex];
+            ListBox_SelectedFiles.SelectedItem = m_InputFiles[newIndex];
         }
 
         private void RestorePreviousStateOfTask()
@@ -1219,7 +1228,7 @@ namespace GDAL_GUI_New
                 StackPanel_AdditionalParameters.Children.Add(gB);
             }
             m_AdditionalParametersInputs = m_Task.AdditionalParametersInputs;
-            m_InputFiles = m_Task.InputFilesArray;
+            m_InputFiles = m_Task.InputFilesList;
             foreach (string file in m_InputFiles)
             {
                 TextBox_InputFile.Text += file + " ";
@@ -1316,12 +1325,15 @@ namespace GDAL_GUI_New
                     openFileDialog.CheckPathExists = true;
                     if (openFileDialog.ShowDialog() == true)
                     {
-                        m_InputFiles = openFileDialog.FileNames;
+                        m_InputFiles.AddRange(openFileDialog.FileNames);
                         ListBox_SelectedFiles.Items.Clear();
+                        ListBox_SelectedFiles.ItemsSource = m_InputFiles;
+                        /*
                         foreach (string fileName in m_InputFiles)
                         {
                             ListBox_SelectedFiles.Items.Add(fileName);
                         }
+                        */
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1334,12 +1346,15 @@ namespace GDAL_GUI_New
                     openFileDialog.CheckPathExists = true;
                     if (openFileDialog.ShowDialog() == true)
                     {
-                        m_InputFiles = openFileDialog.FileNames;
+                        m_InputFiles.AddRange(openFileDialog.FileNames);
                         ListBox_SelectedFiles.Items.Clear();
+                        ListBox_SelectedFiles.ItemsSource = m_InputFiles;
+                        /*
                         foreach (string fileName in m_InputFiles)
                         {
                             ListBox_SelectedFiles.Items.Add(fileName);
                         }
+                        */
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1355,12 +1370,15 @@ namespace GDAL_GUI_New
                     openFileDialog.CheckPathExists = true;
                     if (openFileDialog.ShowDialog() == true)
                     {
-                        m_InputFiles = openFileDialog.FileNames;
+                        m_InputFiles.AddRange(openFileDialog.FileNames);
                         ListBox_SelectedFiles.Items.Clear();
+                        ListBox_SelectedFiles.ItemsSource = m_InputFiles;
+                        /*
                         foreach (string fileName in m_InputFiles)
                         {
                             ListBox_SelectedFiles.Items.Add(fileName);
                         }
+                        */
                         if (Properties.Settings.Default.GenerateThumbnails == true)
                         {
                             MakeThumbnails();
@@ -1374,21 +1392,29 @@ namespace GDAL_GUI_New
                 case InputMode.FromAnotherTasksForOneTask:
                     if (selectTaskDialogWindow.ShowDialog() == true)
                     {
-                        m_InputFiles = selectTaskDialogWindow.FileNames;
-                        foreach (string file in m_InputFiles)
+                        m_InputFiles.AddRange(selectTaskDialogWindow.FileNames);
+                        ListBox_SelectedFiles.Items.Clear();
+                        ListBox_SelectedFiles.ItemsSource = m_InputFiles;
+                        /*
+                        foreach (string fileName in m_InputFiles)
                         {
-                            TextBox_InputFile.Text += file + "; ";
+                            ListBox_SelectedFiles.Items.Add(fileName);
                         }
+                        */
                     }
                     break;
                 case InputMode.FromAnotherTasksForMultipleTasks:
                     if (selectTaskDialogWindow.ShowDialog() == true)
                     {
-                        m_InputFiles = selectTaskDialogWindow.FileNames;
-                        foreach (string file in m_InputFiles)
+                        m_InputFiles.AddRange(selectTaskDialogWindow.FileNames);
+                        ListBox_SelectedFiles.Items.Clear();
+                        ListBox_SelectedFiles.ItemsSource = m_InputFiles;
+                        /*
+                        foreach (string fileName in m_InputFiles)
                         {
-                            TextBox_InputFile.Text += file + "; ";
+                            ListBox_SelectedFiles.Items.Add(fileName);
                         }
+                        */
                     }
                     break;
             }
@@ -1470,7 +1496,7 @@ namespace GDAL_GUI_New
                 }
                 else
                 {
-                    numOfFormingUtilities = m_InputFiles.Length;
+                    numOfFormingUtilities = m_InputFiles.Count;
                 }
                 
                 ParametersArgumentForming();
@@ -1490,7 +1516,7 @@ namespace GDAL_GUI_New
                     StackPanel_AdditionalParameters.Children.CopyTo(m_Task.AdditionalParameters, 0);
                     m_Task.AdditionalParametersInputs = m_AdditionalParametersInputs;
                     m_Task.CurrentInputMode = m_CurrentMode;
-                    m_Task.InputFilesArray = m_InputFiles;
+                    m_Task.InputFilesList = m_InputFiles;
 
                     if (m_TaskEditWindowMode == TaskEditWindowMode.NewTask)
                     {
